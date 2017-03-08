@@ -2,11 +2,14 @@
 #devo tirar os spaces todos nas tags?
 #ideia: usar css do museu da Pessoa
 #ideia: ordenar por data
+#falta: por prefixo das fotos
 #falta: listar lugares sem repeticoes
 #ideia: para cada local, fazer pagina com as fotos desse local
+#fazer: no relatorio, identificar assumpcoes adotadas, principalmente aos locais
+##simpflificar, agregar padroes repetidos
 
 BEGIN             { RS = "<foto"
-                    print "<!DOCTYPE html>\n<html>\n<head>\n<title>Catálogo</title>\n</head>\n<body>\n<ul>" > "catalogo.html"
+                    print "<!DOCTYPE html>\n<html>\n<head>\n<meta charset=\"UTF-8\">\n <title>Catálogo</title>\n</head>\n<body>\n<h1> Fotografias </h1><ul>" > "catalogo.html"
                   }
 #como se pretende mostrar as pessoas e as fotos onde aparecem, as linhas que não tiverem alguem nao sao processadas
 /<[[:space:]]*quem[[:space:]]*>/          { 
@@ -19,8 +22,20 @@ BEGIN             { RS = "<foto"
 			#ler pessoas 
                         pessoas1 = gensub(".*<[[:space:]]*quem[[:space:]]*>[[:space:]]*", "", 1) 
                         pessoas = gensub("</[[:space:]]*quem[[:space:]]*>.*", "", 1, pessoas1) 
-			#print pessoas
 			print "<LI><b>" pessoas "</b></LI> <center> <img src=\"" ficheiro ".jpg\"/> </center>" > "catalogo.html"
+
+			#ler local	
+			local1 =  gensub(".*<[[:space:]]*onde[[:space:]]*>[[:space:]]*", "", 1)
+                        local = gensub("</[[:space:]]*onde[[:space:]]*>.*", "", 1, local1) 
+			if(local != $0) {
+                        	#print local
+                       		locais[local] += 1
+			}
                     }
 
-END 		    { print "</ul></body>\n</html>" > "catalogo.html"}
+END 		    { print "</ul>\n<h1> Locais Fotografados </h1>\n<ul>" > "catalogo.html"
+		      for( i in locais){
+                         print "<li> " i " </li>" > "catalogo.html"
+		      }
+		      print "</ul></body>\n</html>" > "catalogo.html"
+ 		    }
