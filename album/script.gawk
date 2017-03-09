@@ -1,4 +1,4 @@
-#ideia: criar uma funcao que le um atributo de uma tag xml e outra que le o valor X
+#X ideia: criar uma funcao que le um atributo de uma tag xml e outra que le o valor
 #devo tirar os spaces todos nas tags?
 #ideia: usar css do museu da Pessoa X (melhorar)
 #ideia: ordenar por data X (processar melhor datas)
@@ -9,36 +9,40 @@
 ##simpflificar, agregar padroes repetidos
 # ordenar locais alfabeticamente
 # fazer relatorio
+# justificar escolha RS
+# #explicar fomato da data
 
 function lerValorTag(nome_tag, linha){
 	if(linha == ""){linha = $0}
-	temp = gensub(".*<[[:space:]]*" nome_tag "[[:space:]]*>[[:space:]]*", "", 1, linha) 
-        ret = gensub("</[[:space:]]*" nome_tag "[[:space:]]*>.*", "", 1, temp) 
-	if(ret != linha){
-		return ret
-	}else {return ""}
+	temp = gensub(".*<" nome_tag "([[:space:]]+.*)*" "[[:space:]]*>[[:space:]]*", "", 1, linha) 
+        ret = gensub("</" nome_tag "[[:space:]]*>.*", "", 1, temp) 
+	if(ret == linha){
+		ret = ""
+	}
+	return ret
 }
 
 
 function lerAtributoTag(nome_tag, nome_atributo, linha){
 	if(linha == ""){linha = $0}
-        temp = gensub(".*<[[:space:]]*" nome_tag "[[:space:]]+" nome_atributo "[[:space:]]*=[[:space:]]*", "", 1, linha) 
+        temp = gensub(".*<" nome_tag "[[:space:]]+" nome_atributo "[[:space:]]*=[[:space:]]*", "", 1, linha) 
         aspas = substr(temp,0,1)
         split(temp, temp2, aspas)
         ret = temp2[2]
-	#se a tag com o atributo pretendido nao for encontrada, sera igual a linha original
+	#se a tag com o atributo pretendido nao for encontrada, temp sera igual a linha 
 	if(temp == linha){
-		return ""
-	} else { return ret}
+		ret = ""
+	} 
+	return ret
 }
 
 
-BEGIN             { RS = "</[[:space:]]*foto"
-                    print "<!DOCTYPE html>\n<html>\n<head>\n<meta charset=\"UTF-8\">\n <title>Catálogo</title>\n <link rel=\"stylesheet\" type=\"text/css\" href=\"museu.css\" /></head>\n<body>\n<h1> Fotografias </h1><ul>" > "catalogo.html"
+BEGIN             { RS = "</foto"
+                    print "<!DOCTYPE html>\n<html>\n<head>\n<meta charset=\"UTF-8\">\n<title>Catálogo</title>\n <link rel=\"stylesheet\" type=\"text/css\" href=\"museu.css\" /></head>\n<body>\n<h1> Fotografias </h1><ul>" > "catalogo.html"
  
                   }
-#como se pretende mostrar as pessoas e as fotos onde aparecem, as linhas que não tiverem alguem nao sao processadas
-/<[[:space:]]*quem[[:space:]]*>/          { 
+#como se pretende mostrar as pessoas e as fotos onde aparecem, as linhas que não tiverem a tag "quem" nao sao processadas
+/<quem([[:space:]]+.*)*/          { 
                         # ler nome do ficheiro
                         ficheiro = lerAtributoTag("foto", "ficheiro")
 			#ler pessoas 
@@ -66,8 +70,9 @@ END 		    {
 			print copia_entradas[i] > "catalogo.html"
 		      }
 		      print "</ul>\n<h1> Locais Fotografados </h1>\n<ul>" > "catalogo.html"
+                      asorti(locais)
 		      for( i in locais){
-                         print "<li> " i " </li>" > "catalogo.html"
+                         print "<li> " locais[i] " </li>" > "catalogo.html"
 		      }
 		      print "</ul></body>\n</html>" > "catalogo.html"
  		    }
