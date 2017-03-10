@@ -1,6 +1,5 @@
 BEGIN {
 	RS = "<TRANSACCAO>";
-	FS = /[\s\n]*/;
 	SEP = "--------------------------------------";
 	total = total_parques = 0;
 }
