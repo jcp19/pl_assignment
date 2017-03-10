@@ -1,17 +1,3 @@
-#X ideia: criar uma funcao que le um atributo de uma tag xml e outra que le o valor
-#devo tirar os spaces todos nas tags?
-#ideia: usar css do museu da Pessoa X (melhorar)
-#ideia: ordenar por data X (processar melhor datas)
-#falta: por prefixo das fotos
-#falta: listar lugares sem repeticoes
-#ideia: para cada local, fazer pagina com as fotos desse local
-#fazer: no relatorio, identificar assumpcoes adotadas, principalmente aos locais, e atributos no onde, datas, ordenacoes
-##simpflificar, agregar padroes repetidos
-# ordenar locais alfabeticamente
-# fazer relatorio
-# justificar escolha RS
-# #explicar fomato da data
-
 function lerValorTag(nome_tag, linha){
 	if(linha == ""){linha = $0}
 	temp = gensub(".*<" nome_tag "([[:space:]]+.*)*" "[[:space:]]*>[[:space:]]*", "", 1, linha) 
@@ -21,7 +7,6 @@ function lerValorTag(nome_tag, linha){
 	}
 	return ret
 }
-
 
 function lerAtributoTag(nome_tag, nome_atributo, linha){
 	if(linha == ""){linha = $0}
@@ -36,43 +21,49 @@ function lerAtributoTag(nome_tag, nome_atributo, linha){
 	return ret
 }
 
-
 BEGIN             { RS = "</foto"
-                    print "<!DOCTYPE html>\n<html>\n<head>\n<meta charset=\"UTF-8\">\n<title>Catálogo</title>\n <link rel=\"stylesheet\" type=\"text/css\" href=\"museu.css\" /></head>\n<body>\n<h1> Fotografias </h1><ul>" > "catalogo.html"
- 
-                  }
+		    output = "album.html"
+		    html_doctype = "<!DOCTYPE html>"
+		    html_css = "<link rel=\"stylesheet\" type=\"text/css\" href=\"museu.css\" />"
+		    html_head = "<head><meta charset=\"UTF-8\"><title> Album Fotográfico </title>" html_css "</head>"
+                    print html_doctype html_head "<html><body>\n<h1> Fotografias </h1><ul>" > output
+		  }
 #como se pretende mostrar as pessoas e as fotos onde aparecem, as linhas que não tiverem a tag "quem" nao sao processadas
-/<quem([[:space:]]+.*)*/          { 
-                        # ler nome do ficheiro
+/<quem(\s+.*)*/   { 
                         ficheiro = lerAtributoTag("foto", "ficheiro")
-			#ler pessoas 
 			pessoas = lerValorTag("quem")
-			#data
 			data = lerAtributoTag("quando", "data") 
-			if(data == ""){
+			if(data==""){
 				data = lerValorTag("quando")
-				if(data==""){ data="Desconhecida" }
 			}
-			#print "<h3><LI><b>" pessoas "</b></LI></h3> <center> <img src=\"" ficheiro ".jpg\"/> </center>" > "catalogo.html"
-			entrada = "<h3><LI><b>" pessoas "</b></LI></h3> <center> <img src=\"" ficheiro ".jpg\"/> </center>\n<p>Data: "data"</p>" 
-			entradas[entrada] = data
-			#ler local	
+			facto = lerValorTag("facto")
 			local = lerValorTag("onde")
+			
 			#regista o local
               		locais[local]
 
+			#campos formatados para html
+			local_formatado = (local == "")? "" : "<p> Local: " local "</p>" 
+			data_formatada = (data=="")? "" : "<p>Data: " data "</p> "
+			facto_formatado = (facto == "")? "" : "<h5>" facto "</h5>"
+			pessoas_formatado = "<h3><LI><b>" pessoas "</b></LI></h3>" 
+			imagem_formatada = "<img src=\"" ficheiro ".jpg\"/>"
+			
+			entrada = pessoas_formatado "<center>" imagem_formatada "</center>\n" facto_formatado data_formatada local_formatado
+			entradas[entrada] = data
                     }
 
 END 		    { 
                       delete locais[""]
 		      asorti(entradas, copia_entradas,"@val_str_asc")
 		      for(i in copia_entradas){
-			print copia_entradas[i] > "catalogo.html"
+			print copia_entradas[i] > output 
 		      }
-		      print "</ul>\n<h1> Locais Fotografados </h1>\n<ul>" > "catalogo.html"
+		      print "</ul>\n<h1> Locais Fotografados </h1>\n<ul>" > output 
+		      #ordena locais alfabeticamente
                       asorti(locais)
-		      for( i in locais){
-                         print "<li> " locais[i] " </li>" > "catalogo.html"
+		      for(i in locais){
+                         print "<li> " locais[i] " </li>" > output 
 		      }
-		      print "</ul></body>\n</html>" > "catalogo.html"
+		      print "</ul></body>\n</html>" > output 
  		    }
