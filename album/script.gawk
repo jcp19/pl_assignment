@@ -21,6 +21,17 @@ function lerAtributoTag(nome_tag, nome_atributo, linha){
 	return ret
 }
 
+#funcao simplificada que poe uma string num formato simplificado do url encode 
+function url_encode(linha){
+	ret = gensub("[[:space:]]", "+", "G", linha)
+	ret = gensub("!", "%21", "G", ret)
+	ret = gensub(":", "%3A", "G", ret)
+	ret = gensub("'", "%27", "G", ret)
+	ret = gensub(",", "%2C", "G", ret)
+	return ret
+
+}
+
 BEGIN             { RS = "</foto"
 		    output = "album.html"
 		    html_doctype = "<!DOCTYPE html>"
@@ -43,11 +54,11 @@ BEGIN             { RS = "</foto"
               		locais[local]
 
 			#campos formatados para html
-			local_formatado = (local == "")? "" : "<p> Local: " local "</p>" 
-			data_formatada = (data=="")? "" : "<p>Data: " data "</p> "
-			facto_formatado = (facto == "")? "" : "<h5>" facto "</h5>"
+			local_formatado = (local == "")? "" : "<center><p> Local: " local "</p></center>" 
+			data_formatada = (data=="")? "" : "<center><p>Data: " data "</p></center> "
+			facto_formatado = (facto == "")? "" : "<center><h5>" facto "</h5></center>"
 			pessoas_formatado = "<h3><LI><b>" pessoas "</b></LI></h3>" 
-			imagem_formatada = "<img src=\"" ficheiro ".jpg\"/>"
+			imagem_formatada = "<img src=\"" ficheiro "\"/>"
 			
 			entrada = pessoas_formatado "<center>" imagem_formatada "</center>\n" facto_formatado data_formatada local_formatado
 			entradas[entrada] = data
@@ -59,11 +70,19 @@ END 		    {
 		      for(i in copia_entradas){
 			print copia_entradas[i] > output 
 		      }
-		      print "</ul>\n<h1> Locais Fotografados </h1>\n<ul>" > output 
+		      print "</ul>\n<h1> Locais Fotografados </h1>" > output 
+		      		      
+
 		      #ordena locais alfabeticamente
                       asorti(locais)
+		      #gera mapa
+		      url = "https://maps.googleapis.com/maps/api/staticmap?key=AIzaSyAGDCGp6aTCV7_JQC3KNW2X3pmkOJxgMyw&size=640x480&markers="
+		      for(i in locais){
+			 url = url "|" url_encode(locais[i])  
+		      }
+		      print "<ul>" > output
 		      for(i in locais){
                          print "<li> " locais[i] " </li>" > output 
 		      }
-		      print "</ul></body>\n</html>" > output 
+		      print "</ul>  <center><img src=\"" url "\"/></center> <hr width=800> <center><p>  Feito por João Pereira(A75273), João Martins(A68646), Manuel Freitas(XXXXXX) </p><img src=\"logoUM.jpg\"  width=\"100\" height=\"50\"></center></body>\n</html>" > output 
  		    }
