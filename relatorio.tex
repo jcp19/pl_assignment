@@ -1,0 +1,299 @@
+\documentclass{report}
+\usepackage[portuges]{babel}
+%\usepackage[utf8]{inputenc}
+\usepackage[latin1]{inputenc}
+
+\usepackage{url}
+\usepackage{enumerate}
+
+%\usepackage{alltt}
+%\usepackage{fancyvrb}
+\usepackage{listings}
+%LISTING - GENERAL
+\lstset{
+	basicstyle=\small,
+	numbers=left,
+	numberstyle=\tiny,
+	numbersep=5pt,
+	breaklines=true,
+    frame=tB,
+	mathescape=true,
+	escapeinside={(*@}{@*)}
+}
+%
+%\lstset{ %
+%	language=Java,							% choose the language of the code
+%	basicstyle=\ttfamily\footnotesize,		% the size of the fonts that are used for the code
+%	keywordstyle=\bfseries,					% set the keyword style
+%	%numbers=left,							% where to put the line-numbers
+%	numberstyle=\scriptsize,				% the size of the fonts that are used for the line-numbers
+%	stepnumber=2,							% the step between two line-numbers. If it's 1 each line
+%											% will be numbered
+%	numbersep=5pt,							% how far the line-numbers are from the code
+%	backgroundcolor=\color{white},			% choose the background color. You must add \usepackage{color}
+%	showspaces=false,						% show spaces adding particular underscores
+%	showstringspaces=false,					% underline spaces within strings
+%	showtabs=false,							% show tabs within strings adding particular underscores
+%	frame=none,								% adds a frame around the code
+%	%abovecaptionskip=-.8em,
+%	%belowcaptionskip=.7em,
+%	tabsize=2,								% sets default tabsize to 2 spaces
+%	captionpos=b,							% sets the caption-position to bottom
+%	breaklines=true,						% sets automatic line breaking
+%	breakatwhitespace=false,				% sets if automatic breaks should only happen at whitespace
+%	title=\lstname,							% show the filename of files included with \lstinputlisting;
+%											% also try caption instead of title
+%	escapeinside={\%*}{*)},					% if you want to add a comment within your code
+%	morekeywords={*,...}					% if you want to add more keywords to the set
+%}
+
+\usepackage{xspace}
+
+\parindent=0pt
+\parskip=2pt
+
+\setlength{\oddsidemargin}{-1cm}
+\setlength{\textwidth}{18cm}
+\setlength{\headsep}{-1cm}
+\setlength{\textheight}{23cm}
+
+\def\pe{\emph{Publicação Eletrónica}\xspace}
+
+\def\titulo#1{\section{#1}}
+\def\super#1{{\em Supervisor: #1}\\ }
+\def\area#1{{\em \'{A}rea: #1}\\[0.2cm]}
+\def\resumo{\underline{Resumo}:\\ }
+
+
+%%%%\input{LPgeneralDefintions}
+
+\title{ Processamento de Linguagens (3º ano de MIEI)\\ \textbf{Trabalho Prático Nº1 - Parte A}\\ Relatório de Desenvolvimento}
+\author{João Pereira\\ (A75273) \and João Martins\\ (A68646) \and Manuel Freitas\\ (A71646) }
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+	Os processadores de linguagens são, por natureza, ferramentas muito poderosas. Para demonstrar a sua utilidade desenvolvemos
+	dois processadores de linguagens para resolver dois problemas diferentes.
+	O primeiro foi desenvolvido para processar extratos mensais da Via Verde e fornecer ao seu utilizador dados 
+	úteis acerca dos mesmos. O segundo teve como objetivo facilitar a criação de um album fotográfico a partir de um ficheiro
+	de configuração no formato \emph{.xml}.
+	Neste relatório, discute-se o desenho e implementação em GAWK dos dois processadores de linguagens.
+\end{abstract}
+
+\tableofcontents
+
+\chapter{Introdução} \label{intro}
+
+%\super{Pedro Rnagel Henriques}
+%\titulo{Desenvolvimento de Processadores de Linguagens Regulares utilizando GAWK}
+%\area{Processamento de Linguagens}
+%blablabla
+%\super{José João}
+%\titulo{Um belo Dia em Briteiros}
+
+
+%\begin{description}
+  %\item [Enquadramento] \textbf{bla bla} bla bla
+  %\item [Conteúdo do documento] \textsf{ble ble} \texttt{ble} ble
+  %\item [Resultados -- pontos a evidenciar] \textit{bli bli bli bli}
+  %\item [Estrutura do documento] \underline{blo blo blo}
+%\end{description}
+
+%letras gregas são estas $ \alpha \beta \gamma \delta $ que aqui demonstro
+
+%exemplo simples de fração \[ \frac{\frac{a * b + c}{4-3}}{3*5} \] simples
+
+%Mais exemplos de listas enumeradas mas agora com letras:
+%\begin{enumerate}[a)]
+%\item Listar todas as Pessoas identificadas, sem repetições;
+%\item Listar os Países e Cidades marcadas;
+%\item Listar as Organizações.
+%\end{enumerate}
+
+%A mesma enumeração mas no standard numérico
+%\begin{description}
+%\item[Etape 1:] Listar todas as Pessoas identificadas, sem repetições;
+%\item[Etape 2:] Listar os Países e Cidades marcadas;
+%\item[Etape 3:] Listar as Organizações.
+%\end{description} 
+
+\section*{Estrutura do Relatório} \
+explicar como está organizado o documento, referindo os capítulos existentes em~\cite{Pereira201635}
+e a sua articulação explicando o conteúdo de cada um.
+No capítulo~\ref{ae} faz-se uma análise detalhada do problema proposto
+de modo a poder-se especificar  as entradas, resultados e formas de transformação.\\
+etc. \ldots\\
+No capítulo~\ref{concl} termina-se o relatório com uma síntese do que foi dito,
+as conclusões e o trabalho futuro
+
+\chapter{Via Verde}
+\section{Análise e Especificação} \label{ae}
+\subsection{Descrição informal do problema}
+\subsection{Especificação do Requisitos}
+\subsubsection{Dados}
+\subsubsection{Pedidos}
+\subsubsection{Relações}
+
+\section{Concepção/desenho da Resolução}
+\subsection{Estruturas de Dados}
+\subsection{Algoritmos}
+
+\section{Codificação e Testes}
+\subsection{Alternativas, Decisões e Problemas de Implementação}
+\subsection{Testes realizados e Resultados}
+Mostram-se a seguir alguns testes feitos (valores introduzidos) e
+os respectivos resultados obtidos:
+
+%\VerbatimInput{teste1.txt}
+
+\chapter{Album Fotográfico}
+\section{Análise e Especificação} \label{ae}
+\subsection{Descrição informal do problema}
+\subsection{Especificação do Requisitos}
+\subsubsection{Dados}
+\subsubsection{Pedidos}
+\subsubsection{Relações}
+
+\section{Concepção/desenho da Resolução}
+\subsection{Estruturas de Dados}
+\subsection{Algoritmos}
+
+\section{Codificação e Testes}
+\subsection{Alternativas, Decisões e Problemas de Implementação}
+\subsection{Testes realizados e Resultados}
+Mostram-se a seguir alguns testes feitos (valores introduzidos) e
+os respectivos resultados obtidos:
+
+
+
+\chapter{Conclusão} \label{concl}
+Síntese do Documento~\cite{Martini2016a,Hoare73a}.\\
+Estado final do projecto; Análise crítica dos resultados~\cite{Sto77a}.\\
+Trabalho futuro.
+
+\appendix
+\chapter{Código Produzido}
+\section{Código do programa GAWK para o problema da Via Verde}
+\section{Código do programa GAWK para o problema do Album Fotográfico}
+\begin{verbatim}
+function lerValorTag(nome_tag, linha){ if(linha == ""){linha = $0} temp = gensub(".*<" nome_tag "([[:space:]]+.*)*" "[[:space:]]*>[[:space:]]*", "", 1, linha) 
+        ret = gensub("</" nome_tag "[[:space:]]*>.*", "", 1, temp) 
+	if(ret == linha){
+		ret = ""
+	}
+	return ret
+}
+
+function lerAtributoTag(nome_tag, nome_atributo, linha){
+	if(linha == ""){linha = $0}
+        temp = gensub(".*<" nome_tag "[[:space:]]+" nome_atributo "[[:space:]]*=[[:space:]]*", "", 1, linha) 
+        aspas = substr(temp,0,1)
+        split(temp, temp2, aspas)
+        ret = temp2[2]
+	#se a tag com o atributo pretendido nao for encontrada, temp sera igual a linha 
+	if(temp == linha){
+		ret = ""
+	} 
+	return ret
+}
+
+#funcao simplificada que poe uma string num formato simplificado do url encode 
+function url_encode(linha){
+	ret = gensub("[[:space:]]", "+", "G", linha)
+	ret = gensub("!", "%21", "G", ret)
+	ret = gensub(":", "%3A", "G", ret)
+	ret = gensub("'", "%27", "G", ret)
+	ret = gensub(",", "%2C", "G", ret)
+	return ret
+
+}
+
+BEGIN             { RS = "</foto"
+		    output = "album.html"
+		    html_doctype = "<!DOCTYPE html>"
+		    html_css = "<link rel=\"stylesheet\" type=\"text/css\" href=\"museu.css\" />"
+		    html_head = "<head><meta charset=\"UTF-8\"><title> Album Fotográfico </title>" html_css "</head>"
+                    print html_doctype html_head "<html><body>\n<h1> Fotografias </h1><ul>" > output
+		  }
+#como se pretende mostrar as pessoas e as fotos onde aparecem, as linhas que não tiverem a tag "quem" nao sao processadas
+/<quem(\s+.*)*/   { 
+                        ficheiro = lerAtributoTag("foto", "ficheiro")
+			pessoas = lerValorTag("quem")
+			data = lerAtributoTag("quando", "data") 
+			if(data==""){
+				data = lerValorTag("quando")
+			}
+			facto = lerValorTag("facto")
+			local = lerValorTag("onde")
+			
+			#regista o local
+              		locais[local]
+
+			#campos formatados para html
+			local_formatado = (local == "")? "" : "<center><p> Local: " local "</p></center>" 
+			data_formatada = (data=="")? "" : "<center><p>Data: " data "</p></center> "
+			facto_formatado = (facto == "")? "" : "<center><h5>" facto "</h5></center>"
+			pessoas_formatado = "<h3><LI><b>" pessoas "</b></LI></h3>" 
+			imagem_formatada = "<img src=\"" ficheiro "\"/>"
+			
+			entrada = pessoas_formatado "<center>" imagem_formatada "</center>\n" facto_formatado data_formatada local_formatado
+			entradas[entrada] = data
+                    }
+
+END 		    { 
+                      delete locais[""]
+		      asorti(entradas, copia_entradas,"@val_str_asc")
+		      for(i in copia_entradas){
+			print copia_entradas[i] > output 
+		      }
+		      print "</ul>\n<h1> Locais Fotografados </h1>" > output 
+		      		      
+
+		      #ordena locais alfabeticamente
+                      asorti(locais)
+		      #gera mapa
+		      url = "https://maps.googleapis.com/maps/api/staticmap?key=AIzaSyAGDCGp6aTCV7_JQC3KNW2X3pmkOJxgMyw&size=640x480&markers="
+		      for(i in locais){
+			 url = url "|" url_encode(locais[i])  
+		      }
+		      print "<ul>" > output
+		      for(i in locais){
+                         print "<li> " locais[i] " </li>" > output 
+		      }
+		      print "</ul>  <center><img src=\"" url "\"/></center> <hr width=800> <center><p>  Feito por João Pereira(A75273), João Martins(A68646), Manuel Freitas(A71646) </p><img src=\"logoUM.jpg\"  width=\"100\" height=\"50\"></center></body>\n</html>" > output 
+		     }
+ 
+\end{verbatim}
+
+%\begin{lstlisting}[caption={Exemplo de uma Listagem}, label={lstExe1}]
+%llll sanjdb c kjnjcnjnjj mmmmmmmmmmmmm hhhhhhhhhhhhhhhhhhhhhhhh jjjjjjjjjjjjjjjjjjjjjjjjjjjj kkkkkkkkkkkkkkkkkk
+%      ou então aparecer aqui neste sítio um pouco de matematica $\$$
+%      como alternativa ao anterior.
+%      e aqui mais um teste $\varepsilon$
+%\end{lstlisting}
+
+%É ainda possível importar diretamente o ficheiro:
+%\lstinputlisting{plfiltrobase.l} %input de um ficheiro
+
+\bibliographystyle{alpha}
+\bibliography{relprojLayout}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+\end{document} 
