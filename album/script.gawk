@@ -1,6 +1,4 @@
-function lerValorTag(nome_tag, linha){
-	if(linha == ""){linha = $0}
-	temp = gensub(".*<" nome_tag "([[:space:]]+.*)*" "[[:space:]]*>[[:space:]]*", "", 1, linha) 
+function lerValorTag(nome_tag, linha){ if(linha == ""){linha = $0} temp = gensub(".*<" nome_tag "([[:space:]]+.*)*" "[[:space:]]*>[[:space:]]*", "", 1, linha) 
         ret = gensub("</" nome_tag "[[:space:]]*>.*", "", 1, temp) 
 	if(ret == linha){
 		ret = ""
@@ -84,5 +82,5 @@ END 		    {
 		      for(i in locais){
                          print "<li> " locais[i] " </li>" > output 
 		      }
-		      print "</ul>  <center><img src=\"" url "\"/></center> <hr width=800> <center><p>  Feito por João Pereira(A75273), João Martins(A68646), Manuel Freitas(XXXXXX) </p><img src=\"logoUM.jpg\"  width=\"100\" height=\"50\"></center></body>\n</html>" > output 
+		      print "</ul>  <center><img src=\"" url "\"/></center> <hr width=800> <center><p>  Feito por João Pereira(A75273), João Martins(A68646), Manuel Freitas(A71646) </p><img src=\"logoUM.jpg\"  width=\"100\" height=\"50\"></center></body>\n</html>" > output 
  		    }
