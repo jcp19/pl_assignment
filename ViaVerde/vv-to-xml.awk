@@ -1,7 +1,5 @@
 BEGIN {
 	RS = "<TRANSACCAO>"
-	SEP = "--------------------------------------"
-	total = total_parques = 0
 }
 
 # FNR > 1 evita realizar a acção especificada no bloco para o cabeçalho dos ficheiros
