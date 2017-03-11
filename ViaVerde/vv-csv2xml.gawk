@@ -51,7 +51,7 @@ BEGINFILE {
 	}
 	printf "\t\t\t<DATA_SAIDA>%s</DATA_SAIDA>\n", $7
 	printf "\t\t\t<HORA_SAIDA>%s</HORA_SAIDA>\n", $8
-	printf "\t\t\t<ENTRADA>%s</ENTRADA>\n", $9
+	printf "\t\t\t<SAIDA>%s</SAIDA>\n", $9
 	
 	printf "\t\t\t<VALOR>%s</VALOR>\n", $10
 	printf "\t\t\t<VALOR_DESCONTO>%s</VALOR_DESCONTO>\n", $11
