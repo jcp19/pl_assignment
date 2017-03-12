@@ -1,5 +1,7 @@
-function lerValorTag(nome_tag, linha){ if(linha == ""){linha = $0} temp = gensub(".*<" nome_tag "([[:space:]]+.*)*" "[[:space:]]*>[[:space:]]*", "", 1, linha) 
-        ret = gensub("</" nome_tag "[[:space:]]*>.*", "", 1, temp) 
+function lerValorTag(nome_tag, linha){ 
+	if(linha == ""){linha = $0} 
+	temp = gensub(".*<" nome_tag "(\\s+.*)*" "\\s*>\\s*", "", 1, linha) 
+        ret = gensub("</" nome_tag "\\s*>.*", "", 1, temp) 
 	if(ret == linha){
 		ret = ""
 	}
@@ -8,7 +10,8 @@ function lerValorTag(nome_tag, linha){ if(linha == ""){linha = $0} temp = gensub
 
 function lerAtributoTag(nome_tag, nome_atributo, linha){
 	if(linha == ""){linha = $0}
-        temp = gensub(".*<" nome_tag "[[:space:]]+" nome_atributo "[[:space:]]*=[[:space:]]*", "", 1, linha) 
+	regex_atributos = "\\w+\\s*=\\s*(\"[^<\"]*\")|(\\'[^<\\']*\\')"
+        temp = gensub(".*<" nome_tag "(\\s+" regex_atributos ")*\\s+" nome_atributo "\\s*=\\s*", "", 1, linha) 
         aspas = substr(temp,0,1)
         split(temp, temp2, aspas)
         ret = temp2[2]
@@ -21,7 +24,7 @@ function lerAtributoTag(nome_tag, nome_atributo, linha){
 
 #funcao simplificada que poe uma string num formato simplificado do url encode 
 function url_encode(linha){
-	ret = gensub("[[:space:]]", "+", "G", linha)
+	ret = gensub("\\s", "+", "G", linha)
 	ret = gensub("!", "%21", "G", ret)
 	ret = gensub(":", "%3A", "G", ret)
 	ret = gensub("'", "%27", "G", ret)
