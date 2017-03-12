@@ -2,6 +2,7 @@
 \usepackage[portuges]{babel}
 %\usepackage[utf8]{inputenc}
 \usepackage[latin1]{inputenc}
+\usepackage{hyperref}
 
 \usepackage{url}
 \usepackage{enumerate}
@@ -205,12 +206,12 @@ A sequência de elementos \textbf{foto} pode estar opcionalmente inserida num ele
 Para resolver o problema em causa, desenvolveu-se um programa em \emph{GAWK} cujo nome é \emph{album.gawk}. Este programa é invocado
 da seguinte forma se só se pretender construir o album a partir de um ficheiro \emph{.xml}:
 \begin{verbatim}
-gawk -f album.gawk < FILE
+gawk -f album.gawk FILE
 \end{verbatim}
 
 Se se pretender construir o album a partir de vários ficheiros \emph{.xml}, pode-se fazê-lo invocando o programa da seguinte forma.
 \begin{verbatim}
-cat [FILE] | gawk -f album.gawk 
+gawk -f album.gawk [FILE]
 \end{verbatim}
 \subsection{Codificação}
 Nesta parte, será discutido o código produzido para resolver o problema. O código pode ser consultado na íntegra no apêndice deste relatório.
@@ -230,13 +231,37 @@ Começa-se por analisar as funções desenvolvidas para processar os elementos \emp
 \end{itemize}
 Foi também definida uma função \emph{url\_encode} que dada uma linha, devolve essa linha onde os caracteres reservados do formato URL
 são substituídos pelas sequências respetivas. Esta função não faz uma tradução completa, apenas dos caracteres mais usados. O grupo tomou esta decisão
-porque o ganho obtido por fazer uma função completa seria mínimo face à versão atual e consistiria apenas em fazer "mais do mesmo".
-\subsection{Codificação e Testes}
-\subsubsection{Alternativas, Decisões e Problemas de Implementação}
-\subsubsection{Testes realizados e Resultados}
-Mostram-se a seguir alguns testes feitos (valores introduzidos) e
-os respectivos resultados obtidos:
+porque o ganho obtido por fazer uma função completa seria mínimo face à versão atual e consistiria apenas em fazer "mais do mesmo". Esta função recorre a invocações da \emph{gensub} para fazer as subsituições dos símbolos reservados.
 
+Uma vez explicadas as funçõs definidas pelo grupo, podemos passar à descrição da implementação do programa. No início, 
+definimos o FS como sendo o padrao \emph{</foto}. Desta forma, garantimos que quando encontramos a 
+informação de uma foto, podemos aceder a todos os dados referentes a ela (por exemplo, o local e a data da fotografia) na mesma linha.
+Ainda antes de lermos o conteúdo do ficheiro, escrevemos o cabeçalho \emph{html} no ficheiro de output. Esse cabeçalho inclui, entre outras 
+coisas, a definição do tema da página. Dado que este problema surgiu no âmbito do Museu da Pessoa, o grupo considerou que fazia sentido replicar o tema do mesmo
+e por isso, usou o ficheiro \emph{.css} usado no portal web do Museu da Pessoa.
+De seguida, para todas as lihas que tenham um elemento \textbf{quem}, procuramos a informação relativa ao ficheiro a mostrar, a quem aparece na 
+foto, onde foi tirada a foto e algum facto associado à mesma. Esta procura é feita recorrendo às funções referidas acima para obter informação 
+dos elementos \emph{xml}. Os locais onde as fotografias são tiradas são armazenados num array associativo para mais tarde serem listados. Usando
+o local como chave, garantimos que apenas uma cópia de cada local é guardada, nao havendo repetições de locais.
+De seguida, os dados da imagem são formatados para estarem de acordo com o formato \emph{html} e são combinados numa linha para ser inserida na
+página de output. Essa linha é guardada num array associativo, onde a chave é a própria linha e o valor é a data da fotografia a que a linha 
+diz respeito. Desta forma, será possível posteriormente ordenar temporalmente as fotografias.
+
+No final da leitura do ficheiro, as entradas são ordenadas por data, fazendo uso da função \emph{assorti} que ordena os indíces segundo o critério
+passado como argumento, neste caso, por ordem crescente dos valores(datas). De seguida, as entradas são escritas no ficheiro \emph{html}.
+A seguir, percorre-se o array com os locais visitados e ordenámo-lo alfabeticamente.
+Para além disso, geramos um URL a partir dos nomes dos locais, processados pela função \emph{url\_encode}. Este URL é especificado pela API do \emph{Google Maps} e permite que se gere uma imagem de um mapa com os locais assinalados. A forma para gerar o URL é descrita em 
+\url{https://developers.google.com/maps/documentation/static-maps/intro} e consiste em concatenar um URL base com o nome dos locais, convertidos para a codificação URL, separados por ''|''. De seguida, imprime-se para o ficheiro os locais ordenados alfabeticamente e sem repetições
+e imprime-se a linha que faz com que apareça a imagem do mapa, seguida do rodapé da página.
+\subsection{Testes}
+Para testar o programa desenvolvido, o grupo fez uso do ficheiro \emph{legenda.xml} fornecido pelos professores. Este ficheiro teve, no entanto,
+de sofrer algumas alterações para corrigir erros ortográficos e para estar de acordo com as convenções adotadas, nomeadamente no que toca
+ao formato das datas. Para além disso, o grupo construiu um ficheiro de metadados sobre a vida de \emph{Jimi Hendrix} para testar este programa.
+Este ficheiro tem o nome de \emph{hendrix.xml} e pode ser consultado no Apêndice A.
+Em ambos os testes, o programa gerou corretamente a página e os resultados foram os esperados. Também testamos passar os dois ficheiros em 
+simultâneo para gerar um album a partir dos dois ficheiros. Também neste caso os resultados obtidos foram os esperados: a página gerada apresenta as imagens e os seus dados corretamente, com uma ordenação temporal das fotografias correta.
+Durante estes testes, deparamo-nos com uma limitação da API do \emph{Google Maps} que apenas permite, no máximo, que se mostrem 15 locais na
+mesma imagem. No entanto, esta limitação técnica em nada diminui o interesse do resultado que obtivemos.
 
 
 \chapter{Conclusão} \label{concl}
@@ -338,7 +363,114 @@ END {
    João Martins(A68646), Manuel Freitas(A71646) </p><img src=\"logoUM.jpg\"  width=\"100\" height=\"50\"></center></body>\n</html>" > output 
 }
 \end{verbatim}
-
+\section{Conteúdo de \emph{hendrix.xml}}
+\begin{verbatim}
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE fotos SYSTEM "Users/sony/mp/fotos.dtd">
+<fotos> 
+  <foto ficheiro="hendrix/h1.jpg">
+	 <quem> Mitch Mitchell, Jimi Hendrix, Noel Redding </quem> 
+  </foto> 
+  <foto ficheiro="hendrix/h2.jpeg">
+  	 <onde> Royal Albert Hall, London </onde>
+	 <quando data="1969-02-18"/> 
+	 <quem> Jimi Hendrix </quem> 
+  </foto> 
+  <foto ficheiro="hendrix/h3.png">
+  	 <onde> Royal Albert Hall, London </onde>
+	 <quando data="1969-02-18"/> 
+	 <quem> Jimi Hendrix, Noel Redding </quem> 
+  </foto> 
+  <foto ficheiro="hendrix/h4.jpg">
+	 <quem> Jimi Hendrix, Johnny Winter </quem> 
+  </foto> 
+  <foto ficheiro="hendrix/h5.jpg">
+	 <quem> John Paul Jones, Jimi Hendrix </quem> 
+  </foto> 
+  <foto ficheiro="hendrix/h6.jpg">
+	 <quem> Jimi Hendrix, Mick Jagger </quem> 
+  </foto> 
+  <foto ficheiro="hendrix/h7.jpg">
+	 <quem> Roger Daltrey, Pete Townshend, Jimi Hendrix, John Entwistle, Keith Moon </quem> 
+  </foto> 
+  <foto ficheiro="hendrix/h8.jpg">
+  	 <onde> 34 Montagu Square, London </onde>
+	 <quando>1967</quando> 
+	 <quem> Jimi Hendrix </quem> 
+	 <facto> Por Petra Niemeier</facto>
+  </foto> 
+  <foto ficheiro="hendrix/h9.jpg">
+  	 <onde> Fillmore East, New York </onde>
+	 <quando data="1969-12-31"/> 
+	 <quem> Jimi Hendrix </quem> 
+	 <facto> Os Band of Gypsys deram 2 concertos no ultimo dia de 1969, e dois no primeiro dia de 1970, em Fillmore East. </facto>
+  </foto> 
+  <foto ficheiro="hendrix/h10.jpg">
+  	 <onde> Montagu Place, W.1. </onde>
+	 <quem> Jimi Hendrix </quem> 
+  </foto> 
+  <foto ficheiro="hendrix/h11.jpg">
+	 <quando data="1969-08-18"/> 
+  	 <onde> Woodstock </onde>
+	 <quem> Jimi Hendrix </quem> 
+	 <facto> Aqui já no encore, no qual toca a Hey Joe a pedido do publico </facto>
+  </foto> 
+  <foto ficheiro="hendrix/h12.jpg">
+	 <quando data="1969-08-18"/> 
+  	 <onde> Woodstock </onde>
+	 <quem> Jimi Hendrix, Billy Cox </quem> 
+	 <facto> Devido a atrasos no alinhamento, tiveram de tocar no dia a seguir ao suposto final do festival </facto>
+  </foto> 
+  <foto ficheiro="hendrix/h13.jpg">
+  	 <quando data="1970-07-04">
+	 <onde> Byron, Georgia</onde>
+	 <quem> Jimi Hendrix </quem>
+	 <facto> Atlant Pop Festival </facto>
+  </foto>
+  <foto ficheiro="hendrix/h14.jpg">
+  	 <quando data="1967-07-18">
+	 <onde> Monterey, California </onde>
+	 <quem> Jimi Hendrix </quem>
+	 <facto> O concerto no Monterey Pop Festival foi o primeiro concerto do Hendrix na América, com uma "pequena" ajuda do amigo Paul McCartney. Tocaram a seguir aos The Who no dia de nomes como Scott McKenzie, Greatful Dead e The Mamas and Pappas </facto>
+  </foto>
+  <foto ficheiro="hendrix/h15.jpg">
+  	 <quando data="1970-09-05">
+	 <onde> Fehmarn, Germany </onde>
+	 <quem> Jimi Hendrix </quem>
+	 <facto> Hendrix no dia anterior ao do ultimo concerto que haveria de tocar </facto>
+  </foto>
+  <foto ficheiro="hendrix/h16.jpg">
+  	 <quando data="1970-09-06">
+	 <onde> Fehmarn, Germany </onde>
+	 <quem> Jimi Hendrix </quem>
+	 <facto> Ultimo concerto que haveria de tocar antes da sua trágica morte apenas 12 dias depois </facto>
+  </foto>
+  <foto ficheiro="hendrix/h17.jpg">
+  	 <quando data="1970-08-30">
+	 <onde> Isle of Wight, England </onde>
+	 <quem> Jimi Hendrix </quem>
+  </foto>
+  <foto ficheiro="hendrix/h18.jpeg">
+  	 <quando> 1961 </quando>
+	 <onde> Montgomery, AL </onde>
+	 <quem> Jimi Hendrix </quem>
+	 <facto> No Elks Club. Quando esteve em Fort Benning, ele costumava ir até ao Elks Club em Montgomery aos fins de semana para tocar com nomes como B.B.King.</facto>
+  </foto>
+  <foto ficheiro="hendrix/h19.jpg">
+  	 <quando> 1948 </quando>
+	 <quem> Al, Lucille, Jimi e Leon Hendrix </quem>
+	 <facto> Foto rara da familia toda reunida. Os pais, Al e Lucille, discutiam frequentemente e chegavam mesmo a lutar um com o outro sob a influencia do alcool. Leon estava sempre num vai e vem entre os Hendrix e familias de acolhimento. Lucille teve mais 3 filhos, que deram para adoção ou familias de acolhimento. Passado algum tempo Al conseguiu o divorcio e a custódia de Jimi e Leon. </facto>
+  </foto>
+  <foto ficheiro="hendrix/h20.jpg">
+	 <quem> Al e Jimi Hendrix </quem>
+	 <facto> Al viu o filho pela primeira vez apenas 3 anos após o seu nascimento. Jimi nasceu na altura da segunda guerra mundial, e Al estava em serviço e não o deixaram sair para estar presente no nascimento. </facto>
+  </foto>
+  <foto ficheiro="hendrix/h21.jpg">
+  	 <quando> 1942 </quando>
+	 <quem> Lucille Jetter Hendrix, Jimi Hendrix </quem>
+	 <facto> Tirada no ano do seu nascimento. </facto>
+  </foto>
+  \end{verbatim}
 %\begin{lstlisting}[caption={Exemplo de uma Listagem}, label={lstExe1}]
 %llll sanjdb c kjnjcnjnjj mmmmmmmmmmmmm hhhhhhhhhhhhhhhhhhhhhhhh jjjjjjjjjjjjjjjjjjjjjjjjjjjj kkkkkkkkkkkkkkkkkk
 %      ou então aparecer aqui neste sítio um pouco de matematica $\$$
@@ -348,6 +480,7 @@ END {
 
 %É ainda possível importar diretamente o ficheiro:
 %\lstinputlisting{plfiltrobase.l} %input de um ficheiro
+
 
 \bibliographystyle{alpha}
 \bibliography{relprojLayout}
