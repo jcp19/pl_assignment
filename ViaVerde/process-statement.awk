@@ -1,14 +1,36 @@
 BEGIN {
 	RS = "<TRANSACCAO>"
-	SEP = "--------------------------------------"
+	SEP = "============================================="
+	SEP_FICH = "#############################################"
+	fmt_extracto = "EXTRACTO Nº: %s\nMES: %s\nNOME: %s\nID: %s\nNIF: %s\n"
+	fmt_identificador = "IDENTIFICADOR: %s\nMATRICULA: %s\nREF. PAGAMENTO: %s\n"
+
 	total = total_parques = 0
 }
 
+BEGINFILE {
+	total_fich = total_parques_fich = 0
+	print SEP_FICH
+}
+
+# Accao a realizar para cada novo extracto
+/<EXTRACTO/ {
+	id_extracto = ler_atributo_tag("EXTRACTO", "id", $0)
+	mes_emissao = ler_valor_tag("MES_EMISSAO", $0)
+	id_cliente = ler_atributo_tag("CLIENTE", "id", $0)
+	nif = ler_valor_tag("NIF", $0)
+	nome = ler_valor_tag("NOME", $0)
+
+	# fmt_extracto esta definido no bloco BEGIN
+	printf fmt_extracto, id_extracto, mes_emissao, nome, id_cliente, nif
+}
+
 # Accao a realizar para cada transaccao
-/<\/TRANSACCAO/ {
+/<\/TRANSACCAO>/ {
 	importancia = 0
 	parque = 0
 	split($0, a, /<|>/)
+	
 	# a[1] tem a string vazia, por isso comecamos com i = 2
 	for(i = 2; a[i] != "/TRANSACCAO"; ++i) {
 		if(a[i] ~ /^DATA_ENTRADA/) {
@@ -19,30 +41,69 @@ BEGIN {
 			++saidas[a[i+1]]
 		} else if(a[i] ~ /^IMPORTANCIA/) {
 			importancia = a[i+1]
+			++n_viatura
 		} else if(a[i] ~ /^VALOR_DESCONTO/) {
 			importancia -= a[i+1]
 		} else if(a[i] ~ /^TIPO/) {
 			parque = (a[i+1] ~ "Parques de estacionamento")
 		}
 	}
-	total += importancia
+	total_viatura += importancia
 	if(parque)
-		total_parques += importancia
+		total_viatura_parques += importancia
+}
+
+/<\/IDENTIFICADOR/ {
+	print SEP
+	printf fmt_identificador, id, matricula, ref_pagamento
+	printf "\nTotal gasto = %.2f\n", total_viatura
+	printf "Total gasto em parques = %.2f\n", total_viatura_parques
+	
+	total_fich += total_viatura
+	total_parques_fich += total_viatura_parques
+}
+
+# Accao a realizar para cada viatura encontrada
+/<IDENTIFICADOR/ {
+	id = ler_atributo_tag("IDENTIFICADOR", "id", $0)
+	matricula = ler_valor_tag("MATRICULA", $0)
+	ref_pagamento = ler_valor_tag("REF_PAGAMENTO", $0)
+
+	total_viatura = total_viatura_parques = 0
+}
+
+ENDFILE {
+	print SEP "\nRESULTADOS DO MÊS " mes_emissao "\n"
+
+	n = asorti(entradas, d, "cmp_datas")
+	print "+------------+-------------+"
+	print "| Dia        | N. entradas |"
+	print "+------------+-------------+"
+	for(i = 1; i <= n; ++i) {
+		printf "| %10s | %-11d |\n", d[i], entradas[d[i]]
+	}
+	print "+------------+-------------+"
+	delete entradas
+
+	n = asorti(saidas)
+	print "\nLocais de saida:"
+	for(i = 1; i <= n; ++i) {
+		print "-> " saidas[i]
+	}
+	delete saidas
+
+	printf "\nTotal gasto = %.2f\n", total_fich
+	printf "Total gasto em parques = %.2f\n", total_parques_fich
+	
+	# Atualiza os totais globais
+	total += total_fich
+	total_parques += total_parques_fich
 }
 
 END {
-	n = asorti(entradas, d, "cmp_datas")
-	print SEP "\na) Entradas em cada dia do mês\n" SEP
-	for(i = 1; i <= n; ++i)
-		print d[i] " -> " entradas[d[i]]
-
-	n = asorti(saidas)
-	print SEP "\nb) Lista dos locais de saida\n" SEP
-	for(i = 1; i <= n; ++i)
-		print saidas[i]
-
-	print SEP "\nc) Total gasto = " total
-	print "d) Total gasto em parques = " total_parques
+	print SEP_FICH "\nRESULTADOS GLOBAIS\n" SEP_FICH
+	printf "Total gasto = %.2f\n", total
+	printf "Total gasto em parques = %.2f\n", total_parques
 }
 
 # Funcao que assume que os indices i1 e i2 sao datas no formato dd-mm-yyyy
@@ -58,6 +119,26 @@ function cmp_datas(i1, v1, i2, v2) {
 			r = (d1[i] != d2[i])
 	}
 	return r
+}
+
+function ler_valor_tag(nome_tag, linha) {
+	if(linha == "")
+		linha = $0
+
+	match(linha, "<" nome_tag "(\\s+.*)*>(.*)</" nome_tag "\\s*>", arr)
+	return arr[2]
+}
+
+function ler_atributo_tag(nome_tag, nome_atributo, linha){
+	if(linha == "")
+		linha = $0
+
+	# 0 ou mais atributos
+	regex_atribs = "(\\s+\\w+\\s*=\\s*[\"'][^<\"]*[\"'])*"
+	match(linha, "<" nome_tag regex_atribs "\\s+" nome_atributo "\\s*=\\s*[\"']([^<\"]*)[\"']" regex_atribs "\\s*>", arr)
+
+	# o valor do atributo é capturado pelo segundo grupo (o primeiro grupo é regex_atribs)
+	return arr[2]
 }
 
 # de - data de entrada (dd-mm-yyyy)
