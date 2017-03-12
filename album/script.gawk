@@ -1,11 +1,8 @@
-function lerValorTag(nome_tag, linha){ 
-	if(linha == ""){linha = $0} 
-	temp = gensub(".*<" nome_tag "(\\s+.*)*" "\\s*>\\s*", "", 1, linha) 
-        ret = gensub("</" nome_tag "\\s*>.*", "", 1, temp) 
-	if(ret == linha){
-		ret = ""
-	}
-	return ret
+function lerValorTag(nome_tag, linha) {
+    if(linha == "")
+        linha = $0
+    match(linha, "<" nome_tag "(\\s+.*)*>(.*)</" nome_tag "\\s*>", arr)
+    return arr[2]
 }
 
 function lerAtributoTag(nome_tag, nome_atributo, linha){
