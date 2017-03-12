@@ -80,7 +80,7 @@
 	dois processadores de linguagens para resolver dois problemas diferentes.
 	O primeiro foi desenvolvido para processar extratos mensais da Via Verde e fornecer ao seu utilizador dados 
 	úteis acerca dos mesmos. O segundo teve como objetivo facilitar a criação de um album fotográfico a partir de um ficheiro
-	de configuração no formato \emph{.xml}.
+	de metadados anotado no formato \emph{.xml}.
 	Neste relatório, discute-se o desenho e implementação em GAWK dos dois processadores de linguagens.
 \end{abstract}
 
@@ -153,10 +153,52 @@ os respectivos resultados obtidos:
 \chapter{Album Fotográfico}
 \section{Análise e Especificação} \label{ae}
 \subsection{Descrição informal do problema}
+Pretende-se que a partir de um ficheiro de metadados em \emph{xml}, com informação sobre várias fotos, se construa um album fotográfico.
+Para além disso, pretende-se que sejam listados todos os locais fotografados, sem repetições. Para tal, espera-se que o ficheiro de metadados
+siga uma determinada estrutura que será descrita posteriormente. 
 \subsection{Especificação do Requisitos}
-\subsubsection{Dados}
-\subsubsection{Pedidos}
-\subsubsection{Relações}
+Com base no que foi pedido, o grupo definiu que o programa deve cumprir os seguintes requisitos mínimos:
+\begin{itemize}  
+\item Apresentar na página html as fotografias referenciadas no ficheiro de metadados, juntamente com as pessoas que nela aparecem; 
+\item Apresentar na página html uma lista sem repetições do locais fotografados. 
+\end{itemize}
+Para além disso, o grupo entendeu que o trabalho deveria cumprir também os seguintes requisitos por forma a que o resultado final 
+fosse interessante e útil:
+\begin{itemize}  
+\item ordenar as fotos cuja data é conhecida por ordem cronológica. As fotos cuja data é desconhecida deverão ser apresentadas incialmente; 
+\item ordenar os locais fotografados por ordem alfabética;
+\item apresentar para além das fotos e das pessoas que nelas aparecem,
+o local onde foi tirada a foto (quando este dado for fornecido) e
+a data em que a mesma foi tirada (quando houver esta informação). 
+Se a fotografia tiver alguma descrição ou facto associado a ela, também se pretende que tal seja apresentado.
+\item dado que o problema surge no âmbito do Museu da Pessoa, pretende-se 
+que a aparência da página html se assemelhe à aparência da página web do Museu da Pessoa;
+\item pretende-se apresentar num único mapa os vários locais fotogrados no álbum;
+\end{itemize}
+
+\subsection{Formato do ficheiro de metadados}
+O ficheiro de metadados consistirá num conjunto de elemntos \texttt{foto}
+.Cada um desses elementos deverá ter um atributo \emph{ficheiro} que especifica o caminho para a fotografia a que diz respeito.
+Entre as \emph{tags} de abertura e fecho estarão elementos \emph{xml} que dão informação à fotografia. Esses elementos podem ter um dos seguintes nomes:
+\begin{itemize}
+	\item \textbf{onde} - indica o local onde a fotografia foi tirada
+	\item \textbf{quando} - indica quando é que a fotografia foi tirada.
+Esta informação pode estar representada sob a forma de atributo \texttt{data} deste elemento ou pode ser obtida pelo valor entre a \emph{tag} 
+de abertura e fecho do elemento, como se pode ver nos exemplos abaixo.
+\begin{verbatim}
+# exemplo 1: data armazenada no atributo "data"
+<quando data="1961-01-15"/> 
+
+# exemplo 2: data armazenada entre as tags de abertura e fecho
+<quando>1977-12-19</quando> 
+\end{verbatim}
+A data deve seguir o formato \emph{ano/mes/dia}, sendo que os formatos \emph{ano/mes} e \emph{ano} também são válidos. Os campos do mês e do dia devem ter obrigatoriamente dois dígitos, mesmo que o primeiro seja o 0.
+O utilizador do programa pode escolher qualquer símbolo que entender desde que o use em todo o ficheiro de metadados.
+\item \textbf{quem} - indica quem são as pessoas presentes na fotografia;
+\item \textbf{facto} - curiosidade acerca da fotografia referida;
+\end{itemize}
+Todos os elementos referidos acima são opcionais, dado que o programa terá uma execução correta, i.e. não ocorrerão casos de excepção, caso algum desses elementos seja omitido. 
+No entanto, as fotos que não contenham um elemento \textbf{quem} não serão apresentadas.
 
 \section{Concepção/desenho da Resolução}
 \subsection{Estruturas de Dados}
@@ -180,93 +222,94 @@ Trabalho futuro.
 \section{Código do programa GAWK para o problema da Via Verde}
 \section{Código do programa GAWK para o problema do Album Fotográfico}
 \begin{verbatim}
-function lerValorTag(nome_tag, linha){ if(linha == ""){linha = $0} temp = gensub(".*<" nome_tag "([[:space:]]+.*)*" "[[:space:]]*>[[:space:]]*", "", 1, linha) 
-        ret = gensub("</" nome_tag "[[:space:]]*>.*", "", 1, temp) 
-	if(ret == linha){
-		ret = ""
-	}
-	return ret
+function lerValorTag(nome_tag, linha) {
+    if(linha == "")
+        linha = $0
+    match(linha, "<" nome_tag "(\\s+.*)*>(.*)</" nome_tag "\\s*>", arr)
+    return arr[2]
 }
 
 function lerAtributoTag(nome_tag, nome_atributo, linha){
-	if(linha == ""){linha = $0}
-        temp = gensub(".*<" nome_tag "[[:space:]]+" nome_atributo "[[:space:]]*=[[:space:]]*", "", 1, linha) 
-        aspas = substr(temp,0,1)
-        split(temp, temp2, aspas)
-        ret = temp2[2]
-	#se a tag com o atributo pretendido nao for encontrada, temp sera igual a linha 
-	if(temp == linha){
-		ret = ""
-	} 
-	return ret
+   if(linha == ""){linha = $0}
+   regex_atributos = "\\w+\\s*=\\s*(\"[^<\"]*\")|(\\'[^<\\']*\\')"
+   temp = gensub(".*<" nome_tag "(\\s+" regex_atributos ")*\\s+" nome_atributo "\\s*=\\s*", "", 1, linha) 
+   aspas = substr(temp,0,1)
+   split(temp, temp2, aspas)
+   ret = temp2[2]
+   #se a tag com o atributo pretendido nao for encontrada, temp sera igual a linha 
+   if(temp == linha){
+      ret = ""
+   } 
+   return ret
 }
 
 #funcao simplificada que poe uma string num formato simplificado do url encode 
 function url_encode(linha){
-	ret = gensub("[[:space:]]", "+", "G", linha)
-	ret = gensub("!", "%21", "G", ret)
-	ret = gensub(":", "%3A", "G", ret)
-	ret = gensub("'", "%27", "G", ret)
-	ret = gensub(",", "%2C", "G", ret)
-	return ret
-
+   ret = gensub("\\s", "+", "G", linha)
+   ret = gensub("!", "%21", "G", ret)
+   ret = gensub(":", "%3A", "G", ret)
+   ret = gensub("'", "%27", "G", ret)
+   ret = gensub(",", "%2C", "G", ret)
+   return ret
 }
 
-BEGIN             { RS = "</foto"
-		    output = "album.html"
-		    html_doctype = "<!DOCTYPE html>"
-		    html_css = "<link rel=\"stylesheet\" type=\"text/css\" href=\"museu.css\" />"
-		    html_head = "<head><meta charset=\"UTF-8\"><title> Album Fotográfico </title>" html_css "</head>"
-                    print html_doctype html_head "<html><body>\n<h1> Fotografias </h1><ul>" > output
-		  }
-#como se pretende mostrar as pessoas e as fotos onde aparecem, as linhas que não tiverem a tag "quem" nao sao processadas
-/<quem(\s+.*)*/   { 
-                        ficheiro = lerAtributoTag("foto", "ficheiro")
-			pessoas = lerValorTag("quem")
-			data = lerAtributoTag("quando", "data") 
-			if(data==""){
-				data = lerValorTag("quando")
-			}
-			facto = lerValorTag("facto")
-			local = lerValorTag("onde")
-			
-			#regista o local
-              		locais[local]
+BEGIN { RS = "</foto"
+        output = "album.html"
+        html_doctype = "<!DOCTYPE html>"
+        html_css = "<link rel=\"stylesheet\" type=\"text/css\" href=\"museu.css\" />"
+        html_head = "<head><meta charset=\"UTF-8\"><title> Album Fotográfico </title>" html_css "</head>"
+        print html_doctype html_head "<html><body>\n<h1> Fotografias </h1><ul>" > output
+      }
 
-			#campos formatados para html
-			local_formatado = (local == "")? "" : "<center><p> Local: " local "</p></center>" 
-			data_formatada = (data=="")? "" : "<center><p>Data: " data "</p></center> "
-			facto_formatado = (facto == "")? "" : "<center><h5>" facto "</h5></center>"
-			pessoas_formatado = "<h3><LI><b>" pessoas "</b></LI></h3>" 
-			imagem_formatada = "<img src=\"" ficheiro "\"/>"
-			
-			entrada = pessoas_formatado "<center>" imagem_formatada "</center>\n" facto_formatado data_formatada local_formatado
-			entradas[entrada] = data
-                    }
+# como se pretende mostrar as pessoas e as fotos onde aparecem, as linhas 
+# que não tiverem a tag "quem" nao sao processadas
 
-END 		    { 
-                      delete locais[""]
-		      asorti(entradas, copia_entradas,"@val_str_asc")
-		      for(i in copia_entradas){
-			print copia_entradas[i] > output 
-		      }
-		      print "</ul>\n<h1> Locais Fotografados </h1>" > output 
-		      		      
+/<quem(\s+.*)*/  { 
+   ficheiro = lerAtributoTag("foto", "ficheiro")
+   pessoas = lerValorTag("quem")
+   data = lerAtributoTag("quando", "data") 
+   if(data==""){
+       data = lerValorTag("quando")
+   }
+   facto = lerValorTag("facto")
+   local = lerValorTag("onde")
 
-		      #ordena locais alfabeticamente
-                      asorti(locais)
-		      #gera mapa
-		      url = "https://maps.googleapis.com/maps/api/staticmap?key=AIzaSyAGDCGp6aTCV7_JQC3KNW2X3pmkOJxgMyw&size=640x480&markers="
-		      for(i in locais){
-			 url = url "|" url_encode(locais[i])  
-		      }
-		      print "<ul>" > output
-		      for(i in locais){
-                         print "<li> " locais[i] " </li>" > output 
-		      }
-		      print "</ul>  <center><img src=\"" url "\"/></center> <hr width=800> <center><p>  Feito por João Pereira(A75273), João Martins(A68646), Manuel Freitas(A71646) </p><img src=\"logoUM.jpg\"  width=\"100\" height=\"50\"></center></body>\n</html>" > output 
-		     }
- 
+   # regista o local
+   locais[local]
+
+   # campos formatados para html
+   local_formatado = (local == "")? "" : "<center><p> Local: " local "</p></center>" 
+   data_formatada = (data=="")? "" : "<center><p>Data: " data "</p></center> "
+   facto_formatado = (facto == "")? "" : "<center><h5>" facto "</h5></center>"
+   pessoas_formatado = "<h3><LI><b>" pessoas "</b></LI></h3>" 
+   imagem_formatada = "<img src=\"" ficheiro "\"/>"	
+   entrada = pessoas_formatado"<center>"imagem_formatada "</center>"facto_formatado data_formatada \\
+  					 local_formatado
+   entradas[entrada] = data
+}
+
+END { 
+   delete locais[""]
+   asorti(entradas, copia_entradas,"@val_str_asc")
+   for(i in copia_entradas){
+       print copia_entradas[i] > output 
+   }
+   print "</ul>\n<h1> Locais Fotografados </h1>" > output 
+
+   # ordena locais alfabeticamente
+   asorti(locais)
+   # gera mapa
+   url = "https://maps.googleapis.com/maps/api/staticmap?key=AIzaSyAGDCGp6aTCV7_JQC3KNW2X3pmkOJxgMyw&size=640x480&markers="
+   for(i in locais){
+       url = url "|" url_encode(locais[i])  
+   }
+   print "<ul>" > output
+   for(i in locais){
+       print "<li> " locais[i] " </li>" > output 
+   }
+   print "</ul>  <center><img src=\"" url "\"/></center> <hr width=800> <center><p>  Feito por João Pereira(A75273), //
+   João Martins(A68646), Manuel Freitas(A71646) </p><img src=\"logoUM.jpg\"  width=\"100\" height=\"50\"></center></body>\n</html>" > output 
+}
 \end{verbatim}
 
 %\begin{lstlisting}[caption={Exemplo de uma Listagem}, label={lstExe1}]
