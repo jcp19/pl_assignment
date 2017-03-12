@@ -199,28 +199,55 @@ O utilizador do programa pode escolher qualquer símbolo que entender desde que o
 \end{itemize}
 Todos os elementos referidos acima são opcionais, dado que o programa terá uma execução correta, i.e. não ocorrerão casos de excepção, caso algum desses elementos seja omitido. 
 No entanto, as fotos que não contenham um elemento \textbf{quem} não serão apresentadas.
+A sequência de elementos \textbf{foto} pode estar opcionalmente inserida num elemento \textbf{fotos}.
 
-\section{Concepção/desenho da Resolução}
-\subsection{Estruturas de Dados}
-\subsection{Algoritmos}
+\section{Concepção e Implementação da Resolução}
+Para resolver o problema em causa, desenvolveu-se um programa em \emph{GAWK} cujo nome é \emph{album.gawk}. Este programa é invocado
+da seguinte forma se só se pretender construir o album a partir de um ficheiro \emph{.xml}:
+\begin{verbatim}
+gawk -f album.gawk < FILE
+\end{verbatim}
 
-\section{Codificação e Testes}
-\subsection{Alternativas, Decisões e Problemas de Implementação}
-\subsection{Testes realizados e Resultados}
+Se se pretender construir o album a partir de vários ficheiros \emph{.xml}, pode-se fazê-lo invocando o programa da seguinte forma.
+\begin{verbatim}
+cat [FILE] | gawk -f album.gawk 
+\end{verbatim}
+\subsection{Codificação}
+Nesta parte, será discutido o código produzido para resolver o problema. O código pode ser consultado na íntegra no apêndice deste relatório.
+Começa-se por analisar as funções desenvolvidas para processar os elementos \emph{.xml}. Foram construídas duas funções:
+\begin{itemize}
+	\item \begin{verbatim} lerValorTag(nome_tag, linha) \end{verbatim} Esta função recebe como input, 
+	por ordem, o nome do elemento a ser processado (por exemplo, \textbf{quando})
+		e a linha a ser processada (por exemplo, \$0) e devolve o texto entre as tags de abertura e de fecho do primeiro elemento 
+		encontrado ou '''' se não existir o elemento pretendido. O resultado é obtido através da função pré-definida \emph{match} que, juntamente com 
+		a expressão regular \begin{verbatim}"<" nome_tag "(\\s+.*)*>(.*)</" nome_tag "\\s*>" \end{verbatim} permite que se extraia a informação pretendida.
+	\item \begin{verbatim} lerAtributoTag(nome_tag, nome_atributo, linha) \end{verbatim} Esta função recebe como input, 
+		por ordem, o nome do elemento a ser processado (por exemplo, \textbf{quando}), o atributo a ser lido (por exemplo, 
+		\textbf{data})
+		e a linha a ser processada (por exemplo, \$0) e devolve o valor do atributo no elemento especificado por \emph{nome\_tag} ou '''' se o atributo não for encontrado.
+		Esta função recorre à função \emph{gensub} para eliminar a parte inicial da linha que não têm a informação pretendida. Depois lê-se o tipo de 
+		aspas usadas para delimitar o valor do atributo e por fim recorre-se à função \emph{split} para separar o valor do atributo das aspas que o delimitam.
+\end{itemize}
+Foi também definida uma função \emph{url\_encode} que dada uma linha, devolve essa linha onde os caracteres reservados do formato URL
+são substituídos pelas sequências respetivas. Esta função não faz uma tradução completa, apenas dos caracteres mais usados. O grupo tomou esta decisão
+porque o ganho obtido por fazer uma função completa seria mínimo face à versão atual e consistiria apenas em fazer "mais do mesmo".
+\subsection{Codificação e Testes}
+\subsubsection{Alternativas, Decisões e Problemas de Implementação}
+\subsubsection{Testes realizados e Resultados}
 Mostram-se a seguir alguns testes feitos (valores introduzidos) e
 os respectivos resultados obtidos:
 
 
 
 \chapter{Conclusão} \label{concl}
-Síntese do Documento~\cite{Martini2016a,Hoare73a}.\\
-Estado final do projecto; Análise crítica dos resultados~\cite{Sto77a}.\\
+Síntese do Documento.\\
+Estado final do projecto; Análise crítica dos resultados.\\
 Trabalho futuro.
 
 \appendix
 \chapter{Código Produzido}
 \section{Código do programa GAWK para o problema da Via Verde}
-\section{Código do programa GAWK para o problema do Album Fotográfico}
+\section{Conteúdo fo ficheiro \emph{album.gawk}}
 \begin{verbatim}
 function lerValorTag(nome_tag, linha) {
     if(linha == "")
@@ -324,19 +351,4 @@ END {
 
 \bibliographystyle{alpha}
 \bibliography{relprojLayout}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 \end{document} 
