@@ -26,13 +26,13 @@ BEGINFILE {
 }
 
 # Accao a realizar para cada transaccao
-/<\/TRANSACCAO>/ {
+/<\/TRANSACCAO/ {
 	importancia = 0
 	parque = 0
 	split($0, a, /<|>/)
 	
 	# a[1] tem a string vazia, por isso comecamos com i = 2
-	for(i = 2; a[i] != "/TRANSACCAO"; ++i) {
+	for(i = 2; a[i] !~ "/TRANSACCAO"; ++i) {
 		if(a[i] ~ /^DATA_ENTRADA/) {
 			data = a[i+1]
 			if(data != "null")
