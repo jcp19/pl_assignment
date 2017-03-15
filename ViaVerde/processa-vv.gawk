@@ -138,7 +138,7 @@ function ler_atributo_tag(nome_tag, nome_atributo, linha){
     aspas = substr(temp,0,1)
     split(temp, temp2, aspas)
     ret = temp2[2]
-    # se a tag com o atributo pretendido nao for encontrada, temp sera igual a linha 
+    # se a tag com o atributo pretendido não for encontrada, temp será igual a linha 
     if(temp == linha) {
         ret = ""
     } 

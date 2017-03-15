@@ -15,14 +15,14 @@ function ler_atributo_tag(nome_tag, nome_atributo, linha){
     aspas = substr(temp,0,1)
     split(temp, temp2, aspas)
     ret = temp2[2]
-    # se a tag com o atributo pretendido nao for encontrada, temp sera igual a linha 
+    # se a tag com o atributo pretendido não for encontrada, temp será igual a linha 
     if(temp == linha) {
         ret = ""
     } 
     return ret
 }
 
-# funcao simplificada que poe uma string num formato simplificado do url encode 
+# função simplificada que põe uma string num formato simplificado do url encode 
 function url_encode(linha) {
     ret = gensub("\\s", "+", "G", linha)
     ret = gensub("!", "%21", "G", ret)
@@ -43,7 +43,7 @@ BEGIN {
 }
 
 # como se pretende mostrar as pessoas e as fotos onde aparecem, 
-# as linhas que não tiverem a tag "quem" nao sao processadas
+# as linhas que não tiverem a tag "quem" não são processadas
 
 /<quem(\s+.*)*/  { 
  
@@ -77,9 +77,9 @@ END {
         print copia_entradas[i] > output 
     }
     print "</ul>\n<h1> Locais Fotografados </h1>" > output 
-    # ordena locais alfabeticamente
+    # ordena os locais alfabeticamente
     asorti(locais)
-    # gera mapa
+    # gera o mapa
     url = "https://maps.googleapis.com/maps/api/staticmap?key=AIzaSyAGDCGp6aTCV7_JQC3KNW2X3pmkOJxgMyw&size=640x480&markers="
     for(i in locais) {
         url = url "|" url_encode(locais[i])  
