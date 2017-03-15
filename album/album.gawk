@@ -66,7 +66,8 @@ BEGIN {
     pessoas_formatado = "<h3><LI><b>" pessoas "</b></LI></h3>" 
     imagem_formatada = "<img src=\"" ficheiro "\"/>"
 
-    entrada = pessoas_formatado "<center>" imagem_formatada "</center>\n" facto_formatado data_formatada local_formatado
+    entrada = pessoas_formatado "<center>" imagem_formatada "</center>\n" \
+              facto_formatado data_formatada local_formatado
     entradas[entrada] = data
 }
 
@@ -80,7 +81,8 @@ END {
     # ordena os locais alfabeticamente
     asorti(locais)
     # gera o mapa
-    url = "https://maps.googleapis.com/maps/api/staticmap?key=AIzaSyAGDCGp6aTCV7_JQC3KNW2X3pmkOJxgMyw&size=640x480&markers="
+    url = "https://maps.googleapis.com/maps/api/staticmap?\
+           key=AIzaSyAGDCGp6aTCV7_JQC3KNW2X3pmkOJxgMyw&size=640x480&markers="
     for(i in locais) {
         url = url "|" url_encode(locais[i])  
     }
@@ -88,5 +90,7 @@ END {
     for(i in locais) {
         print "<li> " locais[i] " </li>" > output 
     }
-    print "</ul>  <center><img src=\"" url "\"/></center> <hr width=800> <center><p>  Feito por João Pereira(A75273), João Martins(A68646), Manuel Freitas(A71646) </p><img src=\"logoUM.jpg\"  width=\"100\" height=\"50\"></center></body>\n</html>" > output 
+    print "</ul>  <center><img src=\"" url "\"/></center> <hr width=800> <center><p>\
+          Feito por João Pereira(A75273), João Martins(A68646), Manuel Freitas(A71646)\
+          </p><img src=\"logoUM.jpg\"  width=\"100\" height=\"50\"></center></body>\n</html>" > output 
 }

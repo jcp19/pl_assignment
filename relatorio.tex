@@ -1,6 +1,5 @@
 \documentclass{report}
 \usepackage[portuges]{babel}
-%\usepackage[utf8]{inputenc}
 \usepackage[latin1]{inputenc}
 
 \usepackage{url}
@@ -9,8 +8,6 @@
 \usepackage{hyperref}
 \usepackage{nameref}
 
-%\usepackage{alltt}
-%\usepackage{fancyvrb}
 \usepackage{listings}
 %LISTING - GENERAL
 \lstset{
@@ -23,32 +20,6 @@
     mathescape=true,
     escapeinside={(*@}{@*)},
 }
-%
-%\lstset{ %
-%   language=Java,                          % choose the language of the code
-%   basicstyle=\ttfamily\footnotesize,      % the size of the fonts that are used for the code
-%   keywordstyle=\bfseries,                 % set the keyword style
-%   %numbers=left,                          % where to put the line-numbers
-%   numberstyle=\scriptsize,                % the size of the fonts that are used for the line-numbers
-%   stepnumber=2,                           % the step between two line-numbers. If it's 1 each line
-%                                           % will be numbered
-%   numbersep=5pt,                          % how far the line-numbers are from the code
-%   backgroundcolor=\color{white},          % choose the background color. You must add \usepackage{color}
-%   showspaces=false,                       % show spaces adding particular underscores
-%   showstringspaces=false,                 % underline spaces within strings
-%   showtabs=false,                         % show tabs within strings adding particular underscores
-%   frame=none,                             % adds a frame around the code
-%   %abovecaptionskip=-.8em,
-%   %belowcaptionskip=.7em,
-%   tabsize=2,                              % sets default tabsize to 2 spaces
-%   captionpos=b,                           % sets the caption-position to bottom
-%   breaklines=true,                        % sets automatic line breaking
-%   breakatwhitespace=false,                % sets if automatic breaks should only happen at whitespace
-%   title=\lstname,                         % show the filename of files included with \lstinputlisting;
-%                                           % also try caption instead of title
-%   escapeinside={\%*}{*)},                 % if you want to add a comment within your code
-%   morekeywords={*,...}                    % if you want to add more keywords to the set
-%}
 
 \usepackage{xspace}
 
@@ -66,9 +37,6 @@
 \def\super#1{{\em Supervisor: #1}\\ }
 \def\area#1{{\em \'{A}rea: #1}\\[0.2cm]}
 \def\resumo{\underline{Resumo}:\\ }
-
-
-%%%%\input{LPgeneralDefintions}
 
 \title{Processamento de Linguagens \\ MIEI (3º ano) \\~\\ \large Trabalho Prático nº 1 - Parte A (GAWK)\\ Relatório de Desenvolvimento \\~\\ Ano lectivo 16/17}
 \author{João Pereira\\(A75273) \and João Martins\\(A68646) \and Manuel Freitas\\(A71646) }
@@ -98,14 +66,14 @@ O relatório encontra-se dividido em 4 capítulos:
     \item \nameref{concl}.
 \end{enumerate}
 
-No capítulo~\ref{album_fotos}, explica-se o processo e as decisões de desenvolvimento de um processador de texto com o GAWK que lê um ou mais ficheiros XML com meta-informação de albums fotográficos e produz um ficheiro HTML com o corpo do(s) album(s) especificados, incluindo a lista de locais fotogrados e a sua representação num mapa.
+No capítulo~\ref{album_fotos}, explica-se o processo e as decisões de desenvolvimento de um processador de texto com o GAWK que lê um ou mais ficheiros XML com meta-informação de albums fotográficos e produz um ficheiro HTML com o corpo do album, incluindo a lista de locais fotogrados e a sua representação num mapa.
 
 No capítulo~\ref{via_verde}, descreve-se a metodologia e as decisões de desenvolvimento de um processador de texto com o GAWK, capaz de ler vários extractos da Via Verde em formato XML e extrair informações sobre gastos, locais de `saída' e número de `entradas' em cada dia do mês.
 
 No que diz respeito à sua estrutura, os capítulos \ref{album_fotos} e \ref{via_verde} são idênticos, tendo ambos:
 \begin{enumerate}
   \item uma secção de análise e especificação na qual se descreve informalmente o problema e se apresenta a especificação de requisitos e o formato dos ficheiros de \textit{input};
-  \item uma secção em que se explica a forma de se utilização do processador de texto em questão e se apresenta exemplos de utilização;
+  \item uma secção em que se explica a forma de utilização do processador de texto em questão e se apresenta exemplos de utilização;
   \item uma secção na qual se justifica as várias decisões de desenvolvimento e implementação da solução, apresenta-se possíveis decisões alternativas e mostra-se alguns dos testes realizados e os resultados obtidos.
 \end{enumerate}
 
@@ -172,7 +140,7 @@ O comando:
 \begin{verbatim}
 gawk -f album.gawk hendrix.xml
 \end{verbatim}
-, invoca o programa \texttt{album.gawk} com o ficheiro \texttt{hendrix.xml} (anexo~\ref{hendrix_in}) e produz o ficheiro \texttt{album.html}, que contém o album obtido a partir dos metadados do ficheiro de \textit{input}. No anexo~\ref{hendrix_out} pode-se observar parte do album produzido pelo comando apresentado.
+, invoca o programa \texttt{album.gawk} com o ficheiro \texttt{hendrix.xml} (apêndice~\ref{hendrix_in}) e produz o ficheiro \texttt{album.html}, que contém o album obtido a partir dos metadados do ficheiro de \textit{input}. No apêndice~\ref{hendrix_out} pode-se observar parte do album produzido pelo comando apresentado.
 
 \newpage
 O comando:
@@ -182,15 +150,6 @@ gawk -f album.gawk legenda.xml hendrix.xml
 , invoca o programa \texttt{album.gawk} com os ficheiros \texttt{legenda.xml} e \texttt{hendrix.xml} e produz o ficheiro \texttt{album.html}, que consiste num album fotográfico produzido a partir dos dois ficheiros de \textit{input}.
 
 \section{Concepção e Implementação da Resolução}
-% Para se resolver o problema em causa, desenvolveu-se um programa em GAWK cujo nome é \texttt{album.gawk}. Este programa é invocado da seguinte forma, se só se pretender construir o album a partir de um ficheiro \emph{.xml}:
-%\begin{verbatim}
-%gawk -f album.gawk FILE
-%\end{verbatim}
-
-%Se se pretender construir o album a partir de vários ficheiros \emph{.xml}, pode-se fazê-lo invocando o programa da seguinte forma.
-%\begin{verbatim}
-%gawk -f album.gawk FILE ...
-%\end{verbatim}
 
 \subsection{Codificação}
 Nesta secção, será discutido o código produzido para resolver o problema. O código pode ser consultado na íntegra no apêndice~\ref{cod_fich_af}.
@@ -201,16 +160,16 @@ Começa-se por analisar as funções desenvolvidas para processar os elementos XML.
 \end{itemize}
 Posteriormente, foi também definida a função \texttt{url\_encode} que, dada uma linha, devolve essa linha onde os caracteres reservados do formato URL são substituídos pelas sequências respetivas. Esta função não faz uma tradução completa, apenas traduz os caracteres mais usados. O grupo tomou esta decisão porque o ganho obtido por fazer uma função completa seria mínimo face à versão atual e consistiria apenas em fazer ``mais do mesmo''. Para fazer as substituições dos símbolos reservados, a função \texttt{url\_encode} recorre a invocações da função \texttt{gensub}.
 
-Estando explicadas as funções definidas pelo grupo, passa-se à descrição da implementação do programa. No bloco BEGIN, definiu-se o separador de registos (RS) como sendo o padrão ``</foto''. Desta forma, garante-se que sempre que é encontrada informação de uma foto se pode aceder a todos os dados referentes à mesma (por exemplo, o local e a data da fotografia), dentro do mesmo registo. Ainda antes de se ler o conteúdo do 1º ficheiro de \textit{input}, escreve-se o cabeçalho HTML no ficheiro de \textit{output}. Esse cabeçalho inclui, entre outras coisas, a definição do tema da página. Dado que este problema surgiu no âmbito do Museu da Pessoa, o grupo considerou que fazia sentido replicar o tema do mesmo e, por conseguinte, usou o ficheiro \texttt{.css} utilizado no portal \textit{web} do Museu da Pessoa.
+Estando explicadas as funções definidas pelo grupo, passa-se à descrição da implementação do programa. No bloco BEGIN, definiu-se o separador de registos (RS) como sendo o padrão ``\textless/foto''. Desta forma, garante-se que sempre que é encontrada informação de uma foto se pode aceder a todos os dados referentes à mesma (por exemplo, o local e a data da fotografia), dentro do mesmo registo. Ainda antes de se ler o conteúdo do 1º ficheiro de \textit{input}, escreve-se o cabeçalho HTML no ficheiro de \textit{output}. Esse cabeçalho inclui, entre outras coisas, a definição do tema da página. Dado que este problema surgiu no âmbito do Museu da Pessoa, o grupo considerou que fazia sentido replicar o tema do mesmo e, por conseguinte, usou o ficheiro \texttt{.css} utilizado no portal \textit{web} do Museu da Pessoa.
 
 Seguidamente, para todas os registos que apresentem um elemento \textbf{quem}, procura-se a informação relativa ao ficheiro a mostrar, a quem aparece na foto, onde foi tirada a foto e algum facto associado à mesma. Esta procura é feita recorrendo às funções referidas acima para obter informação dos elementos XML. Os locais onde as fotografias são tiradas são armazenados num \textit{array} associativo para mais tarde serem listados. Usando o local como chave, garante-se que apenas uma cópia de cada local é guardada, não havendo repetições de locais. De seguida, os dados da imagem são formatados para estarem de acordo com o formato HTML e são combinados numa linha para ser inserida na página de \textit{output}. Essa linha é guardada num \textit{array} associativo, onde a chave é a própria linha e o valor é a data da fotografia a que a linha diz respeito. Desta forma, é possível posteriormente ordenar cronologicamente as fotografias.
 
 No final da leitura do ficheiro, as entradas são ordenadas por data através da função \texttt{asorti}, que ordena os indíces segundo o critério passado como argumento, neste caso, por ordem crescente dos valores (datas). De seguida, as entradas são escritas no ficheiro HTML. A seguir, percorre-se o \textit{array} com os locais visitados e ordena-se esse \textit{array} alfabeticamente.
 
-Para além disso, gera-se um URL a partir dos nomes dos locais, processados pela função \texttt{url\_encode}. Este URL é especificado pela API do \emph{Google Maps} e permite que se gere uma imagem de um mapa com os locais assinalados. A forma para gerar o URL é descrita em \url{https://developers.google.com/maps/documentation/static-maps/intro} e consiste em concatenar um URL base com o nome dos locais, convertidos para a codificação URL, separados por ``|''. De seguida, imprime-se para o ficheiro os locais ordenados alfabeticamente e sem repetições e a linha que faz com que apareça a imagem do mapa, seguida do rodapé da página.
+Para além disso, gera-se um URL a partir dos nomes dos locais, processados pela função \texttt{url\_encode}. Este URL é especificado pela API do \emph{Google Maps} e permite que se gere uma imagem de um mapa com os locais assinalados. A forma para gerar o URL é descrita em \url{https://developers.google.com/maps/documentation/static-maps/intro} e consiste em concatenar um URL base com o nome dos locais, convertidos para a codificação URL, separados por ``\textbar''. De seguida, imprime-se para o ficheiro os locais ordenados alfabeticamente e sem repetições e a linha que faz com que apareça a imagem do mapa, seguida do rodapé da página.
 
 \subsection{Testes}
-Para se testar o programa desenvolvido, fez-se uso do ficheiro \emph{legenda.xml} fornecido pela equipa docente. No entanto, este ficheiro teve de sofrer algumas alterações para corrigir erros ortográficos e para estar de acordo com as convenções adotadas, nomeadamente no que toca ao formato das datas. Para além disso, o grupo construiu um ficheiro de metadados sobre a vida de \emph{Jimi Hendrix} para testar este programa. O ficheiro construido tem o nome de \texttt{hendrix.xml} e pode ser consultado no apêndice~\ref{hendrix_in}. Em ambos os testes, o programa gerou corretamente a página e os resultados foram os esperados (no anexo~\ref{hendrix_out} pode-se observar um extracto dos resultados obtidos para o ficheiro \texttt{hendrix.xml}). Também se testou passar os dois ficheiros em simultâneo para gerar um album a partir de ambos. Também neste caso os resultados obtidos foram os esperados: a página gerada apresenta as imagens e os seus dados corretamente, com uma ordenação cronológica das fotografias correta. Durante estes testes, o grupo deparou-se com uma limitação da API do \emph{Google Maps} que apenas permite, no máximo, que se mostrem 15 locais na mesma imagem. No entanto, esta limitação técnica em nada diminui o interesse dos resultados obtidos.
+Para se testar o programa desenvolvido, fez-se uso do ficheiro \emph{legenda.xml} fornecido pela equipa docente. No entanto, este ficheiro teve de sofrer algumas alterações para corrigir erros ortográficos e para estar de acordo com as convenções adotadas, nomeadamente no que toca ao formato das datas. Para além disso, o grupo construiu um ficheiro de metadados sobre a vida de \emph{Jimi Hendrix} para testar este programa. O ficheiro construido tem o nome de \texttt{hendrix.xml} e pode ser consultado no apêndice~\ref{hendrix_in}. Em ambos os testes, o programa gerou corretamente a página e os resultados foram os esperados (no apêndice~\ref{hendrix_out} pode-se observar um extracto dos resultados obtidos para o ficheiro \texttt{hendrix.xml}). Também se testou passar os dois ficheiros em simultâneo para gerar um album a partir de ambos. Também neste caso os resultados obtidos foram os esperados: a página gerada apresenta as imagens e os seus dados corretamente, com uma ordenação cronológica das fotografias correta. Durante estes testes, o grupo deparou-se com uma limitação da API do \emph{Google Maps} que apenas permite, no máximo, que se mostrem 15 locais na mesma imagem. No entanto, esta limitação técnica em nada diminui o interesse dos resultados obtidos.
 
 \chapter{Processador de Transacções da Via Verde} \label{via_verde}
 \section{Análise e Especificação} \label{ae_vv}
@@ -303,25 +262,15 @@ O comando:
 \begin{verbatim}
 gawk -N -f processa-vv.gawk viaverde.xml
 \end{verbatim}
-, invoca o processador de extractos da Via Verde com o ficheiro \texttt{viaverde.xml} (disponibilizado pela equipa docente) e imprime no \texttt{stdout} os resultados apresentados que se podem observar no anexo~\ref{vv_out}.
+, invoca o processador de extractos da Via Verde com o ficheiro \texttt{viaverde.xml} (disponibilizado pela equipa docente) e imprime no \texttt{stdout} os resultados apresentados que se podem observar no apêndice~\ref{vv_out}.
 
 O comando:
 \begin{verbatim}
 gawk -N -f processa-vv.gawk viaverde-mar.xml viaverde-abr.xml
 \end{verbatim}
-, invoca o processador de extractos da Via Verde com os ficheiros \texttt{viaverde-mar.xml} e \texttt{viaverde-abr.xml} e apresenta no \texttt{stdout} os resultados expostos no anexo~\ref{vv_mar_abr_out}.
+, invoca o processador de extractos da Via Verde com os ficheiros \texttt{viaverde-mar.xml} e \texttt{viaverde-abr.xml} e apresenta no \texttt{stdout} os resultados expostos no apêndice~\ref{vv_mar_abr_out}.
 
 \section{Concepção e Implementação da Resolução}
-
-% Para se resolver o problema em causa, criou-se um programa em \texttt{GAWK} designado por \emph{processa-vv.gawk}, que é invocado
-% a partir de uma \textit{shell} \texttt{UNIX} da seguinte forma:
-% \begin{verbatim}
-% gawk -N -f processa-vv.gawk FILE ...
-% \end{verbatim}
-
-% \textbf{Nota:} Como os valores fraccionários dos extractos da Via Verde usam a vírgula (`,') como separador decimal, é necessário invocar o \texttt{GAWK} com a \textit{flag} \texttt{-N}, de forma a que este considere a vírgula (em vez do ponto) como separador decimal.
-
-% Quando a execução do \textit{script} \texttt{processa-vv.gawk} é bem sucedida, o resultado é apresentado no \texttt{stdout} (caso se invoque o programa com vários ficheiros de texto, aconselha-se o redireccionamento do \textit{output} para um comando que permita a paginação do mesmo, p. ex: o comando \texttt{less}).
 
 \subsection{Codificação} \label{cod_af}
 O código do \textit{script} \texttt{processa-vv.gawk} pode ser consultado na íntegra no apêndice~\ref{cod_fich_vv} deste relatório. Nesta secção, analisa-se as decisões e aspetos principais da codificação do programa, tais como o separador de registos (\texttt{RS}) e separador de campos (\texttt{FS}) escolhidos, as funções e os pares padrão-acção definidos e os blocos de inicialização e de término do programa.
@@ -377,11 +326,11 @@ Chegando ao final do último ficheiro, imprime-se o total global e o total global
 
 Para se testar a solução desenvolvida, recorreu-se ao ficheiro \texttt{viaverde.xml}, disponibilizado pela equipa docente e aos ficheiros \texttt{viaverde-jan.xml}, \texttt{viaverde-mar.xml}, \texttt{viaverde-abr.xml}, \texttt{viaverde-mai.xml}, \texttt{viaverde-jun.xml}, \texttt{viaverde-jul.xml}, \texttt{viaverde-ago.xml} e \texttt{viaverde-set.xml}, fornecidos pelo pai do João Martins.
 
-No caso do extracto \texttt{viaverde.xml}, efetuou-se a invocação \texttt{gawk -N -f processa-vv.gawk viaverde.xml}. O \textit{output} obtido, que pode ser observado no anexo~\ref{vv_out}, coincide com o que era esperado e, visto que o ficheiro \texttt{viaverde.xml} é relativamente curto, por observação do mesmo consegue-se confirmar a correcção dos resultados produzidos.
+No caso do extracto \texttt{viaverde.xml}, efetuou-se a invocação \texttt{gawk -N -f processa-vv.gawk viaverde.xml}. O \textit{output} obtido, que pode ser observado no apêndice~\ref{vv_out}, coincide com o que era esperado e, visto que o ficheiro \texttt{viaverde.xml} é relativamente curto, por observação do mesmo consegue-se confirmar a correcção dos resultados produzidos.
 
 O facto de no extracto \texttt{viaverde.xml} só ocorrem as transacções de uma viatura leva a que o total gasto e o total gasto em `parques' no mês sejam iguais aos respetivos totais do mês para essa viatura. Além disso, os totais globais também coincidem com os totais do mês devido à invocação ter sido feita com um único extracto.
 
-Com a finalidade de se testar o comportamento do programa quando invocado com vários extractos de uma vez, em que cada um apresenta transacções de dois veículos diferentes, utilizou-se os restantes ficheiros acima referidos, realizando várias invocações com números e combinações diferentes dos mesmos. Numa dessas invocações, passou-se os extractos \texttt{viaverde-mar.xml} e \texttt{viaverde-abr.xml} para o processador de transacções, através do comando \texttt{gawk -N -f processa-vv.gawk viaverde-mar.xml viaverde-abr.xml}. O \textit{output} obtido, disponível no anexo~\ref{vv_mar_abr_out}, mostra que neste caso existem duas viaturas, pelo que em cada extracto são mostrados o total gasto e o total gasto em `parques' para cada uma dessas viaturas. Também se observa que os resultados do mês continuam a aparecer no final dos resultados de cada extracto e a incluir o número de `entradas' em cada dia do mês, a lista das `saídas', o total gasto e o total gasto em parques no mês. Adicionalmente, constata-se que em cada mês o total gasto e o total gasto em `parques' correspondem à soma dos respetivos totais das viaturas nesse mês. Por fim, nas últimas duas linhas do \textit{output}, pode-se consultar os resultados globais que, de cima para baixo, correspondem à soma do total gasto e à soma do total gasto em `parques' nos meses dos extractos processados na invocação.
+Com a finalidade de se testar o comportamento do programa quando invocado com vários extractos de uma vez, em que cada um apresenta transacções de dois veículos diferentes, utilizou-se os restantes ficheiros acima referidos, realizando várias invocações com números e combinações diferentes dos mesmos. Numa dessas invocações, passou-se os extractos \texttt{viaverde-mar.xml} e \texttt{viaverde-abr.xml} para o processador de transacções, através do comando \texttt{gawk -N -f processa-vv.gawk viaverde-mar.xml viaverde-abr.xml}. O \textit{output} obtido, disponível no apêndice~\ref{vv_mar_abr_out}, mostra que neste caso existem duas viaturas, pelo que em cada extracto são mostrados o total gasto e o total gasto em `parques' para cada uma dessas viaturas. Também se observa que os resultados do mês continuam a aparecer no final dos resultados de cada extracto e a incluir o número de `entradas' em cada dia do mês, a lista das `saídas', o total gasto e o total gasto em parques no mês. Adicionalmente, constata-se que em cada mês o total gasto e o total gasto em `parques' correspondem à soma dos respetivos totais das viaturas nesse mês. Por fim, nas últimas duas linhas do \textit{output}, pode-se consultar os resultados globais que, de cima para baixo, correspondem à soma do total gasto e à soma do total gasto em `parques' nos meses dos extractos processados na invocação.
 
 Com os testes realizados, o grupo obteve os resultados que eram esperados e que satisfazem os requisitos apresentados na secção~\ref{er_vv}.
 
@@ -463,7 +412,8 @@ BEGIN {
     pessoas_formatado = "<h3><LI><b>" pessoas "</b></LI></h3>" 
     imagem_formatada = "<img src=\"" ficheiro "\"/>"
 
-    entrada = pessoas_formatado "<center>" imagem_formatada "</center>\n" facto_formatado data_formatada local_formatado
+    entrada = pessoas_formatado "<center>" imagem_formatada "</center>\n" \
+              facto_formatado data_formatada local_formatado
     entradas[entrada] = data
 }
 
@@ -477,7 +427,8 @@ END {
     # ordena os locais alfabeticamente
     asorti(locais)
     # gera o mapa
-    url = "https://maps.googleapis.com/maps/api/staticmap?key=AIzaSyAGDCGp6aTCV7_JQC3KNW2X3pmkOJxgMyw&size=640x480&markers="
+    url = "https://maps.googleapis.com/maps/api/staticmap?\
+           key=AIzaSyAGDCGp6aTCV7_JQC3KNW2X3pmkOJxgMyw&size=640x480&markers="
     for(i in locais) {
         url = url "|" url_encode(locais[i])  
     }
@@ -485,7 +436,9 @@ END {
     for(i in locais) {
         print "<li> " locais[i] " </li>" > output 
     }
-    print "</ul>  <center><img src=\"" url "\"/></center> <hr width=800> <center><p>  Feito por João Pereira(A75273), João Martins(A68646), Manuel Freitas(A71646) </p><img src=\"logoUM.jpg\"  width=\"100\" height=\"50\"></center></body>\n</html>" > output 
+    print "</ul>  <center><img src=\"" url "\"/></center> <hr width=800> <center><p>\
+          Feito por João Pereira(A75273), João Martins(A68646), Manuel Freitas(A71646)\
+          </p><img src=\"logoUM.jpg\"  width=\"100\" height=\"50\"></center></body>\n</html>" > output 
 }
 \end{verbatim}
 
@@ -2190,17 +2143,8 @@ Total gasto = 139,70 EUR
 Total gasto em parques = 3,50 EUR
 \end{verbatim}
 
-%\begin{lstlisting}[caption={Exemplo de uma Listagem}, label={lstExe1}]
-%llll sanjdb c kjnjcnjnjj mmmmmmmmmmmmm hhhhhhhhhhhhhhhhhhhhhhhh jjjjjjjjjjjjjjjjjjjjjjjjjjjj kkkkkkkkkkkkkkkkkk
-%      ou então aparecer aqui neste sítio um pouco de matematica $\$$
-%      como alternativa ao anterior.
-%      e aqui mais um teste $\varepsilon$
-%\end{lstlisting}
+\nocite{*}
+\bibliographystyle{ieeetr}
+\bibliography{referenciasWeb}
 
-%É ainda possível importar diretamente o ficheiro:
-%\lstinputlisting{plfiltrobase.l} %input de um ficheiro
-
-
-\bibliographystyle{alpha}
-\bibliography{relprojLayout}
 \end{document} 
