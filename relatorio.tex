@@ -105,13 +105,13 @@ Para além disso, o grupo entendeu que o trabalho deveria também satisfazer os se
 
 \newpage
 \subsection{Formato do Ficheiro de Metadados}
-O ficheiro de metadados consistirá num conjunto de elementos \texttt{foto}. Cada um desses elementos deverá ter um atributo \texttt{ficheiro} que especifica o caminho para a fotografia a que diz respeito.
+O ficheiro de metadados consistirá num conjunto de elementos \textbf{foto}. Cada um desses elementos deverá ter um atributo \texttt{ficheiro} que especifica o caminho para a fotografia a que diz respeito.
 
-Entre as \emph{tags} de abertura e fecho estarão elementos XML que dão informação à fotografia. Esses elementos podem ter um dos seguintes nomes:
+Entre as \textit{tags} de abertura e fecho estarão elementos XML que dão informação à fotografia. Esses elementos podem ter um dos seguintes nomes:
 \begin{itemize}
     \item \textbf{onde}: indica o local onde a fotografia foi tirada
     \item \textbf{quando}: indica quando é que a fotografia foi tirada.
-    Esta informação pode estar representada sob a forma do atributo \texttt{data} deste elemento ou pode ser expressa pelo valor entre a \emph{tag} 
+    Esta informação pode estar representada sob a forma do atributo \texttt{data} deste elemento ou pode ser expressa pelo valor entre a \textit{tag} 
     de abertura e fecho do elemento, como se pode ver nos exemplos abaixo.
     \begin{verbatim}
     # exemplo 1: data armazenada no atributo "data"
@@ -120,7 +120,7 @@ Entre as \emph{tags} de abertura e fecho estarão elementos XML que dão informaçã
     # exemplo 2: data armazenada entre as tags de abertura e fecho
     <quando>1977-12-19</quando> 
     \end{verbatim}
-    A data deve seguir o formato \emph{ano-mês-dia}, sendo que os formatos \emph{ano-mês} e \emph{ano} também são válidos. Os campos do mês e do dia devem ter obrigatoriamente dois dígitos, mesmo que o primeiro seja o 0. O utilizador do programa pode escolher qualquer símbolo que entenda, desde que o use em todo o ficheiro de metadados.
+    A data deve seguir o formato \textit{ano-mês-dia}, sendo que os formatos \textit{ano-mês} e \textit{ano} também são válidos. Os campos do mês e do dia devem ter obrigatoriamente dois dígitos, mesmo que o primeiro seja o 0. O utilizador do programa pode escolher qualquer símbolo que entenda, desde que o use em todo o ficheiro de metadados.
     \item \textbf{quem}: indica quem são as pessoas presentes na fotografia;
     \item \textbf{facto}: curiosidade acerca da fotografia referida.
 \end{itemize}
@@ -133,14 +133,14 @@ O programa GAWK desenvolvido para resolver o problema em causa, designado por \t
 \begin{verbatim}
 gawk -f album.gawk FILE ...
 \end{verbatim}
-, onde \texttt{FILE} assinala o lugar onde se deve introduzir o nome ou caminho absoluto do primeiro ficheiro de metadados a ser processado. Se se pretender construir o album a partir de mais ficheiros XML, pode-se fazê-lo listando-os à direita de \texttt{FILE}, separados por espaços.
+onde \texttt{FILE} assinala o lugar onde se deve introduzir o nome ou caminho absoluto do primeiro ficheiro de metadados a ser processado. Se se pretender construir o album a partir de mais ficheiros XML, pode-se fazê-lo listando-os à direita de \texttt{FILE}, separados por espaços.
 
 \subsection{Exemplos de Utilização}
 O comando:
 \begin{verbatim}
 gawk -f album.gawk hendrix.xml
 \end{verbatim}
-, invoca o programa \texttt{album.gawk} com o ficheiro \texttt{hendrix.xml} (apêndice~\ref{hendrix_in}) e produz o ficheiro \texttt{album.html}, que contém o album obtido a partir dos metadados do ficheiro de \textit{input}. No apêndice~\ref{hendrix_out} pode-se observar parte do album produzido pelo comando apresentado.
+invoca o programa \texttt{album.gawk} com o ficheiro \texttt{hendrix.xml} (apêndice~\ref{hendrix_in}) e produz o ficheiro \texttt{album.html}, que contém o album obtido a partir dos metadados do ficheiro de \textit{input}. No apêndice~\ref{hendrix_out} pode-se observar parte do album produzido pelo comando apresentado.
 
 \newpage
 O comando:
@@ -155,26 +155,26 @@ gawk -f album.gawk legenda.xml hendrix.xml
 Nesta secção, será discutido o código produzido para resolver o problema. O código pode ser consultado na íntegra no apêndice~\ref{cod_fich_af}.
 Começa-se por analisar as funções desenvolvidas para processar os elementos XML. Inicialmente, foram construídas duas funções:
 \begin{itemize}
-    \item \texttt{ler\_valor\_tag(nome\_tag, linha)}. Esta função recebe como \textit{input}, por ordem, o nome do elemento a ser processado (por exemplo, \textbf{quando}) e a linha a ser processada (por exemplo, \$0) e devolve o texto entre as tags de abertura e de fecho do primeiro elemento encontrado ou ``'' se não existir o elemento pretendido. O resultado é obtido através da função pré-definida \texttt{match} que, juntamente com a expressão regular \begin{verbatim}"<" nome_tag "(\\s+.*)*>(.*)</" nome_tag "\\s*>" \end{verbatim} permite que se extraia a informação pretendida;
+    \item \texttt{ler\_valor\_tag(nome\_tag, linha)}. Esta função recebe como \textit{input}, por ordem, o nome do elemento a ser processado (por exemplo, \textbf{quando}) e a linha a ser processada (por exemplo, \$0) e devolve o texto entre as \textit{tags} de abertura e de fecho do primeiro elemento encontrado ou ``'' se não existir o elemento pretendido. O resultado é obtido através da função pré-definida \texttt{match} que, juntamente com a expressão regular \begin{verbatim}"<" nome_tag "(\\s+.*)*>(.*)</" nome_tag "\\s*>" \end{verbatim} permite que se extraia a informação pretendida;
     \item \texttt{ler\_atributo\_tag(nome\_tag, nome\_atributo, linha)}. Esta função recebe como \textit{input}, por ordem, o nome do elemento a ser processado (por exemplo, \textbf{quando}), o atributo a ser lido (por exemplo, \textbf{data}) e a linha a ser processada (por exemplo, \$0) e devolve o valor do atributo no elemento especificado por \texttt{nome\_tag} ou ``'' se o atributo não for encontrado. \texttt{ler\_atributo\_tag} recorre à função \texttt{gensub} para eliminar a parte inicial da linha que não tem a informação pretendida. Depois lê o tipo de aspas usadas para delimitar o valor do atributo e por fim utiliza a função \texttt{split} para separar o valor do atributo das aspas que o delimitam.
 \end{itemize}
 Posteriormente, foi também definida a função \texttt{url\_encode} que, dada uma linha, devolve essa linha onde os caracteres reservados do formato URL são substituídos pelas sequências respetivas. Esta função não faz uma tradução completa, apenas traduz os caracteres mais usados. O grupo tomou esta decisão porque o ganho obtido por fazer uma função completa seria mínimo face à versão atual e consistiria apenas em fazer ``mais do mesmo''. Para fazer as substituições dos símbolos reservados, a função \texttt{url\_encode} recorre a invocações da função \texttt{gensub}.
 
-Estando explicadas as funções definidas pelo grupo, passa-se à descrição da implementação do programa. No bloco BEGIN, definiu-se o separador de registos (RS) como sendo o padrão ``\textless/foto''. Desta forma, garante-se que sempre que é encontrada informação de uma foto se pode aceder a todos os dados referentes à mesma (por exemplo, o local e a data da fotografia), dentro do mesmo registo. Ainda antes de se ler o conteúdo do 1º ficheiro de \textit{input}, escreve-se o cabeçalho HTML no ficheiro de \textit{output}. Esse cabeçalho inclui, entre outras coisas, a definição do tema da página. Dado que este problema surgiu no âmbito do Museu da Pessoa, o grupo considerou que fazia sentido replicar o tema do mesmo e, por conseguinte, usou o ficheiro \texttt{.css} utilizado no portal \textit{web} do Museu da Pessoa.
+Estando explicadas as funções definidas pelo grupo, passa-se à descrição da implementação do programa. No bloco \texttt{BEGIN}, definiu-se o separador de registos (\texttt{RS}) como sendo o padrão ``\textless/foto''. Desta forma, garante-se que sempre que é encontrada informação de uma foto se pode aceder a todos os dados referentes à mesma (por exemplo, o local e a data da fotografia), dentro do mesmo registo. Ainda antes de se ler o conteúdo do 1º ficheiro de \textit{input}, escreve-se o cabeçalho HTML no ficheiro de \textit{output}. Esse cabeçalho inclui, entre outras coisas, a definição do tema da página. Dado que este problema surgiu no âmbito do Museu da Pessoa, o grupo considerou que fazia sentido replicar o tema do mesmo e, por conseguinte, usou o ficheiro \texttt{.css} utilizado no portal \textit{web} do Museu da Pessoa.
 
 Seguidamente, para todas os registos que apresentem um elemento \textbf{quem}, procura-se a informação relativa ao ficheiro a mostrar, a quem aparece na foto, onde foi tirada a foto e algum facto associado à mesma. Esta procura é feita recorrendo às funções referidas acima para obter informação dos elementos XML. Os locais onde as fotografias são tiradas são armazenados num \textit{array} associativo para mais tarde serem listados. Usando o local como chave, garante-se que apenas uma cópia de cada local é guardada, não havendo repetições de locais. De seguida, os dados da imagem são formatados para estarem de acordo com o formato HTML e são combinados numa linha para ser inserida na página de \textit{output}. Essa linha é guardada num \textit{array} associativo, onde a chave é a própria linha e o valor é a data da fotografia a que a linha diz respeito. Desta forma, é possível posteriormente ordenar cronologicamente as fotografias.
 
 No final da leitura do ficheiro, as entradas são ordenadas por data através da função \texttt{asorti}, que ordena os indíces segundo o critério passado como argumento, neste caso, por ordem crescente dos valores (datas). De seguida, as entradas são escritas no ficheiro HTML. A seguir, percorre-se o \textit{array} com os locais visitados e ordena-se esse \textit{array} alfabeticamente.
 
-Para além disso, gera-se um URL a partir dos nomes dos locais, processados pela função \texttt{url\_encode}. Este URL é especificado pela API do \emph{Google Maps} e permite que se gere uma imagem de um mapa com os locais assinalados. A forma para gerar o URL é descrita em \url{https://developers.google.com/maps/documentation/static-maps/intro} e consiste em concatenar um URL base com o nome dos locais, convertidos para a codificação URL, separados por ``\textbar''. De seguida, imprime-se para o ficheiro os locais ordenados alfabeticamente e sem repetições e a linha que faz com que apareça a imagem do mapa, seguida do rodapé da página.
+Para além disso, gera-se um URL a partir dos nomes dos locais, processados pela função \texttt{url\_encode}. Este URL é especificado pela API do \textit{Google Maps} e permite que se gere uma imagem de um mapa com os locais assinalados. A forma para gerar o URL é descrita em \url{https://developers.google.com/maps/documentation/static-maps/intro} e consiste em concatenar um URL base com o nome dos locais, convertidos para a codificação URL, separados por ``\textbar''. De seguida, imprime-se para o ficheiro os locais ordenados alfabeticamente e sem repetições e a linha que faz com que apareça a imagem do mapa, seguida do rodapé da página.
 
 \subsection{Testes}
-Para se testar o programa desenvolvido, fez-se uso do ficheiro \emph{legenda.xml} fornecido pela equipa docente. No entanto, este ficheiro teve de sofrer algumas alterações para corrigir erros ortográficos e para estar de acordo com as convenções adotadas, nomeadamente no que toca ao formato das datas. Para além disso, o grupo construiu um ficheiro de metadados sobre a vida de \emph{Jimi Hendrix} para testar este programa. O ficheiro construido tem o nome de \texttt{hendrix.xml} e pode ser consultado no apêndice~\ref{hendrix_in}. Em ambos os testes, o programa gerou corretamente a página e os resultados foram os esperados (no apêndice~\ref{hendrix_out} pode-se observar um extracto dos resultados obtidos para o ficheiro \texttt{hendrix.xml}). Também se testou passar os dois ficheiros em simultâneo para gerar um album a partir de ambos. Também neste caso os resultados obtidos foram os esperados: a página gerada apresenta as imagens e os seus dados corretamente, com uma ordenação cronológica das fotografias correta. Durante estes testes, o grupo deparou-se com uma limitação da API do \emph{Google Maps} que apenas permite, no máximo, que se mostrem 15 locais na mesma imagem. No entanto, esta limitação técnica em nada diminui o interesse dos resultados obtidos.
+Para se testar o programa desenvolvido, fez-se uso do ficheiro \texttt{legenda.xml} fornecido pela equipa docente. No entanto, este ficheiro teve de sofrer algumas alterações para se corrigir erros ortográficos e para ficar de acordo com as convenções adotadas, nomeadamente no que toca ao formato das datas. Para além disso, o grupo construiu um ficheiro de metadados sobre a vida de Jimi Hendrix para testar este programa. O ficheiro construido tem o nome de \texttt{hendrix.xml} e pode ser consultado no apêndice~\ref{hendrix_in}. Em ambos os testes, o programa gerou corretamente a página e os resultados foram os esperados (no apêndice~\ref{hendrix_out} pode-se observar um extracto dos resultados obtidos para o ficheiro \texttt{hendrix.xml}). Também se testou passar os dois ficheiros em simultâneo para gerar um album a partir de ambos. Também neste caso os resultados obtidos foram os esperados: a página gerada apresenta as imagens e os seus dados corretamente, com uma ordenação cronológica das fotografias correta. Durante estes testes, o grupo deparou-se com uma limitação da API do \textit{Google Maps} que apenas permite, no máximo, que se mostrem 15 locais na mesma imagem. No entanto, esta limitação técnica em nada diminui o interesse dos resultados obtidos.
 
 \chapter{Processador de Transacções da Via Verde} \label{via_verde}
 \section{Análise e Especificação} \label{ae_vv}
 \subsection{Descrição Informal do Problema}
-Dado um extracto mensal da Via Verde, anotado em \texttt{XML}, pretende-se extrair e apresentar informação sobre os gastos totais, gastos totais em parques, número de `entradas' em cada dia do mês e locais de `saída'.
+Dado um extracto mensal da Via Verde, anotado em XML, pretende-se extrair e apresentar informação sobre os gastos totais, gastos totais em parques, número de `entradas' em cada dia do mês e locais de `saída'.
 
 \subsection{Especificação dos Requisitos} \label{er_vv}
 Partindo daquilo que foi solicitado no enunciado, tem-se que os requisitos base consistem no desenvolvimento de um processador de texto com o GAWK, capaz de ler um extracto mensal da Via Verde e:
@@ -196,7 +196,7 @@ Além dos requisitos enumerados, o grupo considerou útil que o processador de tex
 Uma vez processados todos os extractos passados numa invocação, o processador deverá também apresentar o total global gasto e o total global gasto em `parques'.
 
 \subsection{Formato do \textit{input}} \label{form_inp_vv}
-Cada extracto consiste num ficheiro XML que, após a eventual declaração XML, tem a \textit{tag} \texttt{EXTRACTO} com o atributo \texttt{id}, indicando o número identificador do extracto. No seguimento da abertura da \textit{tag} \texttt{EXTRACTO}, vêm o mês de emissão e os dados do cliente, nomeadamente: identificador, NIF, nome, morada, localidade e código postal. Exemplificando com o extracto disponibilizado pela equipa docente (\texttt{viaverde.xml}), tem-se:
+Cada extracto consiste num ficheiro XML que, após a eventual declaração XML, tem a \textit{tag} \textbf{EXTRACTO} com o atributo \texttt{id}, indicando o número identificador do extracto. No seguimento da abertura da \textit{tag} \textbf{EXTRACTO}, vêm o mês de emissão e os dados do cliente, nomeadamente: identificador, NIF, nome, morada, localidade e código postal. Exemplificando com o extracto disponibilizado pela equipa docente (\texttt{viaverde.xml}), tem-se:
 
 \begin{verbatim}
 <?xml version="1.0" encoding="UTF-8"?>
@@ -211,7 +211,7 @@ Cada extracto consiste num ficheiro XML que, após a eventual declaração XML, tem
     </CLIENTE>
 \end{verbatim}
 
-Depois da secção inicial descrita, segue-se uma \textit{tag} com o nome \texttt{IDENTIFICADOR} que tem o atributo \texttt{id}, assinalando o início da lista de transações do veículo com o \texttt{id} especificado. Antes da listagem das transacções da viatura em questão, surgem também as \textit{tags} \texttt{MATRICULA} e \texttt{REF\_PAGAMENTO}, que correspondem, respetivamente, à matrícula do veículo e à referência de pagamento. Sucede-se então uma listagem das transacções do veículo em questão, concluída com o total gasto, imediatamente antes do fecho da \textit{tag} \texttt{IDENTIFICADOR}. Para o caso concreto do ficheiro \texttt{viaverde.xml}, tem-se:
+Depois da secção inicial descrita, segue-se uma \textit{tag} com o nome \textbf{IDENTIFICADOR} que tem o atributo \texttt{id}, assinalando o início da lista de transações do veículo com o \texttt{id} especificado. Antes da listagem das transacções da viatura em questão, surgem também as \textit{tags} \textbf{MATRICULA} e \textbf{REF\_PAGAMENTO}, que correspondem, respetivamente, à matrícula do veículo e à referência de pagamento. Sucede-se então uma listagem das transacções do veículo em questão, concluída com o total gasto, imediatamente antes do fecho da \textit{tag} \textbf{IDENTIFICADOR}. No caso concreto do ficheiro \texttt{viaverde.xml}, tem-se:
 
 \begin{verbatim}
 <IDENTIFICADOR id="28876820811">
@@ -237,7 +237,7 @@ Depois da secção inicial descrita, segue-se uma \textit{tag} com o nome \texttt{
 </IDENTIFICADOR>
 \end{verbatim}
 
-Após a listagem das transacções associadas a cada uma das viaturas do cliente (de acordo com o formato acima descrito), surge o total gasto em todas as transacções, a porção desse total que corresponde ao IVA e, por fim, o fecho da \textit{EXTRACTO}, conforme exemplificado no seguinte excerto:
+Após a listagem das transacções associadas a cada uma das viaturas do cliente (de acordo com o formato acima descrito), surge o total gasto em todas as transacções, a porção desse total que corresponde ao IVA e, por fim, o fecho da \textit{tag} \textbf{EXTRACTO}, conforme exemplificado no seguinte excerto:
 
 \begin{verbatim}
 <TOTAL>77,40</TOTAL>
@@ -262,22 +262,22 @@ O comando:
 \begin{verbatim}
 gawk -N -f processa-vv.gawk viaverde.xml
 \end{verbatim}
-, invoca o processador de extractos da Via Verde com o ficheiro \texttt{viaverde.xml} (disponibilizado pela equipa docente) e imprime no \texttt{stdout} os resultados apresentados que se podem observar no apêndice~\ref{vv_out}.
+invoca o processador de extractos da Via Verde com o ficheiro \texttt{viaverde.xml} (disponibilizado pela equipa docente) e imprime no \texttt{stdout} os resultados apresentados que se podem observar no apêndice~\ref{vv_out}.
 
 O comando:
 \begin{verbatim}
 gawk -N -f processa-vv.gawk viaverde-mar.xml viaverde-abr.xml
 \end{verbatim}
-, invoca o processador de extractos da Via Verde com os ficheiros \texttt{viaverde-mar.xml} e \texttt{viaverde-abr.xml} e apresenta no \texttt{stdout} os resultados expostos no apêndice~\ref{vv_mar_abr_out}.
+invoca o processador de extractos da Via Verde com os ficheiros \texttt{viaverde-mar.xml} e \texttt{viaverde-abr.xml} e apresenta no \texttt{stdout} os resultados expostos no apêndice~\ref{vv_mar_abr_out}.
 
 \section{Concepção e Implementação da Resolução}
 
 \subsection{Codificação} \label{cod_af}
 O código do \textit{script} \texttt{processa-vv.gawk} pode ser consultado na íntegra no apêndice~\ref{cod_fich_vv} deste relatório. Nesta secção, analisa-se as decisões e aspetos principais da codificação do programa, tais como o separador de registos (\texttt{RS}) e separador de campos (\texttt{FS}) escolhidos, as funções e os pares padrão-acção definidos e os blocos de inicialização e de término do programa.
 
-Para separador de registos (RS) optou-se por utilizar a expressão regular ``\textless TRANSACCAO'', uma vez que, dada a estrutura dos extractos (\ref{form_inp_vv}), o separador referido permite ``isolar'' em cada registo os dados de cada transacção. Contudo, é importante mencionar que o 1º registo não vai conter os dados de uma transacção, mas sim as várias \textit{tags} inciais que caracterizam o extracto, o cliente e a primeira viatura a surgir no ficheiro. Estas \textit{tags} têm informação útil, que é extraída através dos pares padrão-acção que serão descritos abaixo.
+Para separador de registos (\texttt{RS}) optou-se por utilizar a expressão regular ``\textless TRANSACCAO'', uma vez que, dada a estrutura dos extractos (\ref{form_inp_vv}), o separador referido permite ``isolar'' em cada registo os dados de cada transacção. Contudo, é importante mencionar que o 1º registo não vai conter os dados de uma transacção, mas sim as várias \textit{tags} inciais que caracterizam o extracto, o cliente e a primeira viatura a surgir no ficheiro. Estas \textit{tags} têm informação útil, que é extraída através dos pares padrão-acção que serão descritos abaixo.
 
-Para separador de campos escolheu-se o valor definido por omissão, i.e.: qualquer sequência de \texttt{TABs}, espaços e/ou \textit{newlines}. Poder-se-ia ter utilizado qualquer outro separador de campos, uma vez que na implementação da solução não se necessitou de aceder a campos em específico, contudo não se ganharia nada em atribuir outro valor ao FS.
+Para separador de campos escolheu-se o valor definido por omissão, i.e.: qualquer sequência de \texttt{TABs}, espaços e/ou \textit{newlines}. Poder-se-ia ter utilizado qualquer outro separador de campos, uma vez que na implementação da solução não se necessitou de aceder a campos em específico, contudo não se ganharia nada em atribuir outro valor ao \texttt{FS}.
 
 \newpage
 No bloco \texttt{BEGIN}:
@@ -290,22 +290,22 @@ No bloco \texttt{BEGIN}:
 
 Além do bloco \texttt{BEGIN}, usou-se o bloco \texttt{BEGINFILE} para, imediatamente antes de se começar a ler um novo extracto, se inicializar a 0 o total gasto e o total gasto em parques no mês a que esse extracto diz respeito.
 
-Após o \texttt{BEGINFILE}, surge o primeiro par padrão-acção, que indica que quando um registo contém o padrão \\``\textless EXTRACTO'' (abertura da \textit{tag} \texttt{EXTRACTO}), se deve ler o \textit{id} do extracto, o mês de emissão e o \textit{id}, nif e nome do cliente e por fim imprimi-los. A leitura dos valores das \textit{tags} e dos atributos é efetuada através das funções \texttt{ler\_valor\_tag} e \texttt{ler\_atributo\_tag}, que já foram descritas na secção~\ref{cod_af}.
+Após o \texttt{BEGINFILE}, surge o primeiro par padrão-acção, que indica que quando um registo contém o padrão \\``\textless EXTRACTO'' (abertura da \textit{tag} \textbf{EXTRACTO}), se deve ler o \textit{id} do extracto, o mês de emissão e o \textit{id}, NIF e nome do cliente e por fim imprimi-los. A leitura dos valores das \textit{tags} e dos atributos é efetuada através das funções \texttt{ler\_valor\_tag} e \texttt{ler\_atributo\_tag}, já descritas na secção~\ref{cod_af}.
 
-O próximo par padrão-acção define o processamento a realizar sempre que se encontra a expressão regular \\``\textless\textbackslash TRANSACCAO''. Dado que o separador de registos é a expressão regular ``\textless TRANSACCAO'', cada registo que englobe o fecho da \textit{tag} \texttt{TRANSACCAO} também inclui os dados da transacção. Nestes casos, a acção a realizar resume-se a partir o registo nos caractéres `\textless' e `\textgreater', recorrendo à função pré-definida \texttt{split}, e percorrer o \textit{array} resultante da partição, para se consultar os dados da transação até se encontrar o elemento ``\textless TRANSACCAO''. Nos dados da transacção, procura-se:
+O próximo par padrão-acção define o processamento a realizar sempre que se encontra a expressão regular \\``\textless\textbackslash TRANSACCAO''. Dado que o separador de registos é a expressão regular ``\textless TRANSACCAO'', cada registo que englobe o fecho da \textit{tag} \textbf{TRANSACCAO} também inclui os dados da transacção. Nestes casos, a acção a realizar resume-se a partir o registo nos caractéres `\textless' e `\textgreater', recorrendo à função pré-definida \texttt{split}, e percorrer o \textit{array} resultante da partição, para se consultar os dados da transação até se encontrar o elemento ``\textless TRANSACCAO''. Nos dados da transacção, procura-se:
 \begin{itemize}
   \item \textbf{A data de entrada}: se se encontrar uma data de entrada e estar for diferente de ``null'', incrementa-se a respetiva contagem armazenada num \textit{array} associativo de datas de entrada;
   \item \textbf{O local de saída}: quando o local de saída está especificado, incrementa-se a contagem do mesmo num \textit{array} associativo de saídas;
   \item \textbf{A importância}: o valor da importância é guardado numa variável;
-  \item \textbf{O valor de desconto}: o grupo assumiu que a importância é o valor pago sem desconto, pelo que quando se encontra o valor de desconto, este é subtraido à importância para se obter o valor efetivamente pago;
-  \item \textbf{O tipo}: quando a transacção é referente a `parques', ativa-se uma \textit{flag} designada por \texttt{parque} que, depois de percorrido o \textit{array} com os dados da transacção, determina se o total gasto em parques deve ou não ser atualizado.
+  \item \textbf{O valor de desconto}: o grupo assumiu que a importância é o valor pago sem desconto, pelo que quando se encontra o valor de desconto este é subtraido à importância para se obter o valor efetivamente pago;
+  \item \textbf{O tipo}: quando a transacção é referente a `parques', ativa-se uma \textit{flag} designada por \texttt{parque} que, depois de percorrido o \textit{array} com os dados da transacção, determina se o total gasto em parques deve ser atualizado.
 \end{itemize}
 
 Uma vez percorrido o \textit{array} produzido pela partição acima referida, soma-se o valor da transacção à variável \texttt{total\_viatura} e, caso a transacção seja relativa a parques, também se adiciona o valor da mesma a \texttt{total\_viatura\_parques}.
 
-O par padrão-acção seguinte tem o padrão ``\textless \textbackslash IDENTIFICADOR'' e determina que ao se encontrar o fecho da \textit{tag} \texttt{IDENTIFICADOR} se deve imprimir \texttt{total\_viatura} e \texttt{total\_gasto\_viatura}, somar o primeiro ao total gasto no mês do extracto e adicionar o segundo ao total gasto em parques nesse mesmo mês.
+O par padrão-acção seguinte tem o padrão ``\textless \textbackslash IDENTIFICADOR'' e determina que ao se encontrar o fecho da \textit{tag} \textbf{IDENTIFICADOR} se deve imprimir \texttt{total\_viatura} e \texttt{total\_gasto\_viatura}, somar o primeiro ao total gasto no mês do extracto e adicionar o segundo ao total gasto em parques nesse mesmo mês.
 
-Por fim, surge um último par padrão-acção que determina o processamento realizado quando se encontra uma nova viatura, i.e.: ao se encontrar a expressão ``\textless IDENTIFICADOR''. Nestes casos, pretende-se ler o \textit{id}, matrícula e a referência de pagamento da viatura, imprimi-los e colocar a 0 as variáveis \texttt{total\_viatura} e {total\_viatura\_parques}.
+Por fim, surge um último par padrão-acção que determina o processamento realizado quando se encontra uma nova viatura, i.e.: ao se encontrar a expressão ``\textless IDENTIFICADOR''. Nestes casos, pretende-se ler o \texttt{id}, matrícula e a referência de pagamento da viatura, imprimi-los e colocar a 0 as variáveis \texttt{total\_viatura} e {total\_viatura\_parques}.
 
 Restam os blocos \texttt{ENDFILE} e \texttt{END}.
 
@@ -318,9 +318,9 @@ Chegando ao final de um ficheiro:
   \item atualiza-se o total global gasto e o total global gasto em parques, somando-lhes os respetivos totais do ficheiro.
 \end{itemize}
 
-Chegando ao final do último ficheiro, imprime-se o total global e o total global gasto em `parques'.
+Chegando ao fim do último ficheiro, imprime-se o total global e o total global gasto em `parques'.
 
-\textbf{Nota:} a ordenação das datas e dos locais de saída é efetuada através da função \texttt{asorti}. No caso dos locais de saída, basta utilizar a função por omissão de comparação de \textit{strings}. No caso das datas dos extractos da Via Verde, não se pode utilizar a função de comparação por omissão por estas estarem no formato \texttt{dd-mm-yyyy}, Assim sendo, o grupo definiu e utilizou a função \texttt{cmp\_datas}, que dadas duas datas no formato \texttt{dd-mm-yyyy}, parte cada uma delas pelo caractere `-' e compara as partições obtidas, da direita para a esquerda (i.e.: do ano para o dia).
+\textbf{Nota:} a ordenação das datas e dos locais de saída é efetuada através da função \texttt{asorti}. No caso dos locais de saída, basta utilizar a função por omissão de comparação de \textit{strings}. No caso das datas dos extractos da Via Verde, não se pode utilizar a função de comparação por omissão por estas estarem no formato \texttt{dd-mm-yyyy}, Assim sendo, o grupo definiu e utilizou a função \texttt{cmp\_datas}, que dadas duas datas no formato \texttt{dd-mm-yyyy} parte cada uma delas pelo caractere `-' e compara as partições obtidas, da direita para a esquerda (i.e.: do ano para o dia).
 
 \subsection{Testes}
 
@@ -335,8 +335,7 @@ Com a finalidade de se testar o comportamento do programa quando invocado com vá
 Com os testes realizados, o grupo obteve os resultados que eram esperados e que satisfazem os requisitos apresentados na secção~\ref{er_vv}.
 
 \chapter{Conclusão} \label{concl}
-Neste trabalho, apercebemo-nos da grande versatilidade e utilidade dos processadores de linguagens regulares. Com pouco código, fomos capazes de construir programas úteis e interessantes. Entendemos que realizamos um bom trabalho dado que fizemos tudo a que nos propusemos nos dois enunciados, ultrapassando largamente o que era pedido nos requisitos mínimos. Verificamos que o GAWK nem sempre é a ferramenta mais adequada para analisar ficheiros XML uma vez que leva à criação de expressões longas e muitas vezes difíceis de ler. Também é dificíl analisar por
-vezes a hierarquia de elementos do documento, no entanto, com a escolha correta de valores para o \texttt{RS} fomos capazes de ultrapassar este problema. Graças à versatilidade do \emph{GAWK}, facilmente se poderão adicionar novas funcionalidades ao programa e permitir que se analisem novos padrões.
+Neste trabalho, apercebemo-nos da grande versatilidade e utilidade dos processadores de linguagens regulares. Com pouco código, fomos capazes de construir programas úteis e interessantes. Entendemos que realizamos um bom trabalho dado que fizemos tudo a que nos propusemos nos dois enunciados, ultrapassando largamente o que era pedido nos requisitos mínimos. Verificamos também que o GAWK nem sempre é a ferramenta mais adequada para analisar ficheiros XML, uma vez que leva à criação de expressões longas e muitas vezes difíceis de ler. Por vezes também é dificíl analisar a hierarquia de elementos do documento, no entanto, com a escolha correta de valores para o \texttt{RS} fomos capazes de ultrapassar este problema. Graças à versatilidade do GAWK, facilmente se poderão adicionar novas funcionalidades ao programa e permitir que se analisem novos padrões.
 
 \appendix
 
