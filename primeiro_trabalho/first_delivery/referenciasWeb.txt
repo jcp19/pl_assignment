@@ -1,5 +1,0 @@
-http://natura.di.uminho.pt/~jj/pl-17/Manuais_e_Documentacao/AWK/awk-slides-jcr.pdf
-http://natura.di.uminho.pt/~jj/pl-17/Manuais_e_Documentacao/AWK/awkcard.pdf
-http://natura.di.uminho.pt/~jj/pl-17/Manuais_e_Documentacao/regular-expressions-qrc-v2.pdf
-https://www.gnu.org/software/gawk/manual/gawk.html
-https://linux.die.net/man/1/gawk
