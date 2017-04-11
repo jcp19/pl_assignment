@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE fotos SYSTEM "Users/sony/mp/fotos.dtd">
+<fotos>
+  <foto ficheiro="hendrix/h1.jpg">
+    <quem>Mitch Mitchell, Jimi Hendrix, Noel Redding</quem>
+  </foto>
+  <foto ficheiro="hendrix/h2.jpeg">
+    <onde>Royal Albert Hall, London</onde>
+    <quando data="1969-02-18" />
+    <quem>Jimi Hendrix</quem>
+  </foto>
+  <foto ficheiro="hendrix/h3.png">
+    <onde>Royal Albert Hall, London</onde>
+    <quando data="1969-02-18" />
+    <quem>Jimi Hendrix, Noel Redding</quem>
+  </foto>
+  <foto ficheiro="hendrix/h4.jpg">
+    <quem>Jimi Hendrix, Johnny Winter</quem>
+  </foto>
+  <foto ficheiro="hendrix/h5.jpg">
+    <quem>John Paul Jones, Jimi Hendrix</quem>
+  </foto>
+  <foto ficheiro="hendrix/h6.jpg">
+    <quem>Jimi Hendrix, Mick Jagger</quem>
+  </foto>
+  <foto ficheiro="hendrix/h7.jpg">
+    <quem>Roger Daltrey, Pete Townshend, Jimi Hendrix, John Entwistle, Keith Moon</quem>
+  </foto>
+  <foto ficheiro="hendrix/h8.jpg">
+    <onde>34 Montagu Square, London</onde>
+    <quando>1967</quando>
+    <quem>Jimi Hendrix</quem>
+    <facto>Por Petra Niemeier</facto>
+  </foto>
+  <foto ficheiro="hendrix/h9.jpg">
+    <onde>Fillmore East, New York</onde>
+    <quando data="1969-12-31" />
+    <quem>Jimi Hendrix</quem>
+    <facto>Os Band of Gypsys deram 2 concertos no último dia de 1969, e dois no primeiro dia de 1970, em Fillmore East.</facto>
+  </foto>
+  <foto ficheiro="hendrix/h10.jpg">
+    <onde>Montagu Place, W.1.</onde>
+    <quem>Jimi Hendrix</quem>
+  </foto>
+  <foto ficheiro="hendrix/h11.jpg">
+    <quando data="1969-08-18" />
+    <onde>Woodstock</onde>
+    <quem>Jimi Hendrix</quem>
+    <facto>Aqui já no encore, no qual toca a Hey Joe a pedido do público</facto>
+  </foto>
+  <foto ficheiro="hendrix/h12.jpg">
+    <quando data="1969-08-18" />
+    <onde>Woodstock</onde>
+    <quem>Jimi Hendrix, Billy Cox</quem>
+    <facto>Devido a atrasos no alinhamento, tiveram de tocar no dia a seguir ao suposto final do festival</facto>
+  </foto>
+  <foto ficheiro="hendrix/h13.jpg">
+    <quando data="1970-07-04" />
+    <onde>Byron, Georgia</onde>
+    <quem>Jimi Hendrix</quem>
+    <facto>Atlant Pop Festival</facto>
+  </foto>
+  <foto ficheiro="hendrix/h14.jpg">
+    <quando data="1967-07-18" />
+    <onde>Monterey, California</onde>
+    <quem>Jimi Hendrix</quem>
+    <facto>O concerto no Monterey Pop Festival foi o primeiro concerto do Hendrix na América, com uma "pequena" ajuda do amigo Paul McCartney. Tocaram a seguir aos The Who no dia de nomes como Scott McKenzie, Greatful Dead e The Mamas and Pappas</facto>
+  </foto>
+  <foto ficheiro="hendrix/h15.jpg">
+    <quando data="1970-09-05" />
+    <onde>Fehmarn, Germany</onde>
+    <quem>Jimi Hendrix</quem>
+    <facto>Hendrix no dia anterior ao do último concerto que haveria de tocar</facto>
+  </foto>
+  <foto ficheiro="hendrix/h16.jpg">
+    <quando data="1970-09-06" />
+    <onde>Fehmarn, Germany</onde>
+    <quem>Jimi Hendrix</quem>
+    <facto>Último concerto em que haveria de tocar antes da sua trágica morte apenas 12 dias depois</facto>
+  </foto>
+  <foto ficheiro="hendrix/h17.jpg">
+    <quando data="1970-08-30" />
+    <onde>Isle of Wight, England</onde>
+    <quem>Jimi Hendrix</quem>
+  </foto>
+  <foto ficheiro="hendrix/h18.jpeg">
+    <quando>1961</quando>
+    <onde>Montgomery, AL</onde>
+    <quem>Jimi Hendrix</quem>
+    <facto>No Elks Club. Quando esteve em Fort Benning, ele costumava ir até ao Elks Club em Montgomery aos fins de semana para tocar com nomes como B.B.King.</facto>
+  </foto>
+  <foto ficheiro="hendrix/h19.jpg">
+    <quando>1948</quando>
+    <quem>Al, Lucille, Jimi e Leon Hendrix</quem>
+    <facto>Foto rara da família toda reunida. Os pais, Al e Lucille, discutiam frequentemente e chegavam mesmo a lutar um com o outro sob a influência do álcool. Leon estava sempre num vai e vem entre os Hendrix e famílias de acolhimento. Lucille teve mais 3 filhos, que deram para adopção ou famílias de acolhimento. Passado algum tempo Al conseguiu o divórcio e a custódia de Jimi e Leon.</facto>
+  </foto>
+  <foto ficheiro="hendrix/h20.jpg">
+    <quem>Al e Jimi Hendrix</quem>
+    <facto>Al viu o filho pela primeira vez apenas 3 anos após o seu nascimento. Jimi nasceu na altura da segunda guerra mundial, e Al estava em serviço e não o deixaram sair para estar presente no nascimento.</facto>
+  </foto>
+  <foto ficheiro="hendrix/h21.jpg">
+    <quando>1942</quando>
+    <quem>Lucille Jetter Hendrix, Jimi Hendrix</quem>
+    <facto>Tirada no ano do seu nascimento.</facto>
+  </foto>
+</fotos>
