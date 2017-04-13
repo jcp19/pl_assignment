@@ -54,10 +54,12 @@ DEF_FUNCAO    {IDENT}/[:space:]=[:space:]{{
 
    /* FAZ MATCH COM LINHAS DO CORPO DA FUNCAO */
 
-<decl_funcao>[[]%[:space]*MAP[:space]+   { BEGIN(map); /* nesta fase, fazer um sprintf com o conteudo atual do buffer */ }
-<decl_funcao>[[]%[:space]*               { BEGIN(var); /* nesta fase, fazer um sprintf com o conteudo atual do buffer */ }
+<decl_funcao>\[%[:space]*MAP[:space]+   { BEGIN(map); /* nesta fase, fazer um sprintf com o conteudo atual do buffer, por pos a 0 */ }
+<decl_funcao>\[%[:space]*               { BEGIN(var); /* nesta fase, fazer um sprintf com o conteudo atual do buffer */ }
 
+ /* no relatorio, explicar convençao das chavetas */
 <decl_funcao>"   {
+                    buf_linha_funcao[pos_buf_linha++] = '\';
                     buf_linha_funcao[pos_buf_linha++] = '"';
                     BEGIN dentro_aspas_funcao;
                  }
@@ -65,10 +67,13 @@ DEF_FUNCAO    {IDENT}/[:space:]=[:space:]{{
  /* Evita que se saia de dentro de aspas quando é uma aspa "escaped" (por dentro do buffer) */
 <dentro_aspas_funcao>[\]"   {  
                                buf_linha_funcao[pos_buf_linha++] = '\';
+                               buf_linha_funcao[pos_buf_linha++] = '\';
+                               buf_linha_funcao[pos_buf_linha++] = '\';
                                buf_linha_funcao[pos_buf_linha++] = '"';
                             }
 
 <dentro_aspas_funcao>"    {
+                             buf_linha_funcao[pos_buf_linha++] = '\';
                              buf_linha_funcao[pos_buf_linha++] = '"';
                              BEGIN(decl_funcao);
                           }
@@ -82,22 +87,39 @@ DEF_FUNCAO    {IDENT}/[:space:]=[:space:]{{
                     buf_linha_funcao[pos_buf_linha++] = '\';
                     buf_linha_funcao[pos_buf_linha++] = 'n';
                     buf_linha_funcao[pos_buf_linha++] = '\0';
-                    sprintf("sprintf(\"%s\")\n;"
+                    pos_buf_corpo += sprintf(buf_corpo_func + pos_buf_corpo, "sprintf(\"%s\")\n;", buf_linha_funcao);
                     
-                    /* Fazer cenas com linha */
                     pos_buf_linha = 0; 
                  }
 
-<map> {
-      }
-<var> {
-      }
+<var>%\]     { BEGIN(decl_funcao); }
+
+<var>{IDENT} { /* verificar se ja existe e se ja houver, verificar tipo(se houver, estourar), senao inserir*/
+      
+             }
+
+<map>{IDENT} { /*Nota: posso usar o buffer de linha à vontade, esta vazio */
+
+    /* verificar se ja existe e se ja houver, verificar tipo(se houver, estourar), senao inserir*/
+             }
 
 
 <decl_funcao>}}   { 
                      BEGIN(INITIAL);
 
-                     // finalizar cabecalho funcao - REFAZER PARA USAR CONJUNTO ou completar!
+                     // finalizar cabecalho funcao
+                     int i;
+                     char* tipo = NULL;
+                     for(i=0; i < pos_variaveis; i++){
+                         swhitch(tipos_variaveis[i]){
+                             case INT: tipo = "int"; break;
+                             case STRING: tipo = "char*"; break;
+                             case LISTA_STRINGS: tipo = "char**"; break;
+                         }
+                         pos_buf_cabecalho += sprintf(buf_cabecalho_func + pos_buf_cabecalho, " %s %s,", );
+                         free(nomes_variaveis[i]);
+                     }
+                    
                      switch(buf_cabecalho_func[pos_buf_cabecalho-1]){
                        case '(': buf_cabecalho_func[pos_buf_cabecalho] = ')';
                                  buf_cabecalho_func[pos_buf_cabecalho+1] = '\0'; 
@@ -113,8 +135,6 @@ DEF_FUNCAO    {IDENT}/[:space:]=[:space:]{{
                      // imprimir declaracao funcao
                      printf(buf_cabecalho_func);
                      printf(buf_corpo_func);
-                   
-                     // limpar nomes das vars
                   }
 %%
 
