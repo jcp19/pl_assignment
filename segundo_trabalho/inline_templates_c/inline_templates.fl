@@ -45,7 +45,7 @@ IDENT         [a-zA-Z_][a-zA-Z0-9_]*
 <INITIAL>{IDENT}/[:space:]*=[:space:]*\{\{      {
                               BEGIN(nome_funcao_encontrado);
                               pos_buf_cabecalho = pos_buf_corpo = pos_buf_linha = pos_variaveis = 0;
-                              pos_buf_cabecalho += sprintf(buf_cabecalho_func + pos_buf_cabecalho, "char* %s (", yytext);
+                              pos_buf_cabecalho += sprintf(buf_cabecalho_func + pos_buf_cabecalho, "char* %s(", yytext);
                               pos_buf_corpo += sprintf(buf_corpo_func + pos_buf_corpo, "\tchar __BUF__[%d]; int __j__=0;\n", TAMANHO_BUFFER);
 		           }
 
@@ -55,10 +55,10 @@ IDENT         [a-zA-Z_][a-zA-Z0-9_]*
    /* FAZ MATCH COM LINHAS DO CORPO DA FUNCAO */
 
 <decl_funcao>\[%[:space]*MAP[:space]+   { BEGIN(map); /* nesta fase, fazer um sprintf com o conteudo atual do buffer, por pos a 0 */ }
-<decl_funcao>\[%[:space]*               { BEGIN(var); /* nesta fase, fazer um sprintf com o conteudo atual do buffer */ 
+<decl_funcao>\[%[:space]*               { BEGIN(var); 
                                           if(pos_buf_linha != 0) {
                                             buf_linha_funcao[pos_buf_linha++] = '\0';
-                                            pos_buf_corpo += sprintf(buf_corpo_func + pos_buf_corpo, "\t__j__+=sprintf(__BUF__+__j__, \"%s\");\n", buf_linha_funcao);
+                                            pos_buf_corpo += sprintf(buf_corpo_func + pos_buf_corpo, "\t__j__ += sprintf(__BUF__+__j__, \"%s\");\n", buf_linha_funcao);
                                           }
                                           pos_buf_linha = 0;
                                         }
@@ -84,6 +84,10 @@ IDENT         [a-zA-Z_][a-zA-Z0-9_]*
                              BEGIN(decl_funcao);
                           }
 
+<dentro_aspas_funcao>.    {
+                             buf_linha_funcao[pos_buf_linha++] = yytext[0];
+                          }
+
 <decl_funcao>.   {
                      buf_linha_funcao[pos_buf_linha++] = yytext[0];
                  }
@@ -93,7 +97,7 @@ IDENT         [a-zA-Z_][a-zA-Z0-9_]*
                     buf_linha_funcao[pos_buf_linha++] = '\\';
                     buf_linha_funcao[pos_buf_linha++] = 'n';
                     buf_linha_funcao[pos_buf_linha++] = '\0';
-                    pos_buf_corpo += sprintf(buf_corpo_func + pos_buf_corpo, "\t__j__+=sprintf(__BUF__+__j__, \"%s\");\n", buf_linha_funcao);
+                    pos_buf_corpo += sprintf(buf_corpo_func + pos_buf_corpo, "\t__j__ += sprintf(__BUF__+__j__, \"%s\");\n", buf_linha_funcao);
                     
                     pos_buf_linha = 0; 
                  }
@@ -116,8 +120,7 @@ IDENT         [a-zA-Z_][a-zA-Z0-9_]*
                  nomes_variaveis[pos_variaveis] = strdup(yytext);
                  tipos_variaveis[pos_variaveis++] = STRING;
                }
-               /* ERRADO!! */
-               pos_buf_corpo += sprintf(buf_corpo_func + pos_buf_corpo,"\t__j__+= sprintf(__BUF__+__j__, \"%s\", %s);\n", "%s", yytext);
+               pos_buf_corpo += sprintf(buf_corpo_func + pos_buf_corpo,"\t__j__ += sprintf(__BUF__+__j__, \"%s\", %s);\n", "%%s", yytext);
              }
 
 <map>{IDENT} { /*Nota: posso usar o buffer de linha à vontade, esta vazio */
@@ -140,7 +143,7 @@ IDENT         [a-zA-Z_][a-zA-Z0-9_]*
                              case STRING: tipo = "char*"; break;
                              case LISTA_STRINGS: tipo = "char**"; break;
                          }
-                         pos_buf_cabecalho += sprintf(buf_cabecalho_func + pos_buf_cabecalho, " %s %s,",tipo,nomes_variaveis[i] );
+                         pos_buf_cabecalho += sprintf(buf_cabecalho_func + pos_buf_cabecalho, "%s %s,",tipo,nomes_variaveis[i] );
                          free(nomes_variaveis[i]);
                      }
                     
