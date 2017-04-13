@@ -3,44 +3,118 @@ DEF_FUNCAO    {IDENT}/[:space:]=[:space:]{{
 
 %x decl_funcao
 %x dentro_aspas_funcao
+%x map
+%x var
 
 %top{
+  #include <stdio.h>
+  #include <string.h>
+
   #define TAMANHO_BUFFER 10000
   #define TAMANHO_MAX_CABECALHO 4096
   #define TAMANHO_MAX_CORPO 20000
+  #define TAMANHO_MAX_LINHA_FUNCAO
+  #define MAX_VARIAVEIS 1000
+
+  /* usa-se char para armazenar informação do tipo de uma var de forma a poupar memoria */
+  typedef char TIPO
+  #define INT 0
+  #define STRING 1
+  #define LISTA_STRINGS 2 /* usar char ** em vez de char* [] */
 
   char buf_corpo_func[TAMANHO_MAX_CORPO];
   char buf_cabecalho_func[TAMANHO_MAX_CORPO];
+  char buf_linha_funcao[TAMANHO_MAX_LINHA_FUNCAO];
+  char* nomes_variaveis[MAX_VARIAVEIS]; 
+  TIPO tipos_variaveis[MAX_VARIAVEIS];
+  
   int pos_buf_cabecalho = 0;
   int pos_buf_corpo = 0;
-
+  int pos_buf_linha = 0;
+  int pos_variaveis = 0;
 }
+
+  /* TODO:
+     -> Por a aceitar expressoes em c no meio (usar notaçao {{ }} ou {% %} )
+     -> Por maps
+     -> reconhecer vars como argumntos
+     -> Usar conjunto para armazenar temporariamente variaveis (fazer map de nome de var para tipo, se encontrar var com mesmo nome e tipo diferente, fazer exit)
+     -> Definir como e feito o parse de um map que na mesma linha tenha uma variavel
+  */
+ /* fazer match para . (por num buffer quando nao encontra padroes), maps e declaracoes) */
 
 %%
 <INITIAL>{DEF_FUNCAO}      { 
                               BEGIN(decl_funcao);
+                              pos_buf_cabecalho = pos_buf_corpo = pos_buf_linha = pos_variaveis = 0;
                               pos_buf_cabecalho += sprintf(buf_cabecalho_func + pos_buf_cabecalho, "char* %s (", yytext);
                               pos_buf_corpo = += sprintf(buf_corpo_func + pos_buf_corpo, "char __BUF__[%d]; int __j__=0;\n", TAMANHO_BUFFER);
 		           }
+
+
    /* FAZ MATCH COM LINHAS DO CORPO DA FUNCAO */
-<decl_funcao>.*
+
+<decl_funcao>[[]%[:space]*MAP[:space]+   { BEGIN(map); /* nesta fase, fazer um sprintf com o conteudo atual do buffer */ }
+<decl_funcao>[[]%[:space]*               { BEGIN(var); /* nesta fase, fazer um sprintf com o conteudo atual do buffer */ }
 
 <decl_funcao>"   {
+                    buf_linha_funcao[pos_buf_linha++] = '"';
                     BEGIN dentro_aspas_funcao;
-                  
                  }
 
-<dentro_aspas_funcao>\"   {
-                           
+ /* Evita que se saia de dentro de aspas quando é uma aspa "escaped" (por dentro do buffer) */
+<dentro_aspas_funcao>[\]"   {  
+                               buf_linha_funcao[pos_buf_linha++] = '\';
+                               buf_linha_funcao[pos_buf_linha++] = '"';
+                            }
 
+<dentro_aspas_funcao>"    {
+                             buf_linha_funcao[pos_buf_linha++] = '"';
+                             BEGIN(decl_funcao);
                           }
+
+<decl_funcao>.   {
+                     buf_linha_funcao[pos_buf_linha++] = yytext[0];
+                 }
+
+<decl_funcao>\n  {
+                    /* por \0 no fim e copiar para corpo da funcao*/
+                    buf_linha_funcao[pos_buf_linha++] = '\';
+                    buf_linha_funcao[pos_buf_linha++] = 'n';
+                    buf_linha_funcao[pos_buf_linha++] = '\0';
+                    sprintf("sprintf(\"%s\")\n;"
+                    
+                    /* Fazer cenas com linha */
+                    pos_buf_linha = 0; 
+                 }
+
+<map> {
+      }
+<var> {
+      }
+
 
 <decl_funcao>}}   { 
                      BEGIN(INITIAL);
-                     // finalizar declaracao funcao
+
+                     // finalizar cabecalho funcao - REFAZER PARA USAR CONJUNTO ou completar!
+                     switch(buf_cabecalho_func[pos_buf_cabecalho-1]){
+                       case '(': buf_cabecalho_func[pos_buf_cabecalho] = ')';
+                                 buf_cabecalho_func[pos_buf_cabecalho+1] = '\0'; 
+                                 break;
+                       case ',': buf_cabecalho_func[pos_buf_cabecalho-1] = ')';
+                                 buf_cabecalho_func[pos_buf_cabecalho] = '\0'; 
+                                 break;
+                     }
+
+                     // finalizar corpo funcao
+                     pos_buf_corpo += sprintf("return strdup(__BUF__);\n}\n");
+
                      // imprimir declaracao funcao
+                     printf(buf_cabecalho_func);
+                     printf(buf_corpo_func);
+                   
+                     // limpar nomes das vars
                   }
-
-
 %%
 
