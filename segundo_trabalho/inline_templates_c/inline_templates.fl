@@ -1,5 +1,4 @@
 IDENT         [a-zA-Z_][a-zA-Z0-9_]*
-  /*DEF_FUNCAO    {IDENT}/[:space:]=[:space:]{{*/
 
 %x decl_funcao
 %x nome_funcao_encontrado
@@ -8,127 +7,164 @@ IDENT         [a-zA-Z_][a-zA-Z0-9_]*
 %x map_funcao_lida
 %x map_comprimento_lido
 %x var
+%x codigo_c
 
 %top{
-  #include <stdio.h>
-  #include <string.h>
+    #include <stdio.h>
+    #include <string.h>
 
-  #define TAMANHO_BUFFER 10000
-  #define TAMANHO_MAX_CABECALHO 4096
-  #define TAMANHO_MAX_CORPO 20000
-  #define TAMANHO_MAX_LINHA_FUNCAO
-  #define MAX_VARIAVEIS 1000
+    #define TAMANHO_BUFFER 10000
+    #define TAMANHO_MAX_CABECALHO 4096
+    #define TAMANHO_MAX_CORPO 20000
+    #define TAMANHO_MAX_LINHA_FUNCAO
+    #define MAX_VARIAVEIS 1000
 
-  /* usa-se char para armazenar informação do tipo de uma var de forma a poupar memoria */
-  typedef char TIPO;
-  #define INT 0
-  #define STRING 1
-  #define LISTA_STRINGS 2 /* usar char ** em vez de char* [] */
+    /* usa-se char para armazenar informação do tipo de uma var de forma a poupar memoria */
+    typedef char TIPO;
+    #define INT 0
+    #define STRING 1
+    #define LISTA_STRINGS 2 
 
-  char buf_corpo_func[TAMANHO_MAX_CORPO];
-  char buf_cabecalho_func[TAMANHO_MAX_CORPO];
-  char buf_linha_funcao[TAMANHO_MAX_LINHA_FUNCAO];
-  char* nomes_variaveis[MAX_VARIAVEIS]; 
-  TIPO tipos_variaveis[MAX_VARIAVEIS];
-  char map_nome_funcao[128];
-  char map_comprimento[10];
+    char buf_corpo_func[TAMANHO_MAX_CORPO];
+    char buf_cabecalho_func[TAMANHO_MAX_CORPO];
+    char buf_linha_funcao[TAMANHO_MAX_LINHA_FUNCAO];
+    char* nomes_variaveis[MAX_VARIAVEIS]; 
+    TIPO tipos_variaveis[MAX_VARIAVEIS];
+    
+    /* vars para leitura de mapas */
+    char* nome_funcao;
+    char* var_comprimento;
+    char* nome_lista;
   
-  int pos_buf_cabecalho = 0;
-  int pos_buf_corpo = 0;
-  int pos_buf_linha = 0;
-  int pos_variaveis = 0;
+    int pos_buf_cabecalho = 0;
+    int pos_buf_corpo = 0;
+    int pos_buf_linha = 0;
+    int pos_variaveis = 0;
+    int insereVar(char* nome, TIPO tipo);
 
-  int insereVar(char* nome, TIPO tipo);
+    /* vars usadas no programa gerado */
+    #define NOME_BUFF "BUF"
+    #define NOME_VAR1 "j"
+    #define NOME_VAR2 "i"
+
+    /* macros uteis para simplificar expressoes */
+    #define ADICIONA_CABECALHO(...) pos_buf_cabecalho += sprintf(buf_cabecalho_func + pos_buf_cabecalho, __VA_ARGS__)
+    #define ADICIONA_CORPO(...) pos_buf_corpo += sprintf(buf_corpo_func + pos_buf_corpo, __VA_ARGS__);
 }
 
 %%
-  /*Definicao de funcao */
 
-<INITIAL>{IDENT}/[:space:]*=[:space:]*\{\{      {
-                              BEGIN(nome_funcao_encontrado);
-                              pos_buf_cabecalho = pos_buf_corpo = pos_buf_linha = pos_variaveis = 0;
-                              pos_buf_cabecalho += sprintf(buf_cabecalho_func + pos_buf_cabecalho, "char* %s(", yytext);
-                              pos_buf_corpo += sprintf(buf_corpo_func + pos_buf_corpo, "\tchar __BUF__[%d]; int __j__=0;\n", TAMANHO_BUFFER);
-		           }
+<INITIAL>{IDENT}/[:space:]*=[:space:]*\{\{        {
+  /* Encontrou um template de uma funcao */
+    BEGIN(nome_funcao_encontrado);
+    pos_buf_cabecalho = pos_buf_corpo = pos_buf_linha = pos_variaveis = 0;
+    ADICIONA_CABECALHO("char* %s(", yytext);
+    ADICIONA_CORPO("\tchar "NOME_BUFF"[%d];\n\tint "NOME_VAR1"=0;\n\tint "NOME_VAR2";\n", TAMANHO_BUFFER);
+}
 
-<nome_funcao_encontrado>[:space:]*=[:space:]*\{\{  { BEGIN(decl_funcao); }
+<nome_funcao_encontrado>[:space:]*=[:space:]*\{\{        { BEGIN(decl_funcao); }
 
+<decl_funcao>\[%[:space:]*        { 
+    BEGIN(var); 
+    if(pos_buf_linha != 0) {
+      buf_linha_funcao[pos_buf_linha++] = '\0';
+      ADICIONA_CORPO("\t"NOME_VAR1" += sprintf("NOME_BUFF"+"NOME_VAR1", \"%s\");\n", buf_linha_funcao);
+    }
+    pos_buf_linha = 0;
+}
+  
 
-<decl_funcao>\[%[:space]*MAP[:space]+   { BEGIN(map); /* nesta fase, fazer um sprintf com o conteudo atual do buffer, por pos a 0 */ }
-<decl_funcao>\[%[:space]*               { BEGIN(var); 
-                                          if(pos_buf_linha != 0) {
-                                            buf_linha_funcao[pos_buf_linha++] = '\0';
-                                            pos_buf_corpo += sprintf(buf_corpo_func + pos_buf_corpo, "\t__j__ += sprintf(__BUF__+__j__, \"%s\");\n", buf_linha_funcao);
-                                          }
-                                          pos_buf_linha = 0;
-                                        }
+<decl_funcao>\"        {
+    /* no relatorio, explicar convençao das chavetas */
+    buf_linha_funcao[pos_buf_linha++] = '\\';
+    buf_linha_funcao[pos_buf_linha++] = '\"';
+}
 
- /* no relatorio, explicar convençao das chavetas */
-<decl_funcao>\"   {
-                    buf_linha_funcao[pos_buf_linha++] = '\\';
-                    buf_linha_funcao[pos_buf_linha++] = '\"';
-                 }
+<decl_funcao>.        {
+    buf_linha_funcao[pos_buf_linha++] = yytext[0];
+}
 
-<decl_funcao>.   {
-                     buf_linha_funcao[pos_buf_linha++] = yytext[0];
-                 }
+<decl_funcao>\n        {
+    buf_linha_funcao[pos_buf_linha++] = '\\';
+    buf_linha_funcao[pos_buf_linha++] = 'n';
+    buf_linha_funcao[pos_buf_linha++] = '\0';
+    ADICIONA_CORPO("\t"NOME_VAR1" += sprintf("NOME_BUFF"+"NOME_VAR1", \"%s\");\n", buf_linha_funcao);
+    pos_buf_linha = 0; 
+}
 
-<decl_funcao>\n  {
-                    buf_linha_funcao[pos_buf_linha++] = '\\';
-                    buf_linha_funcao[pos_buf_linha++] = 'n';
-                    buf_linha_funcao[pos_buf_linha++] = '\0';
-                    pos_buf_corpo += sprintf(buf_corpo_func + pos_buf_corpo, "\t__j__ += sprintf(__BUF__+__j__, \"%s\");\n", buf_linha_funcao);
-                    pos_buf_linha = 0; 
-                 }
+<var,map_comprimento_lido,codigo_c>[:space:]*%\]        { BEGIN(decl_funcao); }
 
-<var>[:space:]*%\]     { BEGIN(decl_funcao); }
+<var>{IDENT}        {
+    if(!strcmp(yytext, "MAP")){
+      BEGIN(map);
+    } else if(!strcmp(yytext, "C")){
+      BEGIN(codigo_c);
+    } else {
+      insereVar(yytext, STRING);
+      ADICIONA_CORPO("\t"NOME_VAR1" += sprintf("NOME_BUFF"+"NOME_VAR1", \"%s\", %s);\n", "%%s", yytext);
+    }
+}
 
-<var>{IDENT} {
-               insereVar(yytext, STRING);
-               pos_buf_corpo += sprintf(buf_corpo_func + pos_buf_corpo,"\t__j__ += sprintf(__BUF__+__j__, \"%s\", %s);\n", "%%s", yytext);
-             }
+<map>{IDENT}        {
+    BEGIN(map_funcao_lida);
+    nome_funcao = strdup(yytext);
+}
 
-<map>{IDENT} { /*Nota: posso usar o buffer de linha à vontade, esta vazio */
-   /* EM falta */
+<map_funcao_lida>{IDENT}        {
+    BEGIN(map_comprimento_lido);
+    var_comprimento = strdup(yytext);
+    insereVar(var_comprimento, INT);
+}
 
-    /* verificar se ja existe e se ja houver, verificar tipo(se houver, estourar), senao inserir*/
-               BEGIN(map_funcao_lida);
-             }
+<map_comprimento_lido>{IDENT}        {
+    nome_lista = yytext; 
+    insereVar(nome_lista, LISTA_STRINGS);
+    
+    ADICIONA_CORPO("\tfor("NOME_VAR2"=0; "NOME_VAR2"<%s; "NOME_VAR2"++)\n", var_comprimento);
+    ADICIONA_CORPO("\t\t"NOME_VAR1" += sprintf("NOME_BUFF"+"NOME_VAR1", \"%s\", %s(%s["NOME_VAR2"]));\n", "%%s", nome_funcao, nome_lista);
+    free(nome_funcao);
+    free(var_comprimento);
+}
 
+<map_funcao_lida>.        {}
 
-<decl_funcao>\}\}   { 
-                     BEGIN(INITIAL);
+<codigo_c>.*/%\]        {
+    ADICIONA_CORPO("\t"NOME_VAR1" += sprintf("NOME_BUFF"+"NOME_VAR1", \"%s\",%s);\n", "%%s", yytext);
+}
 
-                     // finalizar cabecalho funcao
-                     int i;
-                     char* tipo = NULL;
-                     for(i=0; i < pos_variaveis; i++){
-                         switch(tipos_variaveis[i]){
-                             case INT: tipo = "int"; break;
-                             case STRING: tipo = "char*"; break;
-                             case LISTA_STRINGS: tipo = "char**"; break;
-                         }
-                         pos_buf_cabecalho += sprintf(buf_cabecalho_func + pos_buf_cabecalho, "%s %s,",tipo,nomes_variaveis[i] );
-                         free(nomes_variaveis[i]);
-                     }
-                    
-                     switch(buf_cabecalho_func[pos_buf_cabecalho-1]){
-                       case '(': buf_cabecalho_func[pos_buf_cabecalho++] = ')';
-                                 break;
-                       case ',': buf_cabecalho_func[pos_buf_cabecalho-1] = ')';
-                                 break;
-                     }
-                     buf_cabecalho_func[pos_buf_cabecalho++] = '{'; 
-                     buf_cabecalho_func[pos_buf_cabecalho++] = '\n'; 
-                     buf_cabecalho_func[pos_buf_cabecalho] = '\0'; 
+<decl_funcao>\}\}        { 
+    BEGIN(INITIAL);
 
-                     // finalizar corpo funcao
-                     pos_buf_corpo += sprintf(buf_corpo_func + pos_buf_corpo, "\treturn strdup(__BUF__);\n}\n");
+    // completa cabecalho funcao
+    int i;
+    char* tipo = NULL;
+    for(i=0; i < pos_variaveis; i++){
+      switch(tipos_variaveis[i]){
+        case INT: tipo = "int"; break;
+        case STRING: tipo = "char*"; break;
+        case LISTA_STRINGS: tipo = "char**"; break;
+      }
+      ADICIONA_CABECALHO("%s %s,",tipo,nomes_variaveis[i] );
+      free(nomes_variaveis[i]);
+    }
+         
+    switch(buf_cabecalho_func[pos_buf_cabecalho-1]){
+      case '(': buf_cabecalho_func[pos_buf_cabecalho++] = ')';
+        break;
+      case ',': buf_cabecalho_func[pos_buf_cabecalho-1] = ')';
+        break;
+    }
+    buf_cabecalho_func[pos_buf_cabecalho++] = '{'; 
+    buf_cabecalho_func[pos_buf_cabecalho++] = '\n'; 
+    buf_cabecalho_func[pos_buf_cabecalho] = '\0'; 
 
-                     // imprimir declaracao funcao
-                     printf(buf_cabecalho_func);
-                     printf(buf_corpo_func);
-                  }
+    // completa corpo funcao
+    ADICIONA_CORPO("\treturn strdup("NOME_BUFF");\n}");
+
+    // imprime declaracao funcao
+    printf("\n%s", buf_cabecalho_func);
+    printf(buf_corpo_func);
+}
 
 %%
 
@@ -138,7 +174,7 @@ int insereVar(char* nome, TIPO tipo){
     if(!strcmp(nome,nomes_variaveis[i])){
       found = 1;
       if(tipos_variaveis[i] != tipo){
-        /* imprime erro */
+        fprintf(stderr, "ERRO: Está a usar variáveis iguais de tipos diferentes\n");
         exit(1);
       }
       break;

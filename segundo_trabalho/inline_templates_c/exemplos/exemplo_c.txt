@@ -1,0 +1,3 @@
+Fli={{<li> [% ele %] </li>
+<codigo> [% C strdup(X) %] </codigo>
+}}
