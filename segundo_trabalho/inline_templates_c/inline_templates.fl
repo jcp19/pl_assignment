@@ -12,6 +12,7 @@ IDENT         [a-zA-Z_][a-zA-Z0-9_]*
 %top{
     #include <stdio.h>
     #include <string.h>
+    #include <ctype.h>
 
     #define TAMANHO_BUFFER 10000
     #define TAMANHO_MAX_CABECALHO 4096
@@ -26,7 +27,7 @@ IDENT         [a-zA-Z_][a-zA-Z0-9_]*
     #define LISTA_STRINGS 2 
 
     char buf_corpo_func[TAMANHO_MAX_CORPO];
-    char buf_cabecalho_func[TAMANHO_MAX_CORPO];
+    char buf_cabecalho_func[TAMANHO_MAX_CABECALHO];
     char buf_linha_funcao[TAMANHO_MAX_LINHA_FUNCAO];
     char* nomes_variaveis[MAX_VARIAVEIS]; 
     TIPO tipos_variaveis[MAX_VARIAVEIS];
@@ -54,15 +55,18 @@ IDENT         [a-zA-Z_][a-zA-Z0-9_]*
 
 %%
 
-<INITIAL>{IDENT}/[:space:]*=[:space:]*\{\{        {
+<INITIAL>{IDENT}[:space:]*=[:space:]*\{\{        {
   /* Encontrou um template de uma funcao */
-    BEGIN(nome_funcao_encontrado);
+    int i, j;
+    BEGIN(decl_funcao);
+    char nome[128]; 
+    for(i = 0, j=0; !isspace(yytext[i]) && yytext[i] != '='; i++)
+        nome[j++] = yytext[i]; 
+    nome[j] = '\0';
     pos_buf_cabecalho = pos_buf_corpo = pos_buf_linha = pos_variaveis = 0;
-    ADICIONA_CABECALHO("char* %s(", yytext);
+    ADICIONA_CABECALHO("char* %s(", nome);
     ADICIONA_CORPO("\tchar "NOME_BUFF"[%d];\n\tint "NOME_VAR1"=0;\n\tint "NOME_VAR2";\n", TAMANHO_BUFFER);
 }
-
-<nome_funcao_encontrado>[:space:]*=[:space:]*\{\{        { BEGIN(decl_funcao); }
 
 <decl_funcao>\[%[:space:]*        { 
     BEGIN(var); 
