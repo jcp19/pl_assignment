@@ -229,8 +229,10 @@ será armazenado em buffers por forma a facilitar a construção do código. São uti
 função, outro para o corpo e outro para armazenar uma linha da função de cada vez. Desta forma, o cabeçalho e o corpo das funções são construídos
 separadamente, evitando cálculos na enumeração dos parâmetros nos cabeçalhos das funções. Quando se chega ao fim da definição da função,
 o conteúdo dos buffers é formatado de forma a obedecer à sintaxe da linguagem \textit{C} e a completar a definição da função,
-culminando numa função
-\textit{C} bem formada. Depois disto, a função obtida é impressa no ecrã.
+culminando numa função \textit{C} bem formada. Depois disto, a função obtida é impressa no ecrã.
+
+A expressão regular {IDENT} descreve os identificadores que são reconhecidos. Os identificadores são constituídos por uma letra seguida de 0 ou 
+mais letras, números ou \textit{underscores}.
 
 Quando o programa inicializa, o analisador léxico estará no estado \texttt{INITIAL}. Neste estado, se encontrar o padrão 
 \texttt{<INITIAL>{IDENT}[:space:]*=[:space:]*\{\{}, isto é, se encontrar um identificador seguido de 0 ou mais ocorrências de 
@@ -246,7 +248,18 @@ termina, i.e. quando se encontra um \textit{'\textbackslash n'}, insere-se no co
 imprimir tudo o que foi lido da linha. Se eventualmente encontrar aspas, será inserido no buffer de linha a sequência de escape correspondente
 por forma a que quando esta for impressa, o símbolo impresso seja o pretendido.
 
-No estado 
+No estado \texttt{var}, quando um identificador é encontrado, pode-se dar uma de três situações:
+\begin{itemize}
+  \item o identificador ser \texttt{MAP}, o que identifica um mapeamento;
+  \item o identificador ser \texttt{C}, o que sinaliza uma expressão \textit{C} cujo tipo é \texttt{char *};
+  \item nenhuma das anteriores, pelo que o identificador corresponde ao nome de uma variável.
+\end{itemize}
+
+No primeiro caso,
+
+No segundo caso,
+
+Por fim, caso o identificador
 
 \chapter{Desenvolvimento de programa simples para robot com parsing de resultados} \label{robot}
 \section{Análise e Especificação} \label{ae_vv}
