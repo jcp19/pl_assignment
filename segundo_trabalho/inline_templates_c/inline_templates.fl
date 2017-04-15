@@ -16,7 +16,7 @@ IDENT         [a-zA-Z_][a-zA-Z0-9_]*
     #define TAMANHO_BUFFER 10000
     #define TAMANHO_MAX_CABECALHO 4096
     #define TAMANHO_MAX_CORPO 20000
-    #define TAMANHO_MAX_LINHA_FUNCAO
+    #define TAMANHO_MAX_LINHA_FUNCAO 4096
     #define MAX_VARIAVEIS 1000
 
     /* usa-se char para armazenar informação do tipo de uma var de forma a poupar memoria */

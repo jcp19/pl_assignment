@@ -19,7 +19,8 @@
     frame=tB,
     mathescape=true,
     escapeinside={(*@}{@*)},
-    language=C
+    language=C,
+    showstringspaces=false
 }
 
 \usepackage{xspace}
@@ -96,17 +97,145 @@ utilizado pelo mesmo.
 No capítulo~\ref{concl}, termina-se o relatório com uma síntese do trabalho desenvolvido e com as conclusões do mesmo.
 
 \chapter{Templates em C} \label{templates_c}
-
 \section{Análise e Especificação} \label{ae_af}
-
 \subsection{Descrição Informal do Problema}
-\newpage
-\subsection{Formato do Ficheiro de Input}
+Por vezes, na linguagem de programação C, é necessário definir várias funções cujo comportamento é muito semelhante. Isto leva a que
+hajam grandes porções de código repetido e a que seja difícil manter o código uma vez que qualquer alteração numa função pode levar a
+que seja necessário modificar as outras funções. Uma possível solução a este problema passaria por definir um \textit{template} de funções
+para cada conjunto de funções que partilham o mesmo comportamento. Neste trabalho, definiu-se um \textit{template} para definir funções que
+devolvem \textit{strings} resultantes da concatenação de expressões passadas no corpo do \textit{template}.
+O objetivo deste exercício é construir um analisador léxico capaz de interpretar os templates no formato especificado e produzir as respetivas 
+funções em \textit{C}.
+\subsection{Formato dos Ficheiros de Input}
+Os ficheiros de \textit{input} consistem em ficheiros de código \textit{C} que podem conter definições de funções através de templates
+no formato
+\begin{verbatim}
+Nome_da_Funcao = {{ corpo do template }}
+\end{verbatim}
+No corpo do \textit{template}, podem-se usar os seguintes padrões:
+\begin{itemize}
+  \item \texttt{ [\% variavel \%] } - quando este padrão é encontrado, regista-se \texttt{variavel} como um dos argumentos da função
+    e o valor de \texttt{variavel} deverá constar no output da função definida no \textit{template}, no local onde o padrão foi detetado;
+  \item \texttt{ [\% MAP f c l \%]} - quando ocorre este padrão, regista-se \texttt{c} e \texttt{l} como
+    argumentos da função definida pelo \textit{template}
+    e coloca-se o resultado da aplicação da função \texttt{f} a todos os elementos da lista \texttt{l} no resultado da função;
+  \item \texttt{ [\% C expressao\_em\_c \%] } - quando este padrão é detetado, considera-se que \texttt{expressao\_em\_c} é uma 
+    expressão em \textit{C} cujo valor de retorno é uma \textit{string}. No resultado da função que está a ser definida irá constar o
+    resultado da expressão em \textit{C}.
+\end{itemize}
+O texto que não concordar com nenhum destes padrões é considerado como texto que deverá constar no resultado da função tal e qual como está,
+sem nenhum tipo de formatação.
+\section{Compilação e Instalação}
+Para compilar o programa, deve-se invocar o comando \texttt{make} na pasta que tenha o ficheiro \textit{inline\_templates.fl} e a 
+seguinte \textit{Makefile}:
+\begin{verbatim}
+v=inline_templates
+$v: $v.fl
+  flex --noyywrap $v.fl
+  cc lex.yy.c -o $v
+  rm lex.yy.c
+
+install: $v
+  mkdir -p ~/bin/
+  mv $v ~/bin/
+\end{verbatim}
+
+Desta forma, é gerado o executável \texttt{inline\_templates}. Também se poderá invocar o comando \texttt{make install} para instalar
+o programa numa pasta que conste, preferencialmente, na variável \texttt{PATH}. Por defeito, o executável é instalado na pasta \texttt{~/bin}.
 \section{Utilização}
-\subsection{Exemplos de Utilização}
+O programa deverá ser invocado da seguinte forma:
+\begin{verbatim}
+$ ./inline_templates < FICHEIRO_INPUT > FICHEIRO_OUTPUT
+\end{verbatim}
+
+O ficheiro \texttt{FICHEIRO\_INPUT} corresponde ao código fonte com utilização de \textit{templates} e o ficheiro \texttt{FICHEIRO\_OUTPUT}
+corresponde ao código fonte em que as definições de funções com recurso a templates foram substituídas por funções na síntaxe da linguagem
+\textit{C}.
+\subsection{Exemplo de Utilização}
+Apresenta-se agora um exemplo de utilização do programa \textit{inline\_templates}.
+\subsubsection{Input}
+\begin{lstlisting}
+#include <stdio.h>
+#include <string.h>
+
+Fli={{<li> [% ele %] < /li>
+}}
+
+Fhtml={{<html>
+<head><title>[% tit %]</title></head>
+<body>
+<h1>[% tit %]</h1>
+<ul>[% MAP Fli comp items %]</ul>
+</body>
+</html>
+}}
+
+int main(){
+  char * a[]={"expressoes regulares","parsers","compiladores"};
+  printf("%s\n",Fhtml("Conteudo programático", 3, a));
+}
+
+\end{lstlisting}
+\subsubsection{Output}
+\begin{lstlisting}
+#include <stdio.h>
+#include <string.h>
+  
+char* Fli(char* ele){
+   char BUF[10000];
+   int j=0;
+   int i;
+   j += sprintf(BUF+j, "<li> ");
+   j += sprintf(BUF+j, "%s", ele);
+   j += sprintf(BUF+j, " < /li>\n");
+   return strdup(BUF);
+}
+
+char* Fhtml(char* tit,int comp,char** items){
+    char BUF[10000];
+    int j=0;
+    int i;
+    j += sprintf(BUF+j, "<html>\n");
+    j += sprintf(BUF+j, "  <head><title>");
+    j += sprintf(BUF+j, "%s", tit);
+    j += sprintf(BUF+j, "</title></head>\n");
+    j += sprintf(BUF+j, "<body>\n");
+    j += sprintf(BUF+j, "  <h1>");
+    j += sprintf(BUF+j, "%s", tit);
+    j += sprintf(BUF+j, "</h1>\n");
+    j += sprintf(BUF+j, "  <ul>");
+    for(i=0; i<comp; i++)
+        j += sprintf(BUF+j, "%s", Fli(items[i]));
+    j += sprintf(BUF+j, "</ul>\n");
+    j += sprintf(BUF+j, "</body>\n");
+    j += sprintf(BUF+j, "</html>\n");
+    return strdup(BUF);
+}
+
+int main(){
+    char * a[]={"expressoes regulares","parsers","compiladores"};
+    printf("%s\n",Fhtml("Conteudo programático", 3, a));
+}
+
+\end{lstlisting}
 \section{Concepção e Implementação da Resolução}
-\subsection{Codificação}
-\subsection{Testes}
+Passa-se agora a descrever o funcionamento do analisador léxico desenvolvido. O código na sua totalidade pode ser consultado no 
+\nameref{cod_fich_template}.
+
+Antes de quaisquer outras considerações, é necessário descrever o funcionamento geral do programa. Sempre que for detetado código \textit{C}
+"normal", i.e. que não ocorre dentro de nenhuma definição de funções com recurso ao \textit{template} apresentado,
+este será imediatamente imprimido no ecrã. Caso seja detetada a definição de uma função com recurso ao \textit{template}, o código da função 
+será armazenado em buffers por forma a facilitar a construção do código. São utilizados para o efeito três buffers, um para o cabeçalho da 
+função, outro para o corpo e outro para armazenar uma linha da função de cada vez. Desta forma, o cabeçalho e o corpo das funções são construídos
+separadamente, evitando cálculos na enumeração dos parâmetros nos cabeçalhos das funções. Quando se chega ao fim da definição da função,
+o conteúdo dos buffers é formatado de forma a obedecer à sintaxe da linguagem \textit{C} e a completar definição da função, culminando numa função
+\textit{C} bem formada. Depois disto, a função obtida é apresentada no ecrã.
+
+Quando o programa inicializa, o analisador léxico estará no estado \texttt{INITIAL}. Neste estado, se encontrar o padrão 
+\texttt{<INITIAL>{IDENT}/[:space:]*=[:space:]*\{\{}, isto é, se encontrar um identificador seguido de 0 ou mais ocorrências de 
+espaços e de um sinal de igual, possivelmente com espaços a seguir, e por fim, duas chavetas, então considera-se que foi encontrada a
+definição de uma função através do uso do \textit{template}. Nesse caso, 
+
 \chapter{Desenvolvimento de programa simples para robot com parsing de resultados} \label{robot}
 \section{Análise e Especificação} \label{ae_vv}
 \subsection{Descrição Informal do Problema}
@@ -122,7 +251,7 @@ Referir que os resultados de utilização foram obtidos empiricamente
 \chapter{Conclusão} \label{concl}
 \appendix
 
-\chapter{Código dos Programas}
+\chapter{Código dos Programas} 
 
 \section{Conteúdo do ficheiro \texttt{inline\_templates.fl}} \label{cod_fich_template}
 \begin{lstlisting}
@@ -143,7 +272,7 @@ IDENT         [a-zA-Z_][a-zA-Z0-9_]*
     #define TAMANHO_BUFFER 10000
     #define TAMANHO_MAX_CABECALHO 4096
     #define TAMANHO_MAX_CORPO 20000
-    #define TAMANHO_MAX_LINHA_FUNCAO
+    #define TAMANHO_MAX_LINHA_FUNCAO 4096
     #define MAX_VARIAVEIS 1000
 
     /* usa-se char para armazenar informação do tipo de uma var de forma a poupar memoria */
@@ -257,7 +386,7 @@ IDENT         [a-zA-Z_][a-zA-Z0-9_]*
     ADICIONA_CORPO("\t"NOME_VAR1" += sprintf("NOME_BUFF"+"NOME_VAR1", \"%s\",%s);\n", "%%s", yytext);
 }
 
-<decl_funcao>\}\}        { 
+<decl_funcao>\}\}        {
     BEGIN(INITIAL);
 
     // completa cabecalho funcao
@@ -319,6 +448,7 @@ int main(){
 }
 
 \end{lstlisting}
+\newpage
 
 \section{Conteúdo do ficheiro \texttt{.fl}} \label{cod_fich_vv}
 \begin{verbatim}
