@@ -1,2 +1,2 @@
-Fli={{<ul> [% MAP Fli comp items %] </ul>
+Fli={{<ul> [% MAP Fl comp items %] </ul>
 }}

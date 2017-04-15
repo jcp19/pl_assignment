@@ -224,17 +224,29 @@ Passa-se agora a descrever o funcionamento do analisador léxico desenvolvido. O 
 
 Antes de quaisquer outras considerações, é necessário descrever o funcionamento geral do programa. Sempre que for detetado código \textit{C}
 "normal", i.e. que não ocorre dentro de nenhuma definição de funções com recurso ao \textit{template} apresentado,
-este será imediatamente imprimido no ecrã. Caso seja detetada a definição de uma função com recurso ao \textit{template}, o código da função 
+este será imediatamente impresso no ecrã. Caso seja detetada a definição de uma função com recurso ao \textit{template}, o código da função 
 será armazenado em buffers por forma a facilitar a construção do código. São utilizados para o efeito três buffers, um para o cabeçalho da 
 função, outro para o corpo e outro para armazenar uma linha da função de cada vez. Desta forma, o cabeçalho e o corpo das funções são construídos
 separadamente, evitando cálculos na enumeração dos parâmetros nos cabeçalhos das funções. Quando se chega ao fim da definição da função,
-o conteúdo dos buffers é formatado de forma a obedecer à sintaxe da linguagem \textit{C} e a completar definição da função, culminando numa função
-\textit{C} bem formada. Depois disto, a função obtida é apresentada no ecrã.
+o conteúdo dos buffers é formatado de forma a obedecer à sintaxe da linguagem \textit{C} e a completar a definição da função,
+culminando numa função
+\textit{C} bem formada. Depois disto, a função obtida é impressa no ecrã.
 
 Quando o programa inicializa, o analisador léxico estará no estado \texttt{INITIAL}. Neste estado, se encontrar o padrão 
-\texttt{<INITIAL>{IDENT}/[:space:]*=[:space:]*\{\{}, isto é, se encontrar um identificador seguido de 0 ou mais ocorrências de 
+\texttt{<INITIAL>{IDENT}[:space:]*=[:space:]*\{\{}, isto é, se encontrar um identificador seguido de 0 ou mais ocorrências de 
 espaços e de um sinal de igual, possivelmente com espaços a seguir, e por fim, duas chavetas, então considera-se que foi encontrada a
-definição de uma função através do uso do \textit{template}. Nesse caso, 
+definição de uma função através do uso do \textit{template}. Nesse caso, entra-se no contexto \texttt{decl\_funcao} e
+inicia-se a construção da função
+nos buffers. Concretamente, põe-se o tipo de retorno da função e o nome no buffer do cabeçalho e põe-se a declaração de variáveis
+no corpo da função. 
+
+Seguidamente, quando encontrar o padrão \texttt{\textbackslash [\%[:space:]*} vai entrar no estado \texttt{var} e inserir no corpo da função
+a instrução para imprimir o que foi lido da linha até ao momento. Caso contrário, o conteúdo lido é posto no buffer de linha e quando a linha 
+termina, i.e. quando se encontra um \textit{'\textbackslash n'}, insere-se no corpo da função uma instrução para
+imprimir tudo o que foi lido da linha. Se eventualmente encontrar aspas, será inserido no buffer de linha a sequência de escape correspondente
+por forma a que quando esta for impressa, o símbolo impresso seja o pretendido.
+
+No estado 
 
 \chapter{Desenvolvimento de programa simples para robot com parsing de resultados} \label{robot}
 \section{Análise e Especificação} \label{ae_vv}
