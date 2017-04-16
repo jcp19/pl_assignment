@@ -1,6 +1,7 @@
 \documentclass{report}
 \usepackage[portuges]{babel}
 \usepackage[latin1]{inputenc}
+\usepackage[T1]{fontenc}
 
 \usepackage{url}
 \usepackage{enumerate}
@@ -49,34 +50,17 @@
 \maketitle
 
 \begin{abstract}
-O \textit{FLEX} é uma ferramenta extremamente poderosa e versátil que pode ser utilizada nos mais diversos domínios. Para demonstrar isto,
-desenvolveram-se dois programas que fazem uso de analisadores léxicos gerados em \textit{FLEX}: o primeiro programa gera definições 
-de funções \textit{C} a partir de templates de funções e o segundo é utilizado no contexto de um programa simples a ser executado por 
-  um \textit{robot}. Neste último exemplo, utiliza-se um analisador léxico para fazer \textit{parse} do resultado de um comando de 
-  \textit{Linux}, necessário ao funcionamento do \textit{robot}.
+O \textit{FLEX} é uma ferramenta extremamente poderosa e versátil que pode ser utilizada nos mais diversos domínios. Para demonstrar isso, desenvolveu-se dois programas que fazem uso de analisadores léxicos gerados em \textit{FLEX}: o primeiro gera definições de funções \textit{C} a partir de \textit{templates} de funções; o segundo é utilizado no contexto de um programa simples a ser executado por um \textit{robot}. Neste último, utiliza-se um analisador léxico para fazer \textit{parse} do resultado de um comando de \textit{Linux}, necessário ao funcionamento do \textit{robot}.
 \end{abstract}
 
 \tableofcontents
 
 \chapter{Introdução} \label{intro}
-A análise de texto é uma das tarefas mais comuns dos programadores. No entanto, o desenvolvimento de analisadores léxicos com recurso
-a linguagens tradicionais tais como C ou Java é um processo demorado e relativamente complexo, muito susceptível a erros. 
-Devido a isto e ao facto dos analisadores léxicos serem utilizados em praticamente todas as áreas em que a informática 
-é aplicada, torna-se útil o uso de ferramentas tais como o \textit{FLEX} que permitem fácil e rapidamente especificar que padrões 
-devem ser reconhecidos e que ações devem ser realizadas quando esses mesmos padrões são encontrados.
+A análise de texto é uma das tarefas mais comuns dos programadores. No entanto, o desenvolvimento de analisadores léxicos com recurso a linguagens tradicionais tais como C ou Java é um processo demorado, relativamente complexo e muito susceptível a erros. Devido a isso e ao facto dos analisadores léxicos serem utilizados em praticamente todas as áreas às quais a informática é aplicada, torna-se útil o uso de ferramentas tais como o \textit{FLEX}, que permitem fácil e rapidamente especificar que padrões devem ser reconhecidos e as ações semânticas a realizar quando esses padrões forem encontrados.
 
-Esta abordagem é extremamente vantajosa para os programadores porque muda o foco da implementação do mecanismo de deteção de 
-padrões propriamente dito para os padrões que devem ser detetados e as ações a serem executadas. Para além disso, o tempo necessário 
-para construir um analisador léxico diminui significativamente, assim como a complexidade e tamanho do código necessário para gerar o 
-analisador.
-Outra vantagem de utilizar esta ferramenta é a facilidade de manutenção e extensão de analisadores, uma vez que facilmente se adicionam ou mudam
-os padrões reconhecidos e as acções associadas a eles.
+A abordagem referida é extremamente vantajosa para quem programa por mudar o foco da implementação do mecanismo de deteção de padrões propriamente dito para os padrões que devem ser detetados e as ações a serem executadas. Para além disso, o tempo necessário para desenvolver um analisador léxico diminui significativamente, assim como a complexidade e tamanho do código necessário para o produzir. Outra vantagem de utilizar esta ferramenta é a facilidade de manutenção e extensão de analisadores, uma vez que facilmente se adicionam ou mudam os padrões reconhecidos e as acções a eles associadas.
 
-Por ser extremamente versátil, esta ferramenta pode ser utilizada em vários domínios. Este relatório descreve o uso do 
-\textit{FLEX} em dois domínios diferentes. No primeiro caso, construiu-se um processador de \textit{templates} para a linguagem de
-programção \textit{C}. No segundo caso, construiu-se um programa a ser executado por um \textit{robot} que utiliza a plataforma \textit{ROS}.
-Em particular, esse \textit{robot} faz uso do \textit{output} de um comando \textit{Linux} para determinar o seu comportamento. Esse resultado tem
-de ser processado e é para esse fim que se utiliza o \textit{FLEX}.
+Por ser extremamente versátil, o \textit{FLEX} pode ser utilizado em vários domínios. Neste relatório, descreve-se o seu uso em dois domínios diferentes. No primeiro, construiu-se um processador de \textit{templates} para a linguagem de programção \textit{C}. No segundo, construiu-se um programa a ser executado por um \textit{robot} que utiliza a plataforma \textit{ROS}. Em particular, esse \textit{robot} faz uso do \textit{output} de um comando \textit{Linux} para determinar o seu comportamento. Esse \textit{output} tem de ser processado e é para esse fim que se utiliza o \textit{FLEX}.
 
 \section*{Estrutura do Relatório}
 O relatório encontra-se dividido em 4 capítulos:
@@ -86,48 +70,32 @@ O relatório encontra-se dividido em 4 capítulos:
     \item \nameref{robot};
     \item \nameref{concl}.
 \end{enumerate}
-No capítulo~\ref{templates_c}, explica-se o processo e as decisões de desenvolvimento de um analisador léxico capaz de traduzir funções
-definidas por \textit{templates} em funções na síntaxe da linguagem de programação \textit{C}.
+No capítulo~\ref{templates_c}, explica-se o processo e as decisões de desenvolvimento de um analisador léxico capaz de traduzir funções definidas por \textit{templates} para funções na síntaxe da linguagem de programação \textit{C}.
 
 No capítulo~\ref{robot}, descreve-se a metodologia e as decisões de desenvolvimento de um analisador léxico 
-utilizado por um programa em \textit{C++} a ser executado num robot,
-com base na framework \textit{ROS (Robot Operating System)}. Embora esse seja um programa 
-relativamente simples, está assente numa plataforma relativamente complexa (\textit{ROS}) pelo que apenas se descreve o analisador léxico
-utilizado pelo mesmo.
-No capítulo~\ref{concl}, termina-se o relatório com uma síntese do trabalho desenvolvido e com as conclusões do mesmo.
+utilizado por um programa em \textit{C++} a ser executado num robot, com base na \textit{framework} \textit{ROS (Robot Operating System)}. Embora o programa \textit{C++} referido seja relativamente simples, está assente numa plataforma relativamente complexa (\textit{ROS}) pelo que apenas se descreve o analisador léxico utilizado pelo mesmo. No capítulo~\ref{concl}, termina-se o relatório com uma síntese do trabalho desenvolvido e com as respetivas conclusões.
 
 \chapter{Templates em C} \label{templates_c}
 \section{Análise e Especificação} \label{ae_af}
 \subsection{Descrição Informal do Problema}
-Por vezes, na linguagem de programação C, é necessário definir várias funções cujo comportamento é muito semelhante. Isto leva a que
-hajam grandes porções de código repetido e a que seja difícil manter o código uma vez que qualquer alteração numa função pode levar a
-que seja necessário modificar as outras funções. Uma possível solução a este problema passaria por definir um \textit{template} de funções
-para cada conjunto de funções que partilham o mesmo comportamento. Neste trabalho, definiu-se um \textit{template} para definir funções que
-devolvem \textit{strings} resultantes da concatenação de expressões passadas no corpo do \textit{template}.
-O objetivo deste exercício é construir um analisador léxico capaz de interpretar os templates no formato especificado e produzir as respetivas 
+Por vezes, quando se programa em C é necessário definir várias funções cujo comportamento é muito semelhante. Isso leva a grandes porções de código repetido que por sua vez tornam o código difícil de manter, uma vez que qualquer alteração numa função pode fazer com que seja necessário modificar as restantes. Uma possível solução para este problema passa por definir \textit{templates} de funções para cada conjunto de funções que partilham o mesmo comportamento. Neste trabalho, definiu-se um formato de \textit{templates} para funções que devolvem \textit{strings} resultantes da concatenação de expressões passadas no corpo do \textit{template}.
+
+Este exercício teve como objetivo a construção de um analisador léxico capaz de interpretar \textit{templates} embebidos em \textit{C}, de acordo com um formato especificado na próxima subsecção, e produzir as respetivas 
 funções em \textit{C}.
 \subsection{Formato dos Ficheiros de Input}
-Os ficheiros de \textit{input} consistem em ficheiros de código \textit{C} que podem conter definições de funções através de templates
-no formato
+Os ficheiros de \textit{input} consistem em ficheiros de código \textit{C} que podem conter definições de funções através de \textit{templates} no formato:
 \begin{verbatim}
 Nome_da_Funcao = {{ corpo do template }}
 \end{verbatim}
 No corpo do \textit{template}, podem-se usar os seguintes padrões:
 \begin{itemize}
-  \item \texttt{ [\% variavel \%] } - quando este padrão é encontrado, regista-se \texttt{variavel} como um dos argumentos da função
-    e o valor de \texttt{variavel} deverá constar no output da função definida no \textit{template}, no local onde o padrão foi detetado;
-  \item \texttt{ [\% MAP f c l \%]} - quando ocorre este padrão, regista-se \texttt{c} e \texttt{l} como
-    argumentos da função definida pelo \textit{template}
-    e coloca-se o resultado da aplicação da função \texttt{f} a todos os elementos da lista \texttt{l} no resultado da função;
-  \item \texttt{ [\% C expressao\_em\_c \%] } - quando este padrão é detetado, considera-se que \texttt{expressao\_em\_c} é uma 
-    expressão em \textit{C} cujo valor de retorno é uma \textit{string}. No resultado da função que está a ser definida irá constar o
-    resultado da expressão em \textit{C}.
+  \item \texttt{ [\% variavel \%] } - quando este padrão é encontrado, regista-se \texttt{variavel} como um dos argumentos da função. O valor de \texttt{variavel} deverá constar no \textit{output} da função definida no \textit{template}, no local onde o padrão foi detetado;
+  \item \texttt{ [\% MAP f c l \%]} - sempre que se encontra este padrão, regista-se \texttt{c} e \texttt{l} como argumentos da função definida pelo \textit{template} de que o MAP faz parte e acrescenta-se ao resultado dessa função o resultado da aplicação da função \texttt{f} a todos os elementos da lista \texttt{l};
+  \item \texttt{ [\% C expressao\_em\_c \%] } - quando este padrão é detetado, considera-se que \texttt{expressao\_em\_c} é uma expressão \textit{C} cujo valor de retorno é uma \textit{string}. No resultado da função que está a ser definida irá constar o resultado da expressão em \textit{C}.
 \end{itemize}
-O texto que não concordar com nenhum destes padrões é considerado como texto que deverá constar no resultado da função tal e qual como está,
-sem nenhum tipo de formatação.
+O texto de um \textit{template} que não concordar com nenhum destes padrões é considerado como sendo texto que deverá constar no resultado da função definida por esse \textit{template}, sem qualquer tipo de formatação.
 \section{Compilação e Instalação}
-Para compilar o programa, deve-se invocar o comando \texttt{make} na pasta que tenha o ficheiro \textit{inline\_templates.fl} e a 
-seguinte \textit{Makefile}:
+Para se compilar o programa, deve-se invocar o comando \texttt{make} na pasta que tenha o ficheiro \textit{inline\_templates.fl} e a seguinte \textit{Makefile}:
 \begin{verbatim}
 v=inline_templates
 $v: $v.fl
@@ -140,17 +108,14 @@ install: $v
   mv $v ~/bin/
 \end{verbatim}
 
-Desta forma, é gerado o executável \texttt{inline\_templates}. Também se poderá invocar o comando \texttt{make install} para instalar
-o programa numa pasta que conste, preferencialmente, na variável \texttt{PATH}. Por defeito, o executável é instalado na pasta \texttt{~/bin}.
+Desta forma, é gerado o executável \texttt{inline\_templates}. Também se poderá invocar o comando \texttt{make install} para instalar o programa numa pasta que conste, preferencialmente, na variável \texttt{PATH}. Por omissão, o executável é instalado na pasta \texttt{\textasciitilde/bin}.
 \section{Utilização}
 O programa deverá ser invocado da seguinte forma:
 \begin{verbatim}
 $ ./inline_templates < FICHEIRO_INPUT > FICHEIRO_OUTPUT
 \end{verbatim}
 
-O ficheiro \texttt{FICHEIRO\_INPUT} corresponde ao código fonte com utilização de \textit{templates} e o ficheiro \texttt{FICHEIRO\_OUTPUT}
-corresponde ao código fonte em que as definições de funções com recurso a templates foram substituídas por funções na síntaxe da linguagem
-\textit{C}.
+O ficheiro \texttt{FICHEIRO\_INPUT} corresponde ao código fonte \textit{C} com \textit{templates} embebidos e o ficheiro \texttt{FICHEIRO\_OUTPUT} corresponde ao código fonte em que as definições de funções com recurso a \textit{templates} foram substituídas por funções conforme a síntaxe da linguagem \textit{C}.
 \subsection{Exemplo de Utilização}
 Apresenta-se agora um exemplo de utilização do programa \textit{inline\_templates}.
 \subsubsection{Input}
@@ -219,47 +184,41 @@ int main(){
 
 \end{lstlisting}
 \section{Concepção e Implementação da Resolução}
-Passa-se agora a descrever o funcionamento do analisador léxico desenvolvido. O código na sua totalidade pode ser consultado no 
-\nameref{cod_fich_template}.
+Passa-se agora a descrever o funcionamento do analisador léxico desenvolvido. O código na sua totalidade pode ser consultado no \nameref{cod_fich_template}.
 
-Antes de quaisquer outras considerações, é necessário descrever o funcionamento geral do programa. Sempre que for detetado código \textit{C}
-"normal", i.e. que não ocorre dentro de nenhuma definição de funções com recurso ao \textit{template} apresentado,
-este será imediatamente impresso no ecrã. Caso seja detetada a definição de uma função com recurso ao \textit{template}, o código da função 
-será armazenado em buffers por forma a facilitar a construção do código. São utilizados para o efeito três buffers, um para o cabeçalho da 
-função, outro para o corpo e outro para armazenar uma linha da função de cada vez. Desta forma, o cabeçalho e o corpo das funções são construídos
-separadamente, evitando cálculos na enumeração dos parâmetros nos cabeçalhos das funções. Quando se chega ao fim da definição da função,
-o conteúdo dos buffers é formatado de forma a obedecer à sintaxe da linguagem \textit{C} e a completar a definição da função,
-culminando numa função \textit{C} bem formada. Depois disto, a função obtida é impressa no ecrã.
+Antes de quaisquer outras considerações, é necessário descrever o funcionamento geral do programa. Sempre que é detetado código \textit{C} ``normal'', i.e.: código que não ocorre dentro de um \textit{template}, este é imediatamente impresso no \texttt{stdout}. Caso seja detetada a definição de uma função com recurso a um \textit{template}, o código dessa função é armazenado em \textit{buffers} por forma a facilitar a sua construção. Para o efeito, são utilizados três \textit{buffers}: um para o cabeçalho da função (\texttt{buf\_cabecalho\_func}), outro para o corpo (\texttt{buf\_corpo\_func}) e outro para armazenar uma linha da função de cada vez (\texttt{buf\_linha\_funcao}). Desta forma, o cabeçalho e o corpo das funções são construídos separadamente, evitando cálculos na enumeração dos parâmetros nos cabeçalhos das funções. Quando se chega ao fim da definição da função, o conteúdo dos \textit{buffers} acima referidos é formatado de forma a obedecer à sintaxe da linguagem \textit{C} e completar a definição da função, culminando numa função \textit{C} bem formada. Após o processo descrito, o código da função descrita pelo \textit{template} é impresso no \texttt{stdout}.
 
-A expressão regular {IDENT} descreve os identificadores que são reconhecidos. Os identificadores são constituídos por uma letra seguida de 0 ou 
-mais letras, números ou \textit{underscores}.
+O nome IDENT (definido como sendo a expressão regular \texttt{[a-zA-Z\_][a-zA-Z0-9\_]*}) descreve os identificadores que são reconhecidos. Cada identificador é constituído por uma letra ou underscore seguidos de 0 ou mais letras, números ou \textit{underscores}.
 
-Quando o programa inicializa, o analisador léxico estará no estado \texttt{INITIAL}. Neste estado, se encontrar o padrão 
-\texttt{<INITIAL>{IDENT}[:space:]*=[:space:]*\{\{}, isto é, se encontrar um identificador seguido de 0 ou mais ocorrências de 
-espaços e de um sinal de igual, possivelmente com espaços a seguir, e por fim, duas chavetas, então considera-se que foi encontrada a
-definição de uma função através do uso do \textit{template}. Nesse caso, entra-se no contexto \texttt{decl\_funcao} e
-inicia-se a construção da função
-nos buffers. Concretamente, põe-se o tipo de retorno da função e o nome no buffer do cabeçalho e põe-se a declaração de variáveis
-no corpo da função. 
+Quando o programa começa a executar, o analisador léxico encontra-se no estado \texttt{INITIAL}. Neste estado, caso se encontre o padrão \texttt{\textless INITIAL\textgreater\{IDENT\}[:space:]*=[:space:]*\{\{}, isto é, se se encontrar um identificador seguido de 0 ou mais ocorrências de espaços e de um sinal de igual, possivelmente com espaços a seguir e, por fim, duas chavetas, então considera-se que foi encontrada a definição de uma função através de um \textit{template}. Nesses casos, entra-se no contexto \texttt{decl\_funcao} e inicia-se a construção da função nos \textit{buffers} acima referidos. Concretamente, coloca-se o tipo de retorno da função e o respetivo nome no \textit{buffer} do cabeçalho e a declaração de variáveis no \textit{buffer} que armazena o corpo da função. 
 
-Seguidamente, quando encontrar o padrão \texttt{\textbackslash [\%[:space:]*} vai entrar no estado \texttt{var} e inserir no corpo da função
-a instrução para imprimir o que foi lido da linha até ao momento. Caso contrário, o conteúdo lido é posto no buffer de linha e quando a linha 
-termina, i.e. quando se encontra um \textit{'\textbackslash n'}, insere-se no corpo da função uma instrução para
-imprimir tudo o que foi lido da linha. Se eventualmente encontrar aspas, será inserido no buffer de linha a sequência de escape correspondente
+Seguidamente, se se encontrar o padrão \texttt{\textbackslash [\%[:space:]*}, entra-se no estado \texttt{var} e insere-se no corpo da função a instrução para imprimir o que foi lido da linha até ao momento. Caso contrário, o conteúdo lido é posto no \textit{buffer} de linha e quando esta termina, i.e. quando se encontra um \textit{'\textbackslash n'}, insere-se no corpo da função uma instrução para imprimir tudo o que foi lido da linha. Se eventualmente se encontrar aspas, será inserido no \textit{buffer} de linha a sequência de escape correspondente
 por forma a que quando esta for impressa, o símbolo impresso seja o pretendido.
 
-No estado \texttt{var}, quando um identificador é encontrado, pode-se dar uma de três situações:
+No estado \texttt{var}, quando um identificador é encontrado, pode-se suceder uma de três situações:
 \begin{itemize}
-  \item o identificador ser \texttt{MAP}, o que identifica um mapeamento;
-  \item o identificador ser \texttt{C}, o que sinaliza uma expressão \textit{C} cujo tipo é \texttt{char *};
-  \item nenhuma das anteriores, pelo que o identificador corresponde ao nome de uma variável.
+  \item o identificador ser \texttt{MAP}, o que identifica um mapeamento. Entra-se no estado \texttt{map}. Quando um identificador é encontrado
+    neste estado, assume-se que corresponde ao nome da função a aplicar aos elementos da lista e entra-se no estado \texttt{map\_funcao\_lida}.
+    Quando for encontrado outro identificador, considera-se que este corresponde ao nome da variável cujo valor corresponde ao comprimento 
+    da lista e entra-se no estado \texttt{map\_comprimento\_lido}. Por fim, neste estado, quando se encontra um identificador considera-se
+    que este corresponde ao nome da lista. Por esta altura, o mapeamento está completamente descrito e são colocadas no corpo da função 
+    as instruções que adicionam ao output o resultado do mapeamento.
+  \item o identificador ser \texttt{C}, o que sinaliza uma expressão \textit{C} cujo tipo é \texttt{char *}. Entra-se no estado
+    \texttt{codigo\_c}. Neste estado, tudo o que se encontra até ao padrão \texttt{\%]} é considerado parte da expressão \textit{C}
+    e a instrução para adicionar ao resultado o valor da expressão é posta no corpo da função;
+  \item nenhuma das anteriores, pelo que o identificador corresponde ao nome de uma variável. Nesse caso, insere-se no corpo da função
+    a instrução para adicionar à \textit{string} devolvida o valor da variável. 
 \end{itemize}
+Quando o padrão \texttt{\%]} é encontrado nos estados \texttt{var}, \texttt{map\_comprimento\_lido} ou \texttt{codigo\_c}, considera-se
+que as situações anteriormente descritas terminam e volta-se ao estado \texttt{decl\_funcao}. 
 
-No primeiro caso,
+Quando o padrão \texttt{\}\}} é encontrado, insere-se a lista de parâmetros no cabeçalho da função e a instrução 
+\texttt{return strdup(NOME\_DO\_BUFFER);} no corpo da função, em que NOME\_DO\_BUFFER corresponde ao nome escolhido para a variável
+que contém o resultado da função obtida pelo analisador léxico. Depois disto, é impresso o cabeçalho e corpo da função, obtendo-se
+a função em síntaxe \textit{C} correspondente à que estava definida no \textit{template}.
 
-No segundo caso,
-
-Por fim, caso o identificador
+\textit{Nota:} Sempre que o nome de um argumento da função é lido, verifica-se se o seu nome já foi usado anteriormente na função e caso tenha
+sido e os tipos não coresponderem, o programa termina com um erro.
 
 \chapter{Desenvolvimento de programa simples para robot com parsing de resultados} \label{robot}
 \section{Análise e Especificação} \label{ae_vv}
@@ -294,6 +253,8 @@ IDENT         [a-zA-Z_][a-zA-Z0-9_]*
 %top{
     #include <stdio.h>
     #include <string.h>
+    #include <ctype.h>
+
     #define TAMANHO_BUFFER 10000
     #define TAMANHO_MAX_CABECALHO 4096
     #define TAMANHO_MAX_CORPO 20000
@@ -307,16 +268,16 @@ IDENT         [a-zA-Z_][a-zA-Z0-9_]*
     #define LISTA_STRINGS 2 
 
     char buf_corpo_func[TAMANHO_MAX_CORPO];
-    char buf_cabecalho_func[TAMANHO_MAX_CORPO];
+    char buf_cabecalho_func[TAMANHO_MAX_CABECALHO];
     char buf_linha_funcao[TAMANHO_MAX_LINHA_FUNCAO];
     char* nomes_variaveis[MAX_VARIAVEIS]; 
     TIPO tipos_variaveis[MAX_VARIAVEIS];
-                                                                        
+    
     /* vars para leitura de mapas */
     char* nome_funcao;
     char* var_comprimento;
     char* nome_lista;
-                                                                                          
+  
     int pos_buf_cabecalho = 0;
     int pos_buf_corpo = 0;
     int pos_buf_linha = 0;
@@ -335,24 +296,28 @@ IDENT         [a-zA-Z_][a-zA-Z0-9_]*
 
 %%
 
-<INITIAL>{IDENT}/[:space:]*=[:space:]*\{\{        {
-/* Encontrou um template de uma funcao */
-    BEGIN(nome_funcao_encontrado);
+<INITIAL>{IDENT}[:space:]*=[:space:]*\{\{        {
+  /* Encontrou um template de uma funcao */
+    int i, j;
+    BEGIN(decl_funcao);
+    char nome[128]; 
+    for(i = 0, j=0; !isspace(yytext[i]) && yytext[i] != '='; i++)
+        nome[j++] = yytext[i]; 
+    nome[j] = '\0';
     pos_buf_cabecalho = pos_buf_corpo = pos_buf_linha = pos_variaveis = 0;
-    ADICIONA_CABECALHO("char* %s(", yytext);
+    ADICIONA_CABECALHO("char* %s(", nome);
     ADICIONA_CORPO("\tchar "NOME_BUFF"[%d];\n\tint "NOME_VAR1"=0;\n\tint "NOME_VAR2";\n", TAMANHO_BUFFER);
 }
-
-<nome_funcao_encontrado>[:space:]*=[:space:]*\{\{        { BEGIN(decl_funcao); }
 
 <decl_funcao>\[%[:space:]*        { 
     BEGIN(var); 
     if(pos_buf_linha != 0) {
-        buf_linha_funcao[pos_buf_linha++] = '\0';
-        ADICIONA_CORPO("\t"NOME_VAR1" += sprintf("NOME_BUFF"+"NOME_VAR1", \"%s\");\n", buf_linha_funcao);
+      buf_linha_funcao[pos_buf_linha++] = '\0';
+      ADICIONA_CORPO("\t"NOME_VAR1" += sprintf("NOME_BUFF"+"NOME_VAR1", \"%s\");\n", buf_linha_funcao);
     }
     pos_buf_linha = 0;
 }
+  
 
 <decl_funcao>\"        {
     /* no relatorio, explicar convençao das chavetas */
@@ -376,12 +341,12 @@ IDENT         [a-zA-Z_][a-zA-Z0-9_]*
 
 <var>{IDENT}        {
     if(!strcmp(yytext, "MAP")){
-        BEGIN(map);
+      BEGIN(map);
     } else if(!strcmp(yytext, "C")){
-        BEGIN(codigo_c);
+      BEGIN(codigo_c);
     } else {
-        insereVar(yytext, STRING);
-        ADICIONA_CORPO("\t"NOME_VAR1" += sprintf("NOME_BUFF"+"NOME_VAR1", \"%s\", %s);\n", "%%s", yytext);
+      insereVar(yytext, STRING);
+      ADICIONA_CORPO("\t"NOME_VAR1" += sprintf("NOME_BUFF"+"NOME_VAR1", \"%s\", %s);\n", "%%s", yytext);
     }
 }
 
@@ -399,6 +364,7 @@ IDENT         [a-zA-Z_][a-zA-Z0-9_]*
 <map_comprimento_lido>{IDENT}        {
     nome_lista = yytext; 
     insereVar(nome_lista, LISTA_STRINGS);
+    
     ADICIONA_CORPO("\tfor("NOME_VAR2"=0; "NOME_VAR2"<%s; "NOME_VAR2"++)\n", var_comprimento);
     ADICIONA_CORPO("\t\t"NOME_VAR1" += sprintf("NOME_BUFF"+"NOME_VAR1", \"%s\", %s(%s["NOME_VAR2"]));\n", "%%s", nome_funcao, nome_lista);
     free(nome_funcao);
@@ -411,67 +377,64 @@ IDENT         [a-zA-Z_][a-zA-Z0-9_]*
     ADICIONA_CORPO("\t"NOME_VAR1" += sprintf("NOME_BUFF"+"NOME_VAR1", \"%s\",%s);\n", "%%s", yytext);
 }
 
-<decl_funcao>\}\}        {
+<decl_funcao>\}\}        { 
     BEGIN(INITIAL);
 
     // completa cabecalho funcao
     int i;
     char* tipo = NULL;
     for(i=0; i < pos_variaveis; i++){
-        switch(tipos_variaveis[i]){
-            case INT: tipo = "int"; break;
-            case STRING: tipo = "char*"; break;
-            case LISTA_STRINGS: tipo = "char**"; break;
-        }
-        ADICIONA_CABECALHO("%s %s,",tipo,nomes_variaveis[i] );
-        free(nomes_variaveis[i]);
-     }
+      switch(tipos_variaveis[i]){
+        case INT: tipo = "int"; break;
+        case STRING: tipo = "char*"; break;
+        case LISTA_STRINGS: tipo = "char**"; break;
+      }
+      ADICIONA_CABECALHO("%s %s,",tipo,nomes_variaveis[i] );
+      free(nomes_variaveis[i]);
+    }
+         
+    switch(buf_cabecalho_func[pos_buf_cabecalho-1]){
+      case '(': buf_cabecalho_func[pos_buf_cabecalho++] = ')';
+        break;
+      case ',': buf_cabecalho_func[pos_buf_cabecalho-1] = ')';
+        break;
+    }
+    buf_cabecalho_func[pos_buf_cabecalho++] = '{'; 
+    buf_cabecalho_func[pos_buf_cabecalho++] = '\n'; 
+    buf_cabecalho_func[pos_buf_cabecalho] = '\0'; 
 
-     switch(buf_cabecalho_func[pos_buf_cabecalho-1]){
-         case '(': buf_cabecalho_func[pos_buf_cabecalho++] = ')';
-                   break;
-         case ',': buf_cabecalho_func[pos_buf_cabecalho-1] = ')';
-                   break;
-     }
+    // completa corpo funcao
+    ADICIONA_CORPO("\treturn strdup("NOME_BUFF");\n}");
 
-     buf_cabecalho_func[pos_buf_cabecalho++] = '{'; 
-     buf_cabecalho_func[pos_buf_cabecalho++] = '\n'; 
-     buf_cabecalho_func[pos_buf_cabecalho] = '\0'; 
-
-     // completa corpo funcao
-     ADICIONA_CORPO("\treturn strdup("NOME_BUFF");\n}");
-
-     // imprime declaracao funcao
-     printf("\n%s", buf_cabecalho_func);
-     printf(buf_corpo_func);
+    // imprime declaracao funcao
+    printf("\n%s", buf_cabecalho_func);
+    printf(buf_corpo_func);
 }
 
 %%
 
 int insereVar(char* nome, TIPO tipo){
-    int i, found=0;
-    for(i=0; i < pos_variaveis; i++){
-        if(!strcmp(nome,nomes_variaveis[i])){
-            found = 1;
-            if(tipos_variaveis[i] != tipo){
-                fprintf(stderr, "ERRO: Está a usar variáveis iguais de tipos diferentes\n");
-                exit(1);
-            }
-            break;
-        } 
-    }
-
-    if(!found){
-        nomes_variaveis[pos_variaveis] = strdup(nome);
-        tipos_variaveis[pos_variaveis++] = tipo;
-    }
-    return found;
+  int i, found=0;
+  for(i=0; i < pos_variaveis; i++){
+    if(!strcmp(nome,nomes_variaveis[i])){
+      found = 1;
+      if(tipos_variaveis[i] != tipo){
+        fprintf(stderr, "ERRO: Está a usar variáveis iguais de tipos diferentes\n");
+        exit(1);
+      }
+      break;
+    } 
+  }
+  if(!found){
+    nomes_variaveis[pos_variaveis] = strdup(nome);
+    tipos_variaveis[pos_variaveis++] = tipo;
+  }
+  return found;
 }
 
 int main(){
-    yylex();
+  yylex();
 }
-
 \end{lstlisting}
 \newpage
 
