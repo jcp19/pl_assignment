@@ -220,11 +220,18 @@ a função em síntaxe \textit{C} correspondente à que estava definida no \textit{t
 \textit{Nota:} Sempre que o nome de um argumento da função é lido, verifica-se se o seu nome já foi usado anteriormente na função e caso tenha
 sido e os tipos não coresponderem, o programa termina com um erro.
 
-\chapter{Desenvolvimento de programa simples para robot com parsing de resultados} \label{robot}
-\section{Análise e Especificação} \label{ae_vv}
+\chapter{Programa simples a ser executado por um Robot} \label{robot}
+\section{Análise e Especificação} \label{ae_ros}
+O \textit{ROS} é uma framework que permite desenvolver programas para \textit{robots}. Esta framework funciona como um sistema distribuído 
+constituída, essencialmente, por nodos e tópicos. Os tópicos correspondem a filas de mensagens enquanto que 
+os nodos correspondem a executáveis que podem ler ou publicar em tópicos. Sugere-se aos leitores mais interessados que consultem o website
+\url{http://wiki.ros.org/ROS/Tutorials}. 
 \subsection{Descrição Informal do Problema}
-\subsection{Especificação dos Requisitos} \label{er_vv}
-\subsection{Formato do \textit{input}} \label{form_inp_vv}
+Para exemplificar as funcionalidades de um \textit{robot}, pretendeu-se construir um programa que faz com que o mesmo se desloque aleatoriamente
+enquanto que emite \textit{beeps}. A frequência desses \textit{beeps} é ditada pela intensidade do sinal \textit{wifi} da rede \textit{eduroam}.
+Quanto mais intenso for o sinal da rede, maior frequência terão os \textit{beeps}. O comando "iwlist scan INTERFACE" permite obter informações
+sobre as redes detetadas. Pretende-se então construir um analisador do \textit{output} deste comando que será executado por um nodo do programa.
+\subsection{Formato do \textit{input}} \label{form_inp_ros}
 \section{Utilização}
 \subsection{Exemplos de Utilização}
 Referir que os resultados de utilização foram obtidos empiricamente
@@ -438,19 +445,74 @@ int main(){
 \end{lstlisting}
 \newpage
 
-\section{Conteúdo do ficheiro \texttt{.fl}} \label{cod_fich_vv}
-\begin{verbatim}
+\section{Excerto do ficheiro \texttt{wifi\_info\_collector.fl}} \label{cod_fich_ros}
+Devido ao tamanho do programa e ao facto da maior parte do código estar fora do âmbito da Unidade Curricular, optou-se por apresentar apenas 
+o analisador léxico. No entanto, o ficheiro na sua totalidade foi disponibilizado online por um dos elementos do grupo e pode ser consultado em 
+\url{https://github.com/jcp19/ros_packages/blob/master/wifi_info/src/wifi_info_collector.l}.
+\begin{lstlisting}[language=C++]
 
-\end{verbatim}
+%option c++
 
-\chapter{\textit{Input} e \textit{output} dos exemplos/testes}
+%{
+#include "ros/ros.h"
+#include "wifi_info/wifi.h"
+#include <string>
+#include <cstring>
+#include <sstream>
+#include <iostream>
+#include <stdexcept>
+#include <stdio.h>
 
-\section{Templates em C}
+wifi_info::wifi * info;
 
-\subsection{Conteúdo do ficheiro \texttt{input.c}} \label{hendrix_in}
-\begin{lstlisting}[language=XML]
+// return values:
+#define NETWORK_READ 1
+#define END 2
+
+%}
+
+%%
+Cell	{ 
+          ;
+        }
+
+Address:[[:space:]]([0-9A-F]+:)+[0-9A-F]+ {
+			std::string s(yytext);
+			std::string address = s.erase(0, strlen("Address: "));
+			info->address = address;
+		}
+Channel:[0-9]+ {
+		std::string s(yytext);
+		std::string schannel = s.erase(0, strlen("Channel:"));
+		int channel = std::stoi(schannel);
+		info->channel = channel;
+}
+
+ESSID:\"[^\"]+\" {
+		std::string s(yytext);
+		std::string essid = s.erase(0, strlen("ESSID:\""));
+		essid.erase(essid.size()-1, essid.size());
+		info->essid = essid;
+		return NETWORK_READ;
+}
+
+Quality=[0-9]+\/[0-9]+ {
+		std::string q(yytext);
+		q.erase(0, strlen("Quality="));
+		info->quality = q;
+	}
+
+Signal[[:space:]]level=-[0-9]+ {
+		std::string sl(yytext);
+		sl.erase(0, strlen("Signal level="));
+		info->signal_level_dBm = std::stoi(sl);
+}	
+
+
+<<EOF>> { return END; }
+.|\n {;}
+%%
 \end{lstlisting}
-
 
 \nocite{*}
 \bibliographystyle{ieeetr}
