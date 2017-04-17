@@ -1,5 +1,8 @@
 SHELL=/bin/bash
-relatorio: relatorio.tex
+
+relatorio.pdf: relatorio.tex
+	pdflatex relatorio.tex
+	bibtex relatorio.aux
 	pdflatex relatorio.tex
 	pdflatex relatorio.tex
-	rm relatorio.aux relatorio.log relatorio.out relatorio.toc
+	rm relatorio.{aux,log,out,toc,bbl,blg}

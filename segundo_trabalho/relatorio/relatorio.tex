@@ -50,17 +50,30 @@
 \maketitle
 
 \begin{abstract}
-O \textit{FLEX} é uma ferramenta extremamente poderosa e versátil que pode ser utilizada nos mais diversos domínios. Para se demonstrar isso, desenvolveu-se dois programas que fazem uso de analisadores léxicos gerados em \textit{FLEX}: o primeiro gera definições de funções \textit{C} a partir de \textit{templates} de funções; o segundo é utilizado no contexto de um programa simples a ser executado por um \textit{robot}. Neste último, utiliza-se um analisador léxico para fazer \textit{parse} do resultado de um comando de \textit{Linux}, necessário ao funcionamento do \textit{robot}.
+O \textit{FLEX} é uma ferramenta extremamente poderosa e versátil que pode ser utilizada nos mais diversos domínios. Para se demonstrar isso, 
+desenvolveu-se dois programas que fazem uso de analisadores léxicos gerados em \textit{FLEX}: o primeiro gera definições de funções \textit{C} a partir 
+de \textit{templates}; o segundo é utilizado no contexto de um programa simples a ser executado por um \textit{robot}. Neste último, utiliza-se um 
+analisador léxico para fazer \textit{parse} do resultado de um comando de \textit{Linux}, necessário ao funcionamento do \textit{robot}.
 \end{abstract}
 
 \tableofcontents
 
 \chapter{Introdução} \label{intro}
-A análise de texto é uma das tarefas mais comuns dos programadores. No entanto, o desenvolvimento de analisadores léxicos com recurso a linguagens tradicionais tais como o C ou o Java é um processo demorado, relativamente complexo e muito susceptível a erros. Devido a isso e ao facto dos analisadores léxicos serem utilizados em praticamente todas as áreas às quais a informática é aplicada, torna-se útil o uso de ferramentas tais como o \textit{FLEX}, que permitem fácil e rapidamente especificar que padrões devem ser reconhecidos e as ações semânticas a realizar quando esses padrões forem encontrados.
+A análise de texto é uma das tarefas mais comuns dos programadores. No entanto, o desenvolvimento de analisadores léxicos com recurso a linguagens 
+tradicionais tais como o \textit{C} ou o \textit{Java} é um processo demorado, relativamente complexo e muito susceptível a erros. Devido a isso e ao 
+facto dos analisadores léxicos serem utilizados em praticamente todas as áreas às quais a informática é aplicada, torna-se útil o uso de ferramentas tais 
+como o \textit{FLEX}, que permitem fácil e rapidamente especificar que padrões devem ser reconhecidos e as ações semânticas a realizar quando esses 
+padrões forem encontrados.
 
-A abordagem referida é extremamente vantajosa para quem programa por mudar o foco da implementação do mecanismo de deteção de padrões propriamente dito para os padrões que devem ser detetados e as ações a serem executadas. Para além disso, o tempo necessário para desenvolver um analisador léxico diminui significativamente, assim como a complexidade e tamanho do código necessário para o produzir. Outra vantagem de utilizar esta ferramenta é a facilidade de manutenção e extensão de analisadores, uma vez que facilmente se adicionam ou mudam os padrões reconhecidos e as acções a eles associadas.
+A abordagem referida é extremamente vantajosa para quem programa porque muda o foco da implementação do mecanismo de deteção de padrões propriamente dito 
+para os padrões que devem ser detetados e as ações a serem executadas. Para além disso, o tempo necessário para desenvolver um analisador léxico diminui 
+significativamente, assim como a complexidade e tamanho do código necessário para o produzir. Outra vantagem de utilizar esta ferramenta é a facilidade 
+de manutenção e extensão dos analisadores léxicos, uma vez que facilmente se adicionam ou mudam os padrões reconhecidos e as acções a eles associadas.
 
-Por ser extremamente versátil, o \textit{FLEX} pode ser utilizado em vários domínios. Neste relatório, descreve-se o seu uso em dois domínios diferentes. No primeiro, construiu-se um processador de \textit{templates} para a linguagem de programção \textit{C}. No segundo, construiu-se um programa a ser executado por um \textit{robot} que utiliza a plataforma \textit{ROS}. Em particular, esse \textit{robot} faz uso do \textit{output} de um comando \textit{Linux} para determinar o seu comportamento. Esse \textit{output} tem de ser processado e é para esse fim que se utiliza o \textit{FLEX}.
+Por ser extremamente versátil, o \textit{FLEX} pode ser utilizado em vários domínios. Neste relatório, descreve-se o seu uso em dois domínios diferentes. 
+No primeiro, construiu-se um processador de \textit{templates} para a linguagem de programção \textit{C}. No segundo, construiu-se um programa a ser 
+executado por um \textit{robot} que utiliza a plataforma \textit{ROS}. Em particular, esse \textit{robot} faz uso do \textit{output} de um comando 
+\textit{Linux} para determinar o seu comportamento. Esse \textit{output} tem de ser processado e é para esse fim que se utiliza o \textit{FLEX}.
 
 \section*{Estrutura do Relatório}
 O relatório encontra-se dividido em 4 capítulos:
@@ -70,32 +83,48 @@ O relatório encontra-se dividido em 4 capítulos:
     \item \nameref{robot};
     \item \nameref{concl}.
 \end{enumerate}
-No capítulo~\ref{templates_c}, explica-se o processo e as decisões de desenvolvimento de um analisador léxico capaz de traduzir funções definidas por \textit{templates} para funções na síntaxe da linguagem de programação \textit{C}.
+No capítulo~\ref{templates_c}, explica-se o processo e as decisões de desenvolvimento de um analisador léxico capaz de traduzir funções definidas por 
+\textit{templates} para funções na síntaxe da linguagem de programação \textit{C}.
 
 No capítulo~\ref{robot}, descreve-se a metodologia e as decisões de desenvolvimento de um analisador léxico 
-utilizado por um programa em \textit{C++} a ser executado por um \textit{robot}, com base na \textit{framework} \textit{ROS (Robot Operating System)}. Embora o programa \textit{C++} referido seja relativamente simples, este está assente numa plataforma relativamente complexa (\textit{ROS}) pelo que apenas se descreve o analisador léxico utilizado pelo mesmo. No capítulo~\ref{concl}, termina-se o relatório com uma síntese do trabalho desenvolvido e com as respetivas conclusões.
+utilizado por um programa em \textit{C++} a ser executado por um \textit{robot}, com base na \textit{framework} \textit{ROS (Robot Operating System)}. 
+Embora o programa \textit{C++} referido seja relativamente simples, este está assente numa plataforma relativamente complexa (\textit{ROS}) pelo que 
+apenas se descreve o analisador léxico utilizado pelo mesmo. No capítulo~\ref{concl}, termina-se o relatório com uma síntese do trabalho desenvolvido e 
+com as respetivas conclusões.
 
 \chapter{Templates em C} \label{templates_c}
 \section{Análise e Especificação} \label{ae_af}
 \subsection{Descrição Informal do Problema}
-Por vezes, quando se programa em C é necessário definir várias funções cujo comportamento é muito semelhante. Isso leva a grandes porções de código repetido que por sua vez tornam o código difícil de manter, uma vez que qualquer alteração numa função pode fazer com que seja necessário modificar as restantes. Uma possível solução para este problema passa por definir \textit{templates} para cada conjunto de funções que partilham o mesmo comportamento. Neste trabalho, definiu-se um formato de \textit{templates} para funções que devolvem \textit{strings} resultantes da concatenação de expressões passadas no corpo do \textit{template}.
+Por vezes, quando se programa em \textit{C} é necessário definir várias funções cujo comportamento é muito semelhante. Isso leva a grandes porções de 
+código repetido que por sua vez tornam o código difícil de manter, dado que qualquer alteração numa função pode fazer com que seja necessário modificar 
+as restantes. Uma possível solução para este problema passa por definir \textit{templates} para cada conjunto de funções que partilham o mesmo 
+comportamento. Neste trabalho, definiu-se um formato de \textit{templates} para funções que devolvem \textit{strings} resultantes da concatenação de 
+expressões passadas no corpo do \textit{template}.
 
-Este exercício teve como objetivo a construção de um analisador léxico capaz de interpretar \textit{templates} embebidos em \textit{C}, de acordo com um formato especificado na próxima subsecção, e produzir as respetivas 
+Este exercício teve como objetivo a construção de um analisador léxico capaz de interpretar \textit{templates} embebidos em \textit{C}, de acordo com um 
+formato especificado na próxima subsecção, e produzir as respetivas 
 funções em \textit{C}.
 \subsection{Formato dos Ficheiros de Input}
-Os ficheiros de \textit{input} consistem em ficheiros de código \textit{C} que podem conter definições de funções através de \textit{templates} no formato:
+Os ficheiros de \textit{input} consistem em ficheiros de código \textit{C} que podem conter definições de funções através de \textit{templates} no 
+formato:
 \begin{verbatim}
 Nome_da_Funcao = {{ corpo do template }}
 \end{verbatim}
 No corpo do \textit{template}, podem-se usar os seguintes padrões:
 \begin{itemize}
-  \item \texttt{ [\% variavel \%] } - quando este padrão é encontrado, regista-se \texttt{variavel} como um dos argumentos da função. O valor de \texttt{variavel} deverá constar no \textit{output} da função definida no \textit{template}, no local onde o padrão foi detetado;
-  \item \texttt{ [\% MAP f c l \%]} - sempre que se encontra este padrão, regista-se \texttt{c} e \texttt{l} como argumentos da função definida pelo \textit{template} de que o MAP faz parte e acrescenta-se ao resultado dessa função o resultado da aplicação da função \texttt{f} a todos os elementos da lista \texttt{l};
-  \item \texttt{ [\% C expressao\_em\_c \%] } - quando este padrão é detetado, considera-se que \texttt{expressao\_em\_c} é uma expressão \textit{C} cujo valor de retorno é uma \textit{string}. No resultado da função que está a ser definida irá constar o resultado da expressão em \textit{C}.
+  \item \texttt{ [\% variavel \%] } - quando este padrão é encontrado, regista-se \texttt{variavel} como um dos argumentos da função. O valor de \texttt{
+  variavel} deverá constar no \textit{output} da função definida no \textit{template}, no local onde o padrão foi detetado;
+  \item \texttt{ [\% MAP f c l \%]} - sempre que se encontra este padrão, regista-se \texttt{c} e \texttt{l} como argumentos da função definida pelo 
+  \textit{template} do qual o MAP faz parte e acrescenta-se ao resultado dessa função o resultado da aplicação da função \texttt{f} a todos os elementos 
+  da lista \texttt{l};
+  \item \texttt{ [\% C expressao\_em\_c \%] } - quando este padrão é detetado, considera-se que \texttt{expressao\_em\_c} é uma expressão \textit{C} 
+  cujo valor de retorno é do tipo \textit{string}. No resultado da função que está a ser definida irá constar o resultado da expressão em \textit{C}.
 \end{itemize}
-O texto de um \textit{template} que não concordar com nenhum destes padrões é considerado como sendo texto que deverá constar no resultado da função definida por esse \textit{template}, sem qualquer tipo de formatação.
+O texto de um \textit{template} que não concorde com nenhum destes padrões é considerado como sendo texto que deverá constar no resultado da função 
+definida por esse \textit{template}, sem qualquer tipo de formatação.
 \section{Compilação e Instalação}
-Para se compilar o programa, deve-se invocar o comando \texttt{make} na pasta que tenha o ficheiro \textit{inline\_templates.fl} e a seguinte \textit{Makefile}:
+Para se compilar o programa, deve-se invocar o comando \texttt{make} numa diretoria que contenha o ficheiro \textit{inline\_templates.fl} e a seguinte 
+\textit{Makefile}:
 \begin{verbatim}
 v=inline_templates
 $v: $v.fl
@@ -108,16 +137,19 @@ install: $v
   mv $v ~/bin/
 \end{verbatim}
 
-Desta forma, é gerado o executável \texttt{inline\_templates}. Também se poderá invocar o comando \texttt{make install} para instalar o programa numa pasta que conste, preferencialmente, na variável \texttt{PATH}. Por omissão, o executável é instalado na pasta \texttt{\textasciitilde/bin}.
+Desta forma, é gerado o executável \texttt{inline\_templates}. Também se poderá utilizar o comando \texttt{make install} para instalar o programa 
+numa pasta que conste, preferencialmente, na variável \texttt{PATH}. Por omissão, o executável é instalado na pasta \texttt{\textasciitilde/bin}.
 \section{Utilização}
 O programa deverá ser invocado da seguinte forma:
 \begin{verbatim}
 $ ./inline_templates < FICHEIRO_INPUT > FICHEIRO_OUTPUT
 \end{verbatim}
 
-O ficheiro \texttt{FICHEIRO\_INPUT} corresponde ao código fonte \textit{C} com \textit{templates} embebidos e o ficheiro \texttt{FICHEIRO\_OUTPUT} corresponde ao código fonte em que as definições de funções com recurso a \textit{templates} foram substituídas por funções conforme a síntaxe da linguagem \textit{C}.
+O ficheiro \texttt{FICHEIRO\_INPUT} corresponde a código fonte \textit{C} com \textit{templates} embebidos e o ficheiro \texttt{FICHEIRO\_OUTPUT} 
+corresponde ao código fonte em que as definições de funções com recurso a \textit{templates} encontradas em \texttt{FICHEIRO\_INPUT} foram substituídas 
+por funções conforme a síntaxe da linguagem \textit{C}.
 \subsection{Exemplo de Utilização}
-Apresenta-se agora um exemplo de utilização do programa \textit{inline\_templates}.
+Abaixo segue-se um exemplo de utilização do programa \textit{inline\_templates}.
 \subsubsection{Input}
 \begin{lstlisting}
 #include <stdio.h>
@@ -142,6 +174,7 @@ int main(){
 
 \end{lstlisting}
 \subsubsection{Output}
+Passando o código \textit{C} com \textit{templates} embebidos acima apresentado para o comando \texttt{inline\_templates}, obtém-se o seguinte \textit{output}:
 \begin{lstlisting}
 #include <stdio.h>
 #include <string.h>
@@ -184,52 +217,70 @@ int main(){
 
 \end{lstlisting}
 \section{Concepção e Implementação da Resolução}
-Passa-se agora a descrever o funcionamento do analisador léxico desenvolvido. O código na sua totalidade pode ser consultado no \nameref{cod_fich_template}.
+Passa-se agora a descrever o funcionamento do analisador léxico desenvolvido. O código na sua totalidade pode ser consultado no 
+apêndice~\ref{cod_fich_template}.
 
-Antes de quaisquer outras considerações, é necessário descrever o funcionamento geral do programa. Sempre que é detetado código \textit{C} ``normal'', i.e.: código que não ocorre dentro de um \textit{template}, este é imediatamente impresso no \texttt{stdout}. Caso seja detetada a definição de uma função com recurso a um \textit{template}, o código dessa função é armazenado em \textit{buffers} por forma a facilitar a sua construção. Para o efeito, são utilizados três \textit{buffers}: um para o cabeçalho da função (\texttt{buf\_cabecalho\_func}), outro para o corpo (\texttt{buf\_corpo\_func}) e outro para armazenar uma linha da função de cada vez (\texttt{buf\_linha\_funcao}). Desta forma, o cabeçalho e o corpo das funções são construídos separadamente, evitando cálculos na enumeração dos parâmetros nos cabeçalhos das funções. Quando se chega ao fim da definição da função, o conteúdo dos \textit{buffers} acima referidos é formatado de forma a obedecer à sintaxe da linguagem \textit{C} e completar a definição da função, culminando numa função \textit{C} bem formada. Após o processo descrito, o código da função descrita pelo \textit{template} é impresso no \texttt{stdout}.
+Antes de quaisquer outras considerações, é necessário descrever o funcionamento geral do programa. Sempre que é detetado código \textit{C} ``normal'', 
+i.e.: código que não ocorre dentro de um \textit{template}, este é imediatamente impresso no \texttt{stdout}. Quando é detetada a definição de uma 
+função com recurso a um \textit{template}, o código dessa função é armazenado em \textit{buffers} por forma a facilitar a sua construção. Para o efeito, 
+são utilizados três \textit{buffers}: um para o cabeçalho da função (\texttt{buf\_cabecalho\_func}), outro para o corpo (\texttt{buf\_corpo\_func}) e 
+outro para armazenar uma linha da função de cada vez (\texttt{buf\_linha\_funcao}). Desta forma, o cabeçalho e o corpo das funções são construídos 
+separadamente, evitando cálculos na enumeração dos parâmetros nos cabeçalhos das funções. Quando se chega ao fim da definição da função, o conteúdo dos 
+\textit{buffers} acima referidos é formatado de forma a obedecer à sintaxe da linguagem \textit{C} e completar a definição da função, culminando numa 
+função \textit{C} bem formada. Após o processo descrito, o código da função representada pelo \textit{template} é impresso no \texttt{stdout}.
 
-O nome IDENT (definido como sendo a expressão regular \texttt{[a-zA-Z\_][a-zA-Z0-9\_]*}) descreve os identificadores que são reconhecidos. Cada identificador é constituído por uma letra ou \textit{underscore} seguido de 0 ou mais letras, números ou \textit{underscores}.
+O nome IDENT (definido como sendo a expressão regular \texttt{[a-zA-Z\_][a-zA-Z0-9\_]*}) descreve os identificadores que são reconhecidos. Cada 
+identificador é constituído por uma letra ou \textit{underscore} seguido de 0 ou mais letras, números ou \textit{underscores}.
 
-Quando o programa começa a executar, o analisador léxico encontra-se no estado \texttt{INITIAL}. Neste estado, se se encontrar o padrão \texttt{\textless INITIAL\textgreater\{IDENT\}[:space:]*=[:space:]*\{\{}, isto é, caso se encontre um identificador seguido de 0 ou mais ocorrências de espaços e de um sinal de igual, possivelmente com espaços a seguir e, por fim, duas chavetas, então considera-se que foi encontrada a definição de uma função através de um \textit{template}. Nesses casos, entra-se no contexto \texttt{decl\_funcao} e inicia-se a construção da função nos \textit{buffers} acima referidos. Concretamente, coloca-se o tipo de retorno da função e o respetivo nome no \textit{buffer} do cabeçalho e a declaração de variáveis no \textit{buffer} que armazena o corpo da função. 
+Quando o analisador léxico gerado começa a executar, este encontra-se no estado \texttt{INITIAL}. Neste estado, se se localizar o padrão 
+\texttt{\{IDENT\}[:space:]*=[:space:]*\{\{}, isto é, caso se encontre um identificador seguido de 0 ou mais ocorrências de 
+espaços e de um sinal de igual, possivelmente com espaços a seguir e, por fim, duas chavetas, considera-se que foi encontrada a definição de uma 
+função através de um \textit{template}. Nestes casos, entra-se no contexto \texttt{decl\_funcao} e inicia-se a construção da função nos \textit{buffers}
+acima referidos. Concretamente, coloca-se o tipo de retorno da função e o respetivo nome no \textit{buffer} do cabeçalho e a declaração de variáveis no 
+\textit{buffer} que armazena o corpo da função. 
 
-Seguidamente, se se encontrar o padrão \texttt{\textbackslash [\%[:space:]*}, entra-se no estado \texttt{var} e insere-se no corpo da função a instrução para imprimir o que foi lido da linha até ao momento. Caso contrário, o conteúdo lido é posto no \textit{buffer} de linha e quando esta termina, i.e. quando se encontra um \textit{'\textbackslash n'}, insere-se no corpo da função uma instrução para imprimir tudo o que foi lido da linha. Se eventualmente se encontrar aspas, será inserido no \textit{buffer} de linha a sequência de escape correspondente
-por forma a que quando esta for impressa, o símbolo impresso seja o pretendido.
+Seguidamente, se se encontrar o padrão \texttt{\textbackslash [\%[:space:]*}, entra-se no estado \texttt{var} e insere-se no corpo da função a instrução 
+para imprimir o que foi lido da linha até ao momento. Caso contrário, o conteúdo lido é posto no \textit{buffer} de linha e quando a linha terminar, i.e. 
+quando se encontrar um \textit{'\textbackslash n'}, insere-se no corpo da função uma instrução para imprimir tudo o que foi lido da mesma. Se 
+eventualmente se encontrar aspas, será inserida no \textit{buffer} de linha a sequência de escape correspondente de forma a que quando esta for 
+impressa, o símbolo impresso seja o pretendido.
 
-No estado \texttt{var}, quando um identificador é encontrado, pode-se suceder uma de três situações:
+No estado \texttt{var}, quando se encontra um identificador, pode-se suceder uma de três situações:
 \begin{itemize}
   \item o identificador é \texttt{MAP}, pelo que identifica um mapeamento. Neste primeiro caso, entra-se no estado \texttt{map}. Quando um identificador 
-    é encontrado neste estado, assume-se que este corresponde ao nome da função a aplicar aos elementos da lista e entra-se no estado \texttt{map\_funcao\_lida}. Quando é encontrado outro identificador, considera-se que este corresponde ao nome da variável cujo valor corresponde ao comprimento  
-    da lista e entra-se no estado \texttt{map\_comprimento\_lido}. Por fim, neste estado, quando se encontra um identificador considera-se
+    é encontrado neste estado, assume-se que este corresponde ao nome da função a aplicar aos elementos da lista e entra-se no estado 
+    \texttt{map\_funcao\_lida}. Quando é encontrado outro identificador, considera-se que este corresponde ao nome da variável cujo valor corresponde ao 
+    comprimento da lista e entra-se no estado \texttt{map\_comprimento\_lido}. Por fim, neste estado, quando se encontra um identificador considera-se
     que este corresponde ao nome da lista. Por esta altura, o mapeamento está completamente descrito e são colocadas no corpo da função 
     as instruções que adicionam ao output o resultado do mapeamento.
-  \item o identificador é \texttt{C}, o que sinaliza uma expressão \textit{C} cujo tipo é \texttt{char *}. Entra-se no estado
-    \texttt{codigo\_c}. Neste estado, tudo o que se encontra até ao padrão \texttt{\%]} é considerado parte da expressão \textit{C}
-    e a instrução para adicionar ao resultado o valor da expressão é posta no corpo da função;
-  \item nenhuma das anteriores, pelo que o identificador corresponde ao nome de uma variável. Neste caso, insere-se no corpo da função
+  \item o identificador é \texttt{C}, o que sinaliza uma expressão \textit{C} cujo tipo é \texttt{char *}. Neste caso, entra-se no estado
+    \texttt{codigo\_c}. No estado \texttt{codigo\_c}, tudo o que se encontra até ao padrão \texttt{\%]} é considerado parte da expressão 
+    \textit{C} e, por conseguinte, a instrução para adicionar ao resultado o valor da expressão \textit{C} é posta no corpo da função;
+  \item nenhuma das anteriores, pelo que o identificador corresponde ao nome de uma variável. Neste último caso, insere-se no corpo da função
     a instrução para adicionar o valor da variável à \textit{string} devolvida. 
 \end{itemize}
 Quando o padrão \texttt{\%]} é encontrado nos estados \texttt{var}, \texttt{map\_comprimento\_lido} ou \texttt{codigo\_c}, considera-se
-que as situações anteriormente descritas terminam e volta-se ao estado \texttt{decl\_funcao}. 
+que as situações anteriormente descritas terminaram e volta-se ao estado \texttt{decl\_funcao}. 
 
 Quando se encontra o padrão \texttt{\}\}}, insere-se a lista de parâmetros no cabeçalho da função e a instrução 
 \\\texttt{return strdup(NOME\_DO\_BUFFER);} no corpo da função, em que NOME\_DO\_BUFFER corresponde ao nome escolhido para a variável
 que contém o resultado da função obtida pelo analisador léxico. Depois disto, é impresso o cabeçalho e corpo da função, obtendo-se
 a função em síntaxe \textit{C} correspondente à que estava definida no \textit{template}.
 
-\textbf{Nota:} Sempre que o nome de um argumento da função é lido, verifica-se se o seu nome já foi usado anteriormente nessa função e caso tenha
-sido e os tipos não coresponderem, o programa termina com um erro.
+\textbf{Nota:} Sempre que é lido o nome de um argumento da função, verifica-se se o seu nome já foi usado anteriormente nessa função e, caso tenha
+sido e os tipos não coincidam, o programa termina com um erro.
 
 \chapter{Programa simples a ser executado por um Robot} \label{robot}
 \section{Análise e Especificação} \label{ae_ros}
 O \textit{ROS} é uma \textit{framework} que permite desenvolver programas para \textit{robots}. Esta \textit{framework} funciona como um sistema 
-distribuído constituído, essencialmente, por nodos e tópicos. Os tópicos correspondem a filas de mensagens, enquanto que 
-os nodos correspondem a executáveis que podem ler ou publicar em tópicos. Sugere-se aos leitores mais interessados que consultem o website
+distribuído composto, essencialmente, por nodos e tópicos. Os tópicos correspondem a filas de mensagens, enquanto que 
+os nodos correspondem a executáveis que podem ler ou publicar em tópicos. Sugere-se aos leitores mais interessados que consultem o \textit{website}
 \url{http://wiki.ros.org/ROS/Tutorials}. 
 \subsection{Descrição Informal do Problema}
 Para se exemplificar as funcionalidades de um \textit{robot}, decidiu-se construir um programa que faz com que o mesmo se desloque aleatoriamente
 enquanto que emite \textit{beeps}. A frequência desses \textit{beeps} é ditada pela intensidade do sinal \textit{Wi-Fi} da rede \textit{eduroam}.
-Quanto mais intenso for o sinal da rede, maior frequência terão os \textit{beeps}. O comando \texttt{iwlist scan INTERFACE}
-permite obter informações sobre as redes detetadas. Pretende-se então construir um analisador do \textit{output} deste comando que seja executado por um
+Quanto mais intenso for o sinal da rede, maior frequência terão os \textit{beeps}. Através do comando \texttt{iwlist scan INTERFACE}, consegue-se
+obter informações sobre as redes detetadas. Pretende-se então construir um analisador do \textit{output} deste comando, para ser executado por um
 nodo do programa.
 \subsection{Formato do \textit{input}} \label{form_inp_ros}
 O \textit{input} do analisador léxico consiste no \textit{output} do comando \texttt{iwlist scan INTERFACE}. Abaixo, pode-se consultar um exemplo do 
@@ -255,17 +306,17 @@ a mostrada acima, para cada rede encontrada.
 \section{Concepção e Implementação da Resolução}
 Dado que as API's existentes da plataforma \textit{ROS} estão escritas em \textit{C++}, utilizou-se a opção \texttt{\%option c++} para gerar um 
 analisador nesta linguagem a partir do \textit{FLEX}. A classe \texttt{wifi\_info} é um tipo de mensagens que pode ser publicado num tópico.
-Esta classe armazena a seguinte informação acerca de uma rede \textit{wifi}: 
+Esta classe armazena a seguinte informação acerca de uma rede \textit{Wi-Fi}: 
 \begin{itemize}
   \item endereço do \textit{Access Point} - campo \texttt{address};
   \item canal em que a rede opera - campo \texttt{channel};
   \item ESSID da rede - campo \texttt{essid}; 
   \item qualidade do sinal - campo \texttt{quality};
-  \item força do sinal em dBm - campo \texttt{sinal\_level\_dBm};
+  \item força do sinal em dBm - campo \texttt{signal\_level\_dBm};
 \end{itemize}
-Por cada rede que se encontre, pretende-se criar uma mensagem com as informações referidas acima para ser posteriormente publicada num tópico.
-O funcionamento deste analisador léxico é significativamente mais simples do que o que foi apresentado anteriormente. No entanto, existem alguns detalhes
-que o grupo quer ressalvar. Para cada um dos campos da rede referidos acima existe, no \textit{output}, um padrão no formato 
+Para cada rede encontrada, pretende-se criar uma mensagem com as informações referidas acima para ser posteriormente publicada num tópico.
+O funcionamento deste analisador léxico é significativamente mais simples do que o que foi apresentado anteriormente. No entanto, existem alguns
+detalhes que o grupo quer ressalvar. Para cada um dos campos da rede referidos acima existe, no \textit{output}, um padrão no formato 
 \texttt{NOME\_CAMPO: VALOR} excepto no campo \texttt{Address}, dado que existe um espaço a seguir a \textit{':'}. A acção correspondente
 a cada um dos padrões consiste em retirar o nome do campo, deixando apenas o valor, e inserir o valor no campo correto da mensagem.
 
@@ -280,7 +331,9 @@ ferramenta apresenta algumas falhas que obrigam à adoção de soluções pouco elega
 com a linguagem \textit{C++}. Além disso, o grupo é da opinião que as extensões à notação das linguagens regulares como as que existem noutros 
 programas (por exemplo, a possibilidade de usar expressões regulares de \textit{PERL} no programa \textit{grep}) seriam uma boa adição ao \textit{FLEX},
 uma vez que aumentariam ainda mais o seu poder expressivo. Não obstante disso, as dificuldades encontradas foram sempre superadas e os resultados obtidos
-foram os esperados. Por esse motivo, o grupo considera que fez um bom trabalho, tendo também demonstrado que o \textit{FLEX} pode ser aplicado em vários domínios que não os abordados nas aulas (neste caso, mostrou-se o uso do mesmo em robótica). Acima de tudo, ficou patente a utilidade desta ferramenta e a ubiquidade das tarefas de análise léxica.
+foram os esperados. Por esse motivo, o grupo considera que fez um bom trabalho, tendo também demonstrado que o \textit{FLEX} pode ser aplicado em vários 
+domínios que não os abordados nas aulas (neste caso, mostrou-se o uso do mesmo em robótica). Acima de tudo, ficou patente a utilidade desta ferramenta e 
+a ubiquidade das tarefas de análise léxica.
 \appendix
 
 \chapter{Código dos Programas} 
@@ -368,7 +421,6 @@ IDENT         [a-zA-Z_][a-zA-Z0-9_]*
   
 
 <decl_funcao>\"        {
-    /* no relatorio, explicar convençao das chavetas */
     buf_linha_funcao[pos_buf_linha++] = '\\';
     buf_linha_funcao[pos_buf_linha++] = '\"';
 }
@@ -557,6 +609,6 @@ Signal[[:space:]]level=-[0-9]+ {
 
 \nocite{*}
 \bibliographystyle{ieeetr}
-\bibliography{referenciasWeb}
+\bibliography{referencias_bibliograficas_tp1b}
 
 \end{document} 
