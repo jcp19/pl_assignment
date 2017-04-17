@@ -607,6 +607,193 @@ Signal[[:space:]]level=-[0-9]+ {
 %%
 \end{lstlisting}
 
+\chapter{Código \textit{C} com \textit{templates} embebidos e \textit{output} do programa \texttt{inline\_templates}}
+Neste capítulo apresenta-se exemplos de código \textit{C} com \textit{templates} embebidos e, para cada exemplo, apresenta-se o resultado
+de o passar para o programa \texttt{inline\_templates}.
+
+\section{Exemplo com \textit{templates} que contêm variáveis e \textit{maps}}
+Abaixo, segue-se um exemplo de código \textit{C} com \textit{templates} disponibilizado no enunciado. Os \textit{templates} apresentam variáveis 
+e \textit{maps}:
+\begin{lstlisting}
+#include <stdio.h>
+#include <string.h>
+
+Fli={{<li> [% ele %] < /li>
+}}
+
+Fhtml={{<html>
+  <head><title>[% tit %]</title></head>
+<body>
+  <h1>[% tit %]</h1>
+  <ul>[% MAP Fli comp items %]</ul>
+</body>
+</html>
+}}
+
+int main(){
+  char * a[]={"expressoes regulares","parsers","compiladores"};
+  printf("%s\n",Fhtml("Conteudo programático", 3, a));
+}
+\end{lstlisting}
+
+Para o exemplo apresentado, o programa \texttt{inline\_templates} produz o seguinte código \textit{C}:
+\begin{lstlisting}
+#include <stdio.h>
+#include <string.h>
+
+  
+char* Fli(char* ele){
+  char BUF[10000];
+  int j=0;
+  int i;
+  j += sprintf(BUF+j, "<li> ");
+  j += sprintf(BUF+j, "%s", ele);
+  j += sprintf(BUF+j, " < /li>\n");
+  return strdup(BUF);
+}
+
+        
+char* Fhtml(char* tit,int comp,char** items){
+  char BUF[10000];
+  int j=0;
+  int i;
+  j += sprintf(BUF+j, "<html>\n");
+  j += sprintf(BUF+j, "  <head><title>");
+  j += sprintf(BUF+j, "%s", tit);
+  j += sprintf(BUF+j, "</title></head>\n");
+  j += sprintf(BUF+j, "<body>\n");
+  j += sprintf(BUF+j, "  <h1>");
+  j += sprintf(BUF+j, "%s", tit);
+  j += sprintf(BUF+j, "</h1>\n");
+  j += sprintf(BUF+j, "  <ul>");
+  for(i=0; i<comp; i++)
+    j += sprintf(BUF+j, "%s", Fli(items[i]));
+  j += sprintf(BUF+j, "</ul>\n");
+  j += sprintf(BUF+j, "</body>\n");
+  j += sprintf(BUF+j, "</html>\n");
+  return strdup(BUF);
+}
+
+int main(){
+  char * a[]={"expressoes regulares","parsers","compiladores"};
+  printf("%s\n",Fhtml("Conteudo programático", 3, a));
+}
+\end{lstlisting}
+
+\section{Exemplo de código \textit{C} com um \textit{template} inválido}
+O exemplo que se segue é bastante parecido com o anterior, no entanto, ao contrário do exemplo anterior, é inválido uma vez que a variável \texttt{tit}, 
+inicialmente usada na linha 8 como sendo do tipo \textit{string}, é posteriormente utilizada na linha 11 como se fosse do tipo inteiro, ao ser passada 
+como comprimento da lista de um MAP.
+
+\begin{lstlisting}
+#include <stdio.h>
+#include <string.h>
+
+Fli={{<li> [% ele %] < /li>
+}}
+
+Fhtml={{<html>
+  <head><title>[% tit %]</title></head>
+<body>
+  <h1>[% tit %]</h1>
+  <ul>[% MAP Fli tit items %]</ul>
+</body>
+</html>
+}}
+
+int main(){
+  char * a[]={"expressoes regulares","parsers","compiladores"};
+  printf("%s\n",Fhtml("Conteudo programático", 3, a));
+}
+\end{lstlisting}
+
+Como este exemplo é inválido (pelas razões mencionadas no parágrafo anterior), quando se passa o código apresentado para o programa 
+\texttt{inline\_templates}, o resultado é:
+
+\begin{lstlisting}
+#include <stdio.h>
+#include <string.h>
+
+  
+char* Fli(char* ele){
+  char BUF[10000];
+  int j=0;
+  int i;
+  j += sprintf(BUF+j, "<li> ");
+  j += sprintf(BUF+j, "%s", ele);
+  j += sprintf(BUF+j, " < /li>\n");
+  return strdup(BUF);
+}
+
+ERRO: Está a usar variáveis iguais de tipos diferentes
+\end{lstlisting}
+
+Como se pode observar, foi gerado código \textit{C} válido para a função \texttt{Fli}, uma vez que o respetivo \textit{template} é válido. No entanto, 
+o \textit{template} da função \texttt{Fhtml} era inválido, portanto em vez do corpo da mesma, foi impressa a mensagem
+``ERRO: Está a usar variáveis iguais de tipos diferentes''.
+
+\section{Exemplo de \textit{template} com uma expressão \textit{C}}
+
+Um exemplo de um \textit{template} com uma expressão \textit{C} é:
+\begin{lstlisting}
+Fli={{<li> [% ele %] </li>
+<codigo> [% C strdup(X) %] </codigo>
+}}
+\end{lstlisting}
+
+Passando o código apresentado para o programa \texttt{inline\_templates}, obtém-se o seguinte \textit{output}:
+\begin{lstlisting}
+char* Fli(char* ele){
+  char BUF[10000];
+  int j=0;
+  int i;
+  j += sprintf(BUF+j, "<li> ");
+  j += sprintf(BUF+j, "%s", ele);
+  j += sprintf(BUF+j, " </li>\n");
+  j += sprintf(BUF+j, "<codigo> ");
+  j += sprintf(BUF+j, "%s", strdup(X) );
+  j += sprintf(BUF+j, " </codigo>\n");
+  return strdup(BUF);
+}
+\end{lstlisting}
+
+\section{Exemplo de código \textit{C} com um \textit{template} para gerar o código \textit{boilerplate} de uma página HTML}
+
+Um exemplo de um \textit{template} de uma função \textit{C} que produz o chamado código \textit{boilerplate} de uma página HTML é:
+\begin{lstlisting}
+BoilerPlate={{<html>
+  <head>
+    <meta charset="UTF-8">
+    <title> [% title %] </title>
+    <meta name="description" content="[% description %]">
+  </head>
+  <body>
+  </body>
+}}
+\end{lstlisting}
+
+Passando o código apresentado para o programa \texttt{inline\_templates}, obtém-se como resultado a função:
+\begin{lstlisting}
+char* BoilerPlate(char* title,char* description){
+    char BUF[10000];
+    int j=0;
+    int i;
+    j += sprintf(BUF+j, "<html>\n");
+    j += sprintf(BUF+j, "  <head>\n");
+    j += sprintf(BUF+j, "    <meta charset=\"UTF-8\">\n");
+    j += sprintf(BUF+j, "    <title> ");
+    j += sprintf(BUF+j, "%s", title);
+    j += sprintf(BUF+j, " </title>\n");
+    j += sprintf(BUF+j, "    <meta name=\"description\" content=\"");
+    j += sprintf(BUF+j, "%s", description);
+    j += sprintf(BUF+j, "\">\n");
+    j += sprintf(BUF+j, "  </head>\n");
+    j += sprintf(BUF+j, "  <body>\n");
+    j += sprintf(BUF+j, "\n");
+    return strdup(BUF);
+}
+\end{lstlisting}
+
 \nocite{*}
 \bibliographystyle{ieeetr}
 \bibliography{referencias_bibliograficas_tp1b}
