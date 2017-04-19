@@ -279,7 +279,8 @@ os nodos correspondem a executáveis que podem ler ou publicar em tópicos. Sugere
 \subsection{Descrição Informal do Problema}
 Para se exemplificar as funcionalidades de um \textit{robot}, decidiu-se construir um programa que faz com que o mesmo se desloque aleatoriamente
 enquanto que emite \textit{beeps}. A frequência desses \textit{beeps} é ditada pela intensidade do sinal \textit{Wi-Fi} da rede \textit{eduroam}.
-Quanto mais intenso for o sinal da rede, maior frequência terão os \textit{beeps}. Através do comando \texttt{iwlist scan INTERFACE}, consegue-se
+Quanto mais intenso for o sinal da rede, maior frequência terão os \textit{beeps}, i.e. menor será o intervalo de tempo entre os sons.
+Através do comando \texttt{iwlist scan INTERFACE}, consegue-se
 obter informações sobre as redes detetadas. Pretende-se então construir um analisador do \textit{output} deste comando, para ser executado por um
 nodo do programa.
 \subsection{Formato do \textit{input}} \label{form_inp_ros}
@@ -512,7 +513,7 @@ IDENT         [a-zA-Z_][a-zA-Z0-9_]*
 
     // imprime declaracao funcao
     printf("\n%s", buf_cabecalho_func);
-    printf(buf_corpo_func);
+    printf("%s", buf_corpo_func);
 
 }
 
