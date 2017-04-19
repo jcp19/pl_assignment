@@ -252,10 +252,10 @@ No estado \texttt{var}, quando se encontra um identificador, pode-se suceder uma
     \texttt{map\_funcao\_lida}. Quando é encontrado outro identificador, considera-se que este corresponde ao nome da variável cujo valor corresponde ao 
     comprimento da lista e entra-se no estado \texttt{map\_comprimento\_lido}. Por fim, neste estado, quando se encontra um identificador considera-se
     que este corresponde ao nome da lista. Por esta altura, o mapeamento está completamente descrito e são colocadas no corpo da função 
-    as instruções que adicionam ao output o resultado do mapeamento.
+    as instruções que adicionam ao \textit{output} o resultado do mapeamento.
   \item o identificador é \texttt{C}, o que sinaliza uma expressão \textit{C} cujo tipo é \texttt{char *}. Neste caso, entra-se no estado
     \texttt{codigo\_c}. No estado \texttt{codigo\_c}, tudo o que se encontra até ao padrão \texttt{\%]} é considerado parte da expressão 
-    \textit{C} e, por conseguinte, a instrução para adicionar ao resultado o valor da expressão \textit{C} é posta no corpo da função;
+    \textit{C} e, por conseguinte, coloca-se no corpo da função a instrução para adicionar ao resultado o valor dessa expressão \textit{C};
   \item nenhuma das anteriores, pelo que o identificador corresponde ao nome de uma variável. Neste último caso, insere-se no corpo da função
     a instrução para adicionar o valor da variável à \textit{string} devolvida. 
 \end{itemize}
@@ -318,9 +318,8 @@ Esta classe armazena a seguinte informação acerca de uma rede \textit{Wi-Fi}:
 Para cada rede encontrada, pretende-se criar uma mensagem com as informações referidas acima para ser posteriormente publicada num tópico.
 O funcionamento deste analisador léxico é significativamente mais simples do que o que foi apresentado anteriormente. No entanto, existem alguns
 detalhes que o grupo quer ressalvar. Para cada um dos campos da rede referidos acima existe, no \textit{output}, o nome do campo seguido de um 
-separador que pode ser ':' ou '=', possivelmente seguido de espaços e por fim, o valor. A acção correspondente
-a cada um dos padrões consiste em retirar o nome do campo e o separador e espaços,
-deixando apenas o valor, e inserir o valor no campo correto da mensagem.
+separador que pode ser ':' ou '=', possivelmente seguido de espaços e por fim, o valor. A acção correspondente a cada um dos padrões consiste 
+em retirar o nome do campo, o separador e os espaços, deixando apenas o valor, e inserir esse valor no campo correto da mensagem.
 
 Dado que o ESSID é o último campo de interesse apresentado no \textit{output} do comando, quando este valor é lido, retorna-se da função
 devolvendo o valor \texttt{NETWORK\_READ}. Por essa razão, em cada invocação da função \texttt{yylex} lê-se, no máximo, as informações de uma
