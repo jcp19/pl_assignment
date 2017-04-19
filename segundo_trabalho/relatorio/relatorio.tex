@@ -317,9 +317,10 @@ Esta classe armazena a seguinte informação acerca de uma rede \textit{Wi-Fi}:
 \end{itemize}
 Para cada rede encontrada, pretende-se criar uma mensagem com as informações referidas acima para ser posteriormente publicada num tópico.
 O funcionamento deste analisador léxico é significativamente mais simples do que o que foi apresentado anteriormente. No entanto, existem alguns
-detalhes que o grupo quer ressalvar. Para cada um dos campos da rede referidos acima existe, no \textit{output}, um padrão no formato 
-\texttt{NOME\_CAMPO: VALOR} excepto no campo \texttt{Address}, dado que existe um espaço a seguir a \textit{':'}. A acção correspondente
-a cada um dos padrões consiste em retirar o nome do campo, deixando apenas o valor, e inserir o valor no campo correto da mensagem.
+detalhes que o grupo quer ressalvar. Para cada um dos campos da rede referidos acima existe, no \textit{output}, o nome do campo seguido de um 
+separador que pode ser ':' ou '=', possivelmente seguido de espaços e por fim, o valor. A acção correspondente
+a cada um dos padrões consiste em retirar o nome do campo e o separador e espaços,
+deixando apenas o valor, e inserir o valor no campo correto da mensagem.
 
 Dado que o ESSID é o último campo de interesse apresentado no \textit{output} do comando, quando este valor é lido, retorna-se da função
 devolvendo o valor \texttt{NETWORK\_READ}. Por essa razão, em cada invocação da função \texttt{yylex} lê-se, no máximo, as informações de uma
