@@ -44,6 +44,8 @@ LInstr :
 Instr : while '(' Value ')' '{' LInstr '}'
       | if '(' Value ')' '{' LInstr '}'
       | ident '=' Value ';'
+      | ident '=' Value BOp Value ';'
+      | ident '=' UOp Value ';'
       | Value ';'
       | ReturnExpr ';'
       ;
@@ -52,8 +54,6 @@ Value : '(' Value ')'
       | str_literal 
       | num 
       | Function_call 
-      | Binary_Op  
-      | Unary_Op
       | ident'['Value']'
       | ident'['Value']''['Value']'
       | ident
@@ -61,18 +61,14 @@ Value : '(' Value ')'
 
 ReturnExpr : ret
            | ret Value
+           | ret Value BOp Value 
+           | ret UOp Value 
            ;
 
 /* se adicionar args as funcoes, mudar aqui */
 Function_call : ident '(' ')'
               ;
 
-
-Binary_Op : Value BOp Value 
-          ;
-
-Unary_Op : UOp Value 
-         ;
 
 BOp : '+'
     | '-'
@@ -83,6 +79,7 @@ UOp : '+'
     ;
 
 Main_block : LInstr
+           ;
 
 
 %%
