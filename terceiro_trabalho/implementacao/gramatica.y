@@ -4,8 +4,15 @@
 %token str
 %token while
 %token if
-%token return
+%token ret
 %token str_literal
+
+%{
+#include <stdio.h>
+#include <stdlib.h>
+
+%}
+
 %%
 /* Ideias
  -> Precednecia de operadores
@@ -52,8 +59,8 @@ Value : '(' Value ')'
       | ident
       ;
 
-ReturnExpr : return 
-           | return Value
+ReturnExpr : ret
+           | ret Value
            ;
 
 /* se adicionar args as funcoes, mudar aqui */
@@ -61,10 +68,10 @@ Function_call : ident '(' ')'
               ;
 
 
-Binary_Op : ident_value BOp ident_value
+Binary_Op : Value BOp Value 
           ;
 
-Unary_Op : UOp ident_value
+Unary_Op : UOp Value 
          ;
 
 BOp : '+'
@@ -82,6 +89,11 @@ Main_block : LInstr
 
 #include "yy.lex.c"
 
+int yyerror(char *s){
+    printf("erro: %s\n",s);
+}
+
 int main() {
     yyparse();
+    return 0;
 }
