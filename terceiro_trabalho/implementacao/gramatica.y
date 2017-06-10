@@ -6,6 +6,8 @@
 %token if
 %token ret
 %token str_literal
+%token begin
+%token end
 
 %{
 #include <stdio.h>
@@ -20,7 +22,7 @@
  -> Mais tipos (float)
  -> Usar values no acesso aos arrays nos decl
 */
-Programa : Decl_block Fun_prods Main_block
+Programa : Decl_block Fun_prods begin Main_block end
          ;
 
 Decl_block : 
@@ -34,7 +36,7 @@ Fun_prods :
           | Fun_prods Fun_prod
           ;
 
-Fun_prod : type ident '(' ')' '{' Decl_block LInstr '}'
+Fun_prod : ident '(' ')' ':' type  '{' Decl_block LInstr '}'
          ;
 
 LInstr : 
@@ -43,9 +45,9 @@ LInstr :
 
 Instr : while '(' Value ')' '{' LInstr '}'
       | if '(' Value ')' '{' LInstr '}'
-      | ident '=' Value ';'
       | ident '=' Value BOp Value ';'
       | ident '=' UOp Value ';'
+      | ident '=' Value ';'
       | Value ';'
       | ReturnExpr ';'
       ;
