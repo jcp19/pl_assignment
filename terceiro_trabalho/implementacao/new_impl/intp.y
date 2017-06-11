@@ -118,7 +118,7 @@ tirar tipo das funcoes (ou pode nem ser preciso, basta por label...
 Programa : Decl_block Fun_prods begin Main_block end {
                 //printf("declaracoes:\n%s\nstart\n%s\nmain:\n%sstop\n", $1, $2, $4);
                 // completar
-                printf("declaracoes:\n%s\nstart\nmain:\nstop\n", $1);
+                printf("declaracoes:\n%s\nstart\nmain:\n%sstop\n", $1, $4);
             }
          ;
 
@@ -151,9 +151,9 @@ Fun_prods :
 Fun_prod : ident '(' ')' ':' TYPE '{' Decl_block LInstr '}'
          ;
 
-LInstr : 
+LInstr : { $$ = ""; } 
        | LInstr Instr {
-                          asprintf(&$$, "%s%s\n", ($1 == NULL)?"" : $1, $2);
+                          asprintf(&$$, "%s%s\n", $1, $2);
                       }
        ;
 
