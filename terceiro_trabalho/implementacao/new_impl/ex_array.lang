@@ -1,0 +1,9 @@
+int i = 0;
+int v[10];
+
+begin
+while(i < 10){
+v[i] = i;
+i = i+1;
+}
+end

@@ -13,6 +13,11 @@ typedef struct {
     int numero_colunas;
 } entrada_tabela;
 
+typedef struct {
+   char* antes;
+   char* depois;
+} antes_depois;
+
 typedef entrada_tabela* Entrada_tabela;
 
 // assume-se que os arrays nao podem ser inicializados, os seus valores devem ser modificados manualmente;
@@ -85,13 +90,14 @@ int get_offset_var(char * nome){
 %union {
     int valor;
     char * identificador;
+    antes_depois a_d;
 }
 
 %type <identificador> ident
 %type <valor> num
 %type <identificador> Programa 
 %type <identificador> Decl_block 
-%type <identificador> Lhs
+%type <a_d> Lhs
 %type <identificador> Rhs
 %type <identificador> Value
 %type <identificador> LInstr
@@ -129,7 +135,7 @@ Decl_block :  { $$ = ""; }
                                        }
            | Decl_block TYPE ident '[' num ']' ';' { 
                        registar_array($3, $5);
-                       asprintf(&$$, "%s\t%s%d\n", ($1 == NULL)?"" : $1, "pushn ", $5);
+                       asprintf(&$$, "%s\t%s%d\n", $1, "pushn ", $5);
                      }
            | Decl_block TYPE ident '['num']' '['num']' ';' {
                        registar_matriz($3, $5, $8);
@@ -167,14 +173,14 @@ Instr : while_token '(' Rhs ')' '{' LInstr '}' {
       asprintf(&$$, cmd, label, $3, label, $6, label, label);
       label++;
       }
-     | if_token '(' Rhs ')' '{' LInstr '}' { 
+      | if_token '(' Rhs ')' '{' LInstr '}' { 
          char * cmd = "%s" // condicao
                    "\tjz Label%d\n" //nome da label (nao esquecer incrementar no fim
                    "%s" //codigo
                    "Label%d:\n"; //ultima label
          asprintf(&$$, cmd, $3, label, $6, label);
          label++;
-       }
+      }
       | ifel_token '(' Rhs ')' '{' LInstr '}' '{' LInstr '}' { 
           char * cmd = "%s" // condicao
                    "\tjz Label%d\n" //nome da label (nao esquecer incrementar no fim
@@ -186,7 +192,7 @@ Instr : while_token '(' Rhs ')' '{' LInstr '}' {
          asprintf(&$$, cmd, $3, label, $6, label, label, $9, label);
          label++;
         }
-      | Lhs '=' Rhs ';' { asprintf(&$$, "%s%s", $3, $1); }
+      | Lhs '=' Rhs ';' { asprintf(&$$, "%s%s%s", $1.antes, $3, $1.depois); }
       | WRITE str_literal ';' { 
             asprintf(&$$, "\tpushs %s\n\twrites\n", $2); 
         }
@@ -196,22 +202,30 @@ Instr : while_token '(' Rhs ')' '{' LInstr '}' {
       | READ Lhs ';' { 
             /* mudar se divir acesso a [][] em dus partes */  
             asprintf(&$$, "\tread\n\tatoi\n%s",$2); 
-       }
- /*     | ReturnExpr ';', por chamadas de funcoes tambem*/
+      }
       ;
 
-Lhs : ident { asprintf(&$$,"\tstoreg %d\n", get_offset_var($1)); }
+Lhs : ident {   
+           asprintf(&$$.antes, "");
+           asprintf(&$$.depois,"\tstoreg %d\n", get_offset_var($1)); 
+    }
     | ident'['Value']' { 
-                  char * cmd = "\tpushi %d\n"  // endereco ident
-                               "%s" // value
-                               "\tpadd\n"
-                               // tem de ser executado depois, nao esta completamente implementado
-                               "storeg %d";
-                  $$ = "";
-      }
+         char * antes = "\tpushgp\n"
+                        "\tpushi %d\n"  // endereco ident
+                        "\tpadd\n"
+                        "%s"; // value
+         char * depois = "\tstoren \n";
+         asprintf(&$$.antes, antes, get_offset_var($1), $3);
+         asprintf(&$$.depois, depois);
+/*
+                       // tem de ser executado depois, nao esta completamente implementado
+                      "storeg %d";
+*/
+    }
                           
     | ident'['Value']''['Value']' {
-               $$ = "";
+               asprintf($$.antes, "");
+               asprintf($$.depois, "");
           }
     ;
 
@@ -253,15 +267,7 @@ Value : '(' Value ')' { $$ = $2; }
       | '(''!' Value')' { asprintf(&$$, "%s\tnot\n",$3);}
       | '(''-' Value')' { asprintf(&$$, "%s\n\tpushi -1\n\tmul\n",$3);}
       ;
-/*
-ReturnExpr : ret
-          | ret Value
-           | ret Value BOp Value 
-           | ret UOp Value 
-           ;
-*/
 
-/* se adicionar args as funcoes, mudar aqui */
 Function_call : ident '(' ')'
               ;
 

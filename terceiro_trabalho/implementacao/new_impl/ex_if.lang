@@ -1,0 +1,7 @@
+int x = 5;
+int y = 3;
+
+begin
+if(x == 5){ x = x+1; }
+if(y == 20) {y = y+1; }
+end

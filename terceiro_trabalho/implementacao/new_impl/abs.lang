@@ -1,0 +1,10 @@
+int x = 2;
+
+begin 
+ifel(x != 0){
+  x = x + 1;
+}
+{
+  x = x - 1;
+}
+end
