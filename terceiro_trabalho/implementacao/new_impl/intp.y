@@ -162,20 +162,14 @@ Instr : while_token '(' Value ')' '{' LInstr '}' { $$=""; }
       | ifel_token '(' Value ')' '{' LInstr '}' '{' LInstr '}' { $$=""; }
       | Lhs '=' Rhs ';' { asprintf(&$$, "%s%s", $3, $1); }
       | WRITE str_literal ';' { 
-            printf("ready for 3\n");
             asprintf(&$$, "\tpushs %s\n\twrites\n", $2); 
-            printf("didnt kaboom 3\n");
         }
       | WRITE Expr ';' {
-            printf("ready for 2\n");
             asprintf(&$$, "%s\twritei\n", $2); 
-            printf("didnt kaboom 2\n");
       }
       | READ Lhs ';' { 
-            printf("ready for 1\n");
             /* mudar se divir acesso a [][] em dus partes */  
             asprintf(&$$, "\tread\n\tatoi\n%s",$2); 
-            printf("didnt kaboom 1\n");
        }
  /*     | ReturnExpr ';', por chamadas de funcoes tambem*/
       ;

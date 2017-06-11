@@ -1,0 +1,12 @@
+int ola;
+int bla = 3;
+int array[10];
+int matriz[10][2];
+int x = 5;
+int y;
+
+begin
+y = 4;
+x = y + 6;
+y = y + x;
+end

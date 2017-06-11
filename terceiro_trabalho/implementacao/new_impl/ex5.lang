@@ -1,0 +1,13 @@
+int x;
+int y;
+int z;
+
+begin
+WRITE "insira um numero inteiro:\n";
+READ x;
+WRITE "insira um numero inteiro:\n";
+READ y;
+WRITE "O resultado da soma é:";
+z = x+y;
+WRITE z;
+end
