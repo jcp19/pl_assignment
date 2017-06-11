@@ -188,7 +188,6 @@ Instr : while_token '(' Rhs ')' '{' LInstr '}' {
             asprintf(&$$, "%s\twritei\n", $2); 
       }
       | READ Lhs ';' { 
-            /* mudar se divir acesso a [][] em dus partes */  
             asprintf(&$$, "%s\tread\n\tatoi\n%s", $2.antes, $2.depois);
       }
       ;
