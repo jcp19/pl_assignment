@@ -22,14 +22,43 @@
  -> Mais tipos (float)
  -> Usar values no acesso aos arrays nos decl
 */
-Programa : Decl_block Fun_prods begin Main_block end
+Programa : {offset = 0} Decl_block Fun_prods begin Main_block end
          ;
 
-Decl_block : 
-           | Decl_block type ident ';'
-           | Decl_block type ident '[' Value']' ';'
-           | Decl_block type ident '['Value']' '['Value']' ';'
-           | Decl_block type ident '=' Value ';'
+Decl_block :
+           | Decl_block type ident ';' 											{	if(!lookup($3))
+		   																			{
+																						enter($3,$2,offset);
+																						offset += 4; /* type -> int*/
+																					}
+																					else
+																						error(); /* redeclaration */
+																				}
+		   | Decl_block type ident '[' Value']' ';'								{	if(!lookup($3))
+		   																			{
+																						enter($3,$2,offset);
+																						offset += $5*4; /* type -> int*/
+																					}
+																					else
+																						error();
+			   																	}
+           | Decl_block type ident '['Value']' '['Value']' ';'					{	if(!lookup($3))
+		   																			{
+																						enter($3,$2,offset);
+																						offset += $5*$8*4; /* type -> int*/
+																					}
+																					else
+																						error();
+			   																	}
+           | Decl_block type ident '=' Value ';'								{	if(!lookup($3))
+		   																			{
+																						enter($3,$2,offset);
+																						assign(offset,$5); /* ?? */
+																						offset += 4;
+																					}
+																					else
+																						erro();
+			   																	}
            ;
 
 Fun_prods :
