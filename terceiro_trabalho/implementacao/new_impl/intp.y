@@ -166,9 +166,26 @@ Instr : while_token '(' Rhs ')' '{' LInstr '}' {
                    "EndLabel%d:\n"; //ultima label
       asprintf(&$$, cmd, label, $3, label, $6, label, label);
       label++;
-     }
-      | if_token '(' Value ')' '{' LInstr '}' { $$=""; }
-      | ifel_token '(' Value ')' '{' LInstr '}' '{' LInstr '}' { $$=""; }
+      }
+     | if_token '(' Rhs ')' '{' LInstr '}' { 
+         char * cmd = "%s" // condicao
+                   "\tjz Label%d\n" //nome da label (nao esquecer incrementar no fim
+                   "%s" //codigo
+                   "Label%d:\n"; //ultima label
+         asprintf(&$$, cmd, $3, label, $6, label);
+         label++;
+       }
+      | ifel_token '(' Rhs ')' '{' LInstr '}' '{' LInstr '}' { 
+          char * cmd = "%s" // condicao
+                   "\tjz Label%d\n" //nome da label (nao esquecer incrementar no fim
+                   "%s" //codigo
+                   "\tjump EndLabel%d\n"
+                   "\tLabel%d:\n" //ultima label
+                   "%s" // codgigo 2 
+                   "EndLabel%d"; //ulitma label
+         asprintf(&$$, cmd, $3, label, $6, label, label, $9, label);
+         label++;
+        }
       | Lhs '=' Rhs ';' { asprintf(&$$, "%s%s", $3, $1); }
       | WRITE str_literal ';' { 
             asprintf(&$$, "\tpushs %s\n\twrites\n", $2); 
