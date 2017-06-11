@@ -193,7 +193,7 @@ Expr: Expr '*' Value { asprintf($$, "%s%s\tmul\n", $1, $3); }
 /* devolver nestas expressoes o resultado de por no topo da stack, tirar o num daqui */
 /* por expressoes binarias e unarias aqui */
 Value : '(' Value ')' { $$ = $2; }
-      | num { asprintf($$, "%tpushi %d\n", $1); }
+      | num { asprintf($$, "\tpushi %d\n", $1); }
       | ident { asprintf($$, "%tpushg %d\n", get_offset_var($1));}
       | ident'['Value']' {asprintf($$, "\tpushg %d\n%s\tpadd\n\tload\n", get_offset_var($1), $3);} 
       | ident'['Value']''['Value']' {
