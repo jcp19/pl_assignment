@@ -160,7 +160,7 @@ LInstr : { $$ = ""; }
 Instr : while_token '(' Value ')' '{' LInstr '}' { $$=""; }
       | if_token '(' Value ')' '{' LInstr '}' { $$=""; }
       | ifel_token '(' Value ')' '{' LInstr '}' '{' LInstr '}' { $$=""; }
-      | Lhs '=' Rhs ';' { asprintf($$, "%s%s", $3, $1); }
+      | Lhs '=' Rhs ';' { asprintf($$, "%s%s", $3, $1);printf("$3: %s\n", $3); }
       | WRITE str_literal ';' { $$=""; }
       | READ Lhs ';' { $$=""; }
  /*     | ReturnExpr ';', por chamadas de funcoes tambem*/
@@ -204,6 +204,7 @@ Expr: Expr '*' Value { asprintf($$, "%s%s\tmul\n", $1, $3); }
 /* deve-se por expressoes nao atomicas entre parenteses de forma a forçar a precedencia dos operadores */
 /* devolver nestas expressoes o resultado de por no topo da stack, tirar o num daqui */
 /* por expressoes binarias e unarias aqui */
+/* tem de se partir em duas expressoes */
 Value : '(' Value ')' { $$ = $2; }
       | num { asprintf($$, "\tpushi %d\n", $1); }
       | ident { asprintf($$, "%tpushg %d\n", get_offset_var($1));}
