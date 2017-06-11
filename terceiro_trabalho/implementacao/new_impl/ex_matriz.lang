@@ -1,0 +1,14 @@
+int m[2][2];
+int i;
+int j;
+
+begin
+while(i < 2){
+  while(j < 2){
+    m[i][j] = 1;
+    j = j + 1;
+  }
+  j = 0;
+  i = i + 1;
+}
+end

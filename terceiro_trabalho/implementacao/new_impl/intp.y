@@ -44,6 +44,7 @@ int numero_colunas(char * nome){
         Entrada_tabela e = (Entrada_tabela) encontrado;
         return e->numero_colunas;
     } else {
+// por nome da var
         yyerror("ERRO: Tentativa de usar identificador não declarado.");
     }
 }
@@ -107,19 +108,6 @@ int get_offset_var(char * nome){
 %type <identificador> str_literal
 
 %%
-
-/* Ideias
-neste momento so da para ints
- -> Precednecia de operadores
- -> Argumentos nas funcoes
- -> Mais tipos (float e str): omitir cenas str
- -> Usar values no acesso aos arrays nos decl
--> Tabela de simbolos para funcoes
-*/
-
-/* todos
-tirar tipo das funcoes (ou pode nem ser preciso, basta por label... 
-*/
 
 Programa : Decl_block Fun_prods begin Main_block end {
                 //printf("declaracoes:\n%s\nstart\n%s\nmain:\n%sstop\n", $1, $2, $4);
@@ -217,16 +205,21 @@ Lhs : ident {
          char * depois = "\tstoren \n";
          asprintf(&$$.antes, antes, get_offset_var($1), $3);
          asprintf(&$$.depois, depois);
-/*
-                       // tem de ser executado depois, nao esta completamente implementado
-                      "storeg %d";
-*/
     }
                           
     | ident'['Value']''['Value']' {
-               asprintf($$.antes, "");
-               asprintf($$.depois, "");
-          }
+          char * antes = "\tpushgp\n"
+                         "\tpushi %d\n"  // endereco ident
+                         "\tpadd\n"
+                         "%s" // value1
+                         "\tpushi %d\n" // numero colunas
+                         "\tmul\n"
+                         "%s" // value2
+                         "\tadd\n";
+         char * depois = "\tstoren \n";
+         asprintf(&$$.antes, antes, get_offset_var($1), $3, numero_colunas($1),$6);
+         asprintf(&$$.depois, depois);
+    }
     ;
 
 /* desta forma garante-se precedencia dos operadores de multiplicacao e divisao */
@@ -247,9 +240,6 @@ Expr: Expr '*' Value { asprintf(&$$, "%s%s\tmul\n", $1, $3); }
     | Value { $$ = $1; }              
 
 /* deve-se por expressoes nao atomicas entre parenteses de forma a forçar a precedencia dos operadores */
-/* devolver nestas expressoes o resultado de por no topo da stack, tirar o num daqui */
-/* por expressoes binarias e unarias aqui */
-/* tem de se partir em duas expressoes */
 Value : '(' Value ')' { $$ = $2; }
       | num { asprintf(&$$, "\tpushi %d\n", $1); }
       | ident { asprintf(&$$, "\tpushg %d\n", get_offset_var($1));}
