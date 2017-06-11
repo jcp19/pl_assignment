@@ -8,7 +8,7 @@ while { return while_token; }
 
 if    { return if_token; }
 
-int|str { return type; }
+int { return type; }
 
 {NUM} { 
         yylval.valor = atoi(yytext);

@@ -1,0 +1,8 @@
+int ola;
+int bla = 3;
+int array[10];
+int matriz[10][2];
+
+begin
+
+end

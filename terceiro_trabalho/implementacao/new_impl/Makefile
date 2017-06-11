@@ -1,6 +1,6 @@
 all: compiler
 
-compiler: gramatica.fl gramatica.y
+compiler: intp.fl intp.y
 	flex intp.fl
 	yacc intp.y
 	gcc y.tab.c `pkg-config --cflags --libs glib-2.0` -o compilador
