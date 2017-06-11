@@ -11,6 +11,22 @@
 %token READ
 %token WRITE
 
+%union {
+    int valor;
+    char * identificador;
+}
+
+%type <identificador> ident
+%type <valor> num
+%type <identificador> Programa 
+%type <identificador> Decl_block 
+%type <identificador> Lhs
+%type <identificador> Rhs
+%type <identificador> Value
+%type <identificador> LInstr
+%type <identificador> Instr
+%type <identificador> expr
+
 %{
 #include <stdio.h>
 #include <stdlib.h>
@@ -41,20 +57,6 @@ GHashTable * tabela_simbolos;
 int ultimo_offset = 0;
 
 int label = 0;
-/*
-char programa_gerado[32000];
-int contador_programa_gerado = 0;
-
-void print_programa_gerado() {
-  printf("%s", strrev(strdup(programa_gerado)));
-}
-
-void adiciona_instrucoes(char * instrucoes){
-    char * ins = strdup(instrucoes);
-    ins = strrev(ins);
-    contador_programa_gerado += (programa_gerado + contador_programa_gerado, "%s", ins);
-}
-*/
 
 void registar_var(char * nome_var) {
      registar_matriz(nome_var, 1, 1);
@@ -74,18 +76,16 @@ void registar_matriz(char * nome_var, int linhas, int colunas){
     }
 }
 
-%}
+int get_offset_var(char * nome){
+    gpointer encontrado = g_hash_table_lookup(tabela_simbolos, nome);
+    if(encontrado) {
 
-
-%union {
-    int valor;
-    char * identificador;
+    } else {
+        yyerror("ERRO: Tentativa de usar identificador não declarado.");
+    }
 }
 
-%type <identificador> ident
-%type <valor> num
-%type <identificador> Programa 
-%type <identificador> Decl_block 
+%}
 
 %%
 
@@ -95,7 +95,13 @@ neste momento so da para ints
  -> Argumentos nas funcoes
  -> Mais tipos (float e str): omitir cenas str
  -> Usar values no acesso aos arrays nos decl
+-> Tabela de simbolos para funcoes
 */
+
+/* todos
+tirar tipo das funcoes (ou pode nem ser preciso, basta por label... 
+*/
+
 Programa : Decl_block Fun_prods begin Main_block end {
                 //printf("declaracoes:\n%s\nstart\n%s\nmain:\n%sstop\n", $1, $2, $4);
                 // completar
@@ -133,19 +139,21 @@ Fun_prod : ident '(' ')' ':' type  '{' Decl_block LInstr '}'
          ;
 
 LInstr : 
-       | LInstr Instr
+       | LInstr Instr {
+                          asprintf(&$$, "%s%s\n", ($1 == NULL)?"" : $1, $2);
+                      }
        ;
 
 Instr : while_token '(' Value ')' '{' LInstr '}'
       | if_token '(' Value ')' '{' LInstr '}'
       | ifel_token '(' Value ')' '{' LInstr '}' '{' LInstr '}'
-      | Lhs '=' Rhs ';'
+      | Lhs '=' Rhs ';' { asprintf($$, "%s%s", $3, $1); }
       | WRITE str_literal ';'
-      | READ ident ';'
+      | READ Lhs ';'
  /*     | ReturnExpr ';', por chamadas de funcoes tambem*/
       ;
 
-Lhs : ident
+Lhs : ident 
     | ident'['Value']' 
     | ident'['Value']''['Value']'
     ;
@@ -167,7 +175,7 @@ expr: expr '*' Value
     | expr '<' Value  
     | expr '&' Value    
     | expr '|' Value    
-    | Value               
+    | Value { $$ = $1; }              
 
 /* por ops binarias e unarias!! */
 
@@ -175,31 +183,26 @@ expr: expr '*' Value
 /* deve-se por expressoes nao atomicas entre parenteses de forma a forçar a precedencia dos operadores */
 /* devolver nestas expressoes o resultado de por no topo da stack, tirar o num daqui */
 /* por expressoes binarias e unarias aqui */
-Value : '(' Value ')' /*{ $$ = $2; }*/
-      | num 
-      | ident'['Value']' 
-      | ident'['Value']''['Value']'
-      | ident
+Value : '(' Value ')' { $$ = $2; }
+      | num { asprintf($$, "%tpushi %d\n", $1); }
+      | ident { asprintf($$, "%tpushg %d\n", get_offset_var($1));}
+      | ident'['Value']' {asprintf($$, "\tpushg %d\n%s\tpadd\n\tload\n", get_offset_var($1), $3);} 
+      | ident'['Value']''['Value']' 
+      | '(''!' Value')'
+      | '(''-' Value')'
       ;
-
+/*
 ReturnExpr : ret
-           | ret Value
+          | ret Value
            | ret Value BOp Value 
            | ret UOp Value 
            ;
+*/
 
 /* se adicionar args as funcoes, mudar aqui */
 Function_call : ident '(' ')'
               ;
 
-
-BOp : '+'
-    | '-'
-    ;
-
-UOp : '+'
-    | '-'
-    ;
 
 Main_block : LInstr
            ;
