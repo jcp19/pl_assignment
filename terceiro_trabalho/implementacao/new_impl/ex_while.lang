@@ -1,0 +1,11 @@
+int x;
+
+begin
+while ( x < 4 ) {
+   WRITE "O valor de x é:";
+   WRITE x;
+   WRITE "\n";
+   x = x + 1;
+}
+end
+   

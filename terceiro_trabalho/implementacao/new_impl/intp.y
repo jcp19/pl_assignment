@@ -157,14 +157,23 @@ LInstr : { $$ = ""; }
                       }
        ;
 
-Instr : while_token '(' Value ')' '{' LInstr '}' { $$=""; }
+Instr : while_token '(' Rhs ')' '{' LInstr '}' { 
+      char * cmd = "Label%d:\n" // nome da label
+                   "%s" // condicao
+                   "\tjz EndLabel%d\n" //nome da label (nao esquecer incrementar no fim
+                   "%s" //codigo
+                   "\tjump Label%d\n" // nome da label
+                   "EndLabel%d:\n"; //ultima label
+      asprintf(&$$, cmd, label, $3, label, $6, label, label);
+      label++;
+     }
       | if_token '(' Value ')' '{' LInstr '}' { $$=""; }
       | ifel_token '(' Value ')' '{' LInstr '}' '{' LInstr '}' { $$=""; }
       | Lhs '=' Rhs ';' { asprintf(&$$, "%s%s", $3, $1); }
       | WRITE str_literal ';' { 
             asprintf(&$$, "\tpushs %s\n\twrites\n", $2); 
         }
-      | WRITE Expr ';' {
+      | WRITE Rhs ';' {
             asprintf(&$$, "%s\twritei\n", $2); 
       }
       | READ Lhs ';' { 
