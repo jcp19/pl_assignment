@@ -25,7 +25,7 @@
 %type <identificador> Value
 %type <identificador> LInstr
 %type <identificador> Instr
-%type <identificador> expr
+%type <identificador> Expr
 
 %{
 #include <stdio.h>
@@ -62,6 +62,16 @@ void registar_var(char * nome_var) {
      registar_matriz(nome_var, 1, 1);
 }
 
+int numero_colunas(char * nome){
+    gpointer encontrado = g_hash_table_lookup(tabela_simbolos, nome);
+    if(encontrado) {
+        Entrada_tabela e = (Entrada_tabela) encontrado;
+        return e->numero_colunas;
+    } else {
+        yyerror("ERRO: Tentativa de usar identificador não declarado.");
+    }
+}
+
 void registar_array(char * nome_var, int dim) {
      registar_matriz(nome_var, 1, dim);
 }
@@ -79,7 +89,8 @@ void registar_matriz(char * nome_var, int linhas, int colunas){
 int get_offset_var(char * nome){
     gpointer encontrado = g_hash_table_lookup(tabela_simbolos, nome);
     if(encontrado) {
-
+        Entrada_tabela e = (Entrada_tabela) encontrado;
+        return e->offset;
     } else {
         yyerror("ERRO: Tentativa de usar identificador não declarado.");
     }
@@ -111,8 +122,8 @@ Programa : Decl_block Fun_prods begin Main_block end {
 
 Decl_block : 
            | Decl_block type ident ';' { 
-                                           registar_var($3);  
-                                           asprintf(&$$, "%s\t%s\n", ($1 == NULL)?"" : $1, "pushi 0");
+                                         registar_var($3);  
+                                         asprintf(&$$, "%s\t%s\n", ($1 == NULL)?"" : $1, "pushi 0");
                                        }
            | Decl_block type ident '[' num ']' ';' { 
                        registar_array($3, $5);
@@ -159,22 +170,20 @@ Lhs : ident
     ;
 
 /* desta forma garante-se precedencia dos operadores de multiplicacao e divisao */
-Rhs : expr
-    | Rhs '+' expr
-    | Rhs '-' expr
+Rhs : Expr { $$ = $1; }
+    | Rhs '+' Expr { asprintf($$, "%s%s\tadd\n", $1, $3); }
+    | Rhs '-' Expr { asprintf($$, "%s%s\tsub\n", $1, $3); }
     ;
 
-expr: expr '*' Value   
-    | expr '/' Value  
-    | expr '%' Value
-    | expr '=''=' Value 
-    | expr '!''=' Value
-    | expr '>''=' Value
-    | expr '<''=' Value
-    | expr '>' Value 
-    | expr '<' Value  
-    | expr '&' Value    
-    | expr '|' Value    
+Expr: Expr '*' Value { asprintf($$, "%s%s\tmul\n", $1, $3); } 
+    | Expr '/' Value { asprintf($$, "%s%s\tdiv\n", $1, $3); }
+    | Expr '%' Value { asprintf($$, "%s%s\tmod\n", $1, $3); }
+    | Expr '=''=' Value { asprintf($$, "%s%s\tequal\n", $1, $4); }
+    | Expr '!''=' Value { asprintf($$, "%s%s\tequal\n\tnot\n", $1, $4); }
+    | Expr '>''=' Value { asprintf($$, "%s%s\tsupeq\n", $1, $4); }
+    | Expr '<''=' Value { asprintf($$, "%s%s\tinfeq\n", $1, $4); }
+    | Expr '>' Value { asprintf($$, "%s%s\tsup\n", $1, $3); }
+    | Expr '<' Value { asprintf($$, "%s%s\tinf\n", $1, $3); }
     | Value { $$ = $1; }              
 
 /* por ops binarias e unarias!! */
@@ -187,9 +196,18 @@ Value : '(' Value ')' { $$ = $2; }
       | num { asprintf($$, "%tpushi %d\n", $1); }
       | ident { asprintf($$, "%tpushg %d\n", get_offset_var($1));}
       | ident'['Value']' {asprintf($$, "\tpushg %d\n%s\tpadd\n\tload\n", get_offset_var($1), $3);} 
-      | ident'['Value']''['Value']' 
-      | '(''!' Value')'
-      | '(''-' Value')'
+      | ident'['Value']''['Value']' {
+           char * cmd = "\tpushg %d\n" // get_offset_var($1)
+                        "%s"  // $3
+                        "\tpushi %d\n" // numero de colunas
+                        "\tmul\n"
+                        "%s" // $6
+                        "\tpadd\n" // por esta altura tenho o offset para adicionar ao endereco
+                        "\tload\n";
+           asprintf($$, cmd, get_offset_var($1), $3, numero_colunas($3),$6);
+         }
+      | '(''!' Value')' { asprintf($$, "%s\tnot\n",$3);}
+      | '(''-' Value')' { asprintf($$, "%s\n\tpushi -1\n\tmul\n",$3);}
       ;
 /*
 ReturnExpr : ret
