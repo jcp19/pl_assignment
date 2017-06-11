@@ -98,7 +98,7 @@ int get_offset_var(char * nome){
 %type <identificador> Instr
 %type <identificador> Expr
 %type <identificador> Main_block 
-
+%type <identificador> str_literal
 
 %%
 
@@ -118,7 +118,7 @@ tirar tipo das funcoes (ou pode nem ser preciso, basta por label...
 Programa : Decl_block Fun_prods begin Main_block end {
                 //printf("declaracoes:\n%s\nstart\n%s\nmain:\n%sstop\n", $1, $2, $4);
                 // completar
-                printf("declaracoes:\n%s\nstart\nmain:\n%sstop\n", $1, $4);
+                printf("declaracoes:\n%s\n\tstart\nmain:\n%sstop\n", $1, $4);
             }
          ;
 
@@ -160,13 +160,27 @@ LInstr : { $$ = ""; }
 Instr : while_token '(' Value ')' '{' LInstr '}' { $$=""; }
       | if_token '(' Value ')' '{' LInstr '}' { $$=""; }
       | ifel_token '(' Value ')' '{' LInstr '}' '{' LInstr '}' { $$=""; }
-      | Lhs '=' Rhs ';' { asprintf($$, "%s%s", $3, $1);printf("$3: %s\n", $3); }
-      | WRITE str_literal ';' { $$=""; }
-      | READ Lhs ';' { $$=""; }
+      | Lhs '=' Rhs ';' { asprintf(&$$, "%s%s", $3, $1); }
+      | WRITE str_literal ';' { 
+            printf("ready for 3\n");
+            asprintf(&$$, "\tpushs %s\n\twrites\n", $2); 
+            printf("didnt kaboom 3\n");
+        }
+      | WRITE Expr ';' {
+            printf("ready for 2\n");
+            asprintf(&$$, "%s\twritei\n", $2); 
+            printf("didnt kaboom 2\n");
+      }
+      | READ Lhs ';' { 
+            printf("ready for 1\n");
+            /* mudar se divir acesso a [][] em dus partes */  
+            asprintf(&$$, "\tread\n\tatoi\n%s",$2); 
+            printf("didnt kaboom 1\n");
+       }
  /*     | ReturnExpr ';', por chamadas de funcoes tambem*/
       ;
 
-Lhs : ident { asprintf($$,"\tstoreg %d\n", get_offset_var($1)); }
+Lhs : ident { asprintf(&$$,"\tstoreg %d\n", get_offset_var($1)); }
     | ident'['Value']' { 
                   char * cmd = "\tpushi %d\n"  // endereco ident
                                "%s" // value
@@ -183,32 +197,29 @@ Lhs : ident { asprintf($$,"\tstoreg %d\n", get_offset_var($1)); }
 
 /* desta forma garante-se precedencia dos operadores de multiplicacao e divisao */
 Rhs : Expr { $$ = $1; }
-    | Rhs '+' Expr { asprintf($$, "%s%s\tadd\n", $1, $3); }
-    | Rhs '-' Expr { asprintf($$, "%s%s\tsub\n", $1, $3); }
+    | Rhs '+' Expr { asprintf(&$$, "%s%s\tadd\n", $1, $3); }
+    | Rhs '-' Expr { asprintf(&$$, "%s%s\tsub\n", $1, $3); }
     ;
 
-Expr: Expr '*' Value { asprintf($$, "%s%s\tmul\n", $1, $3); } 
-    | Expr '/' Value { asprintf($$, "%s%s\tdiv\n", $1, $3); }
-    | Expr '%' Value { asprintf($$, "%s%s\tmod\n", $1, $3); }
-    | Expr '=''=' Value { asprintf($$, "%s%s\tequal\n", $1, $4); }
-    | Expr '!''=' Value { asprintf($$, "%s%s\tequal\n\tnot\n", $1, $4); }
-    | Expr '>''=' Value { asprintf($$, "%s%s\tsupeq\n", $1, $4); }
-    | Expr '<''=' Value { asprintf($$, "%s%s\tinfeq\n", $1, $4); }
-    | Expr '>' Value { asprintf($$, "%s%s\tsup\n", $1, $3); }
-    | Expr '<' Value { asprintf($$, "%s%s\tinf\n", $1, $3); }
+Expr: Expr '*' Value { asprintf(&$$, "%s%s\tmul\n", $1, $3); } 
+    | Expr '/' Value { asprintf(&$$, "%s%s\tdiv\n", $1, $3); }
+    | Expr '%' Value { asprintf(&$$, "%s%s\tmod\n", $1, $3); }
+    | Expr '=''=' Value { asprintf(&$$, "%s%s\tequal\n", $1, $4); }
+    | Expr '!''=' Value { asprintf(&$$, "%s%s\tequal\n\tnot\n", $1, $4); }
+    | Expr '>''=' Value { asprintf(&$$, "%s%s\tsupeq\n", $1, $4); }
+    | Expr '<''=' Value { asprintf(&$$, "%s%s\tinfeq\n", $1, $4); }
+    | Expr '>' Value { asprintf(&$$, "%s%s\tsup\n", $1, $3); }
+    | Expr '<' Value { asprintf(&$$, "%s%s\tinf\n", $1, $3); }
     | Value { $$ = $1; }              
-
-/* por ops binarias e unarias!! */
-
 
 /* deve-se por expressoes nao atomicas entre parenteses de forma a forçar a precedencia dos operadores */
 /* devolver nestas expressoes o resultado de por no topo da stack, tirar o num daqui */
 /* por expressoes binarias e unarias aqui */
 /* tem de se partir em duas expressoes */
 Value : '(' Value ')' { $$ = $2; }
-      | num { asprintf($$, "\tpushi %d\n", $1); }
-      | ident { asprintf($$, "%tpushg %d\n", get_offset_var($1));}
-      | ident'['Value']' {asprintf($$, "\tpushg %d\n%s\tpadd\n\tload\n", get_offset_var($1), $3);} 
+      | num { asprintf(&$$, "\tpushi %d\n", $1); }
+      | ident { asprintf(&$$, "\tpushg %d\n", get_offset_var($1));}
+      | ident'['Value']' {asprintf(&$$, "\tpushg %d\n%s\tpadd\n\tload\n", get_offset_var($1), $3);} 
       | ident'['Value']''['Value']' {
            char * cmd = "\tpushg %d\n" // get_offset_var($1)
                         "%s"  // $3
@@ -217,10 +228,10 @@ Value : '(' Value ')' { $$ = $2; }
                         "%s" // $6
                         "\tpadd\n" // por esta altura tenho o offset para adicionar ao endereco
                         "\tload\n";
-           asprintf($$, cmd, get_offset_var($1), $3, numero_colunas($3),$6);
+           asprintf(&$$, cmd, get_offset_var($1), $3, numero_colunas($3),$6);
          }
-      | '(''!' Value')' { asprintf($$, "%s\tnot\n",$3);}
-      | '(''-' Value')' { asprintf($$, "%s\n\tpushi -1\n\tmul\n",$3);}
+      | '(''!' Value')' { asprintf(&$$, "%s\tnot\n",$3);}
+      | '(''-' Value')' { asprintf(&$$, "%s\n\tpushi -1\n\tmul\n",$3);}
       ;
 /*
 ReturnExpr : ret
@@ -234,10 +245,8 @@ ReturnExpr : ret
 Function_call : ident '(' ')'
               ;
 
-
 Main_block : LInstr { $$ = $1; }
            ;
-
 
 %%
 

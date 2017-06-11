@@ -27,7 +27,7 @@ end {return end; }
 
 [+-=(){};\[\]!|&<>%] { return yytext[0]; }
 
-\"[^\"]*\" { return str_literal; }
+\"[^\"]*\" {yylval.identificador = strdup(str_literal); return str_literal; }
 
 {IDENT} {  yylval.identificador = strdup(yytext);
            return ident; 

@@ -1,0 +1,5 @@
+int x;
+begin 
+READ x;
+x = x + 1;
+end
