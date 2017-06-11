@@ -1,0 +1,35 @@
+%option noyywrap
+
+NUM [0-9]+ 
+IDENT [a-zA-Z_][a-zA-Z0-9_]*
+
+%%
+while { return while_token; }
+
+if    { return if_token; }
+
+int|str { return type; }
+
+{NUM} { 
+        yylval.valor = atoi(yytext);
+        return num; }
+
+return  { return ret; }
+
+WRITE {return WRITE;}
+READ {return READ;}
+
+begin { return begin; }
+
+end {return end; }
+
+[+-=(){};\[\]] { return yytext[0]; }
+
+\"[^\"]*\" { return str_literal; }
+
+{IDENT} {  yylval.identificador = strdup(yytext);
+           return ident; 
+}
+
+. { }
+
