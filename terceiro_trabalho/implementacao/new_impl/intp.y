@@ -1,32 +1,3 @@
-%token type
-%token ident
-%token num
-%token while_token
-%token if_token
-%token ret
-%token str_literal
-%token ifel_token
-%token begin
-%token end
-%token READ
-%token WRITE
-
-%union {
-    int valor;
-    char * identificador;
-}
-
-%type <identificador> ident
-%type <valor> num
-%type <identificador> Programa 
-%type <identificador> Decl_block 
-%type <identificador> Lhs
-%type <identificador> Rhs
-%type <identificador> Value
-%type <identificador> LInstr
-%type <identificador> Instr
-%type <identificador> Expr
-
 %{
 #include <stdio.h>
 #include <stdlib.h>
@@ -98,6 +69,37 @@ int get_offset_var(char * nome){
 
 %}
 
+%token  TYPE
+%token ident
+%token num
+%token while_token
+%token if_token
+%token ret
+%token str_literal
+%token ifel_token
+%token begin
+%token end
+%token READ
+%token WRITE
+
+%union {
+    int valor;
+    char * identificador;
+}
+
+%type <identificador> ident
+%type <valor> num
+%type <identificador> Programa 
+%type <identificador> Decl_block 
+%type <identificador> Lhs
+%type <identificador> Rhs
+%type <identificador> Value
+%type <identificador> LInstr
+%type <identificador> Instr
+%type <identificador> Expr
+%type <identificador> Main_block 
+
+
 %%
 
 /* Ideias
@@ -120,21 +122,21 @@ Programa : Decl_block Fun_prods begin Main_block end {
             }
          ;
 
-Decl_block : 
-           | Decl_block type ident ';' { 
+Decl_block :  { $$ = ""; } 
+           | Decl_block TYPE ident ';' { 
                                          registar_var($3);  
                                          asprintf(&$$, "%s\t%s\n", ($1 == NULL)?"" : $1, "pushi 0");
                                        }
-           | Decl_block type ident '[' num ']' ';' { 
+           | Decl_block TYPE ident '[' num ']' ';' { 
                        registar_array($3, $5);
                        asprintf(&$$, "%s\t%s%d\n", ($1 == NULL)?"" : $1, "pushn ", $5);
                      }
-           | Decl_block type ident '['num']' '['num']' ';' {
+           | Decl_block TYPE ident '['num']' '['num']' ';' {
                        registar_matriz($3, $5, $8);
                        asprintf(&$$, "%s\t%s%d\n", ($1 == NULL)?"" : $1, "pushn ", $5 * $8);
                      }
   /* ver conflitos shift reduce e justificar que o comportamento padrao do yacc (shift) resolve os porblemas */
-           | Decl_block type ident '=' num';' {
+           | Decl_block TYPE ident '=' num';' {
                       registar_var($3);  
                       asprintf(&$$, "%s\t%s%d\n", ($1 == NULL)?"" : $1, "pushi ", $5);
                   }
@@ -146,7 +148,7 @@ Fun_prods :
           ;
 
 /* se necessario, tirar Decl_block */
-Fun_prod : ident '(' ')' ':' type  '{' Decl_block LInstr '}'
+Fun_prod : ident '(' ')' ':' TYPE '{' Decl_block LInstr '}'
          ;
 
 LInstr : 
@@ -155,18 +157,28 @@ LInstr :
                       }
        ;
 
-Instr : while_token '(' Value ')' '{' LInstr '}'
-      | if_token '(' Value ')' '{' LInstr '}'
-      | ifel_token '(' Value ')' '{' LInstr '}' '{' LInstr '}'
+Instr : while_token '(' Value ')' '{' LInstr '}' { $$=""; }
+      | if_token '(' Value ')' '{' LInstr '}' { $$=""; }
+      | ifel_token '(' Value ')' '{' LInstr '}' '{' LInstr '}' { $$=""; }
       | Lhs '=' Rhs ';' { asprintf($$, "%s%s", $3, $1); }
-      | WRITE str_literal ';'
-      | READ Lhs ';'
+      | WRITE str_literal ';' { $$=""; }
+      | READ Lhs ';' { $$=""; }
  /*     | ReturnExpr ';', por chamadas de funcoes tambem*/
       ;
 
-Lhs : ident 
-    | ident'['Value']' 
-    | ident'['Value']''['Value']'
+Lhs : ident { asprintf($$,"\tstoreg %d\n", get_offset_var($1)); }
+    | ident'['Value']' { 
+                  char * cmd = "\tpushi %d\n"  // endereco ident
+                               "%s" // value
+                               "\tpadd\n"
+                               // tem de ser executado depois, nao esta completamente implementado
+                               "storeg %d";
+                  $$ = "";
+      }
+                          
+    | ident'['Value']''['Value']' {
+               $$ = "";
+          }
     ;
 
 /* desta forma garante-se precedencia dos operadores de multiplicacao e divisao */
@@ -222,7 +234,7 @@ Function_call : ident '(' ')'
               ;
 
 
-Main_block : LInstr
+Main_block : LInstr { $$ = $1; }
            ;
 
 
