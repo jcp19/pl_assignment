@@ -5,6 +5,7 @@
 %token if_token
 %token ret
 %token str_literal
+%token ifel_token
 %token begin
 %token end
 %token READ
@@ -115,6 +116,7 @@ Decl_block :
                        registar_matriz($3, $5, $8);
                        asprintf(&$$, "%s\t%s%d\n", ($1 == NULL)?"" : $1, "pushn ", $5 * $8);
                      }
+  /* ver conflitos shift reduce e justificar que o comportamento padrao do yacc (shift) resolve os porblemas */
            | Decl_block type ident '=' num';' {
                       registar_var($3);  
                       asprintf(&$$, "%s\t%s%d\n", ($1 == NULL)?"" : $1, "pushi ", $5);
@@ -136,21 +138,45 @@ LInstr :
 
 Instr : while_token '(' Value ')' '{' LInstr '}'
       | if_token '(' Value ')' '{' LInstr '}'
-      | ident '=' Value BOp Value ';'
-      | ident '=' UOp Value ';'
-      | ident '=' Value ';'
-      | ident '=' ident ';'
-      | Value ';'
+      | ifel_token '(' Value ')' '{' LInstr '}' '{' LInstr '}'
+      | Lhs '=' Rhs ';'
       | WRITE str_literal ';'
       | READ ident ';'
-      | ReturnExpr ';'
+ /*     | ReturnExpr ';', por chamadas de funcoes tambem*/
       ;
+
+Lhs : ident
+    | ident'['Value']' 
+    | ident'['Value']''['Value']'
+    ;
+
+/* desta forma garante-se precedencia dos operadores de multiplicacao e divisao */
+Rhs : expr
+    | Rhs '+' expr
+    | Rhs '-' expr
+    ;
+
+expr: expr '*' Value   
+    | expr '/' Value  
+    | expr '%' Value
+    | expr '=''=' Value 
+    | expr '!''=' Value
+    | expr '>''=' Value
+    | expr '<''=' Value
+    | expr '>' Value 
+    | expr '<' Value  
+    | expr '&' Value    
+    | expr '|' Value    
+    | Value               
+
+/* por ops binarias e unarias!! */
+
+
 /* deve-se por expressoes nao atomicas entre parenteses de forma a forçar a precedencia dos operadores */
 /* devolver nestas expressoes o resultado de por no topo da stack, tirar o num daqui */
 /* por expressoes binarias e unarias aqui */
-Value : '(' Value ')' 
+Value : '(' Value ')' /*{ $$ = $2; }*/
       | num 
-      | Function_call 
       | ident'['Value']' 
       | ident'['Value']''['Value']'
       | ident

@@ -19,6 +19,8 @@ return  { return ret; }
 WRITE {return WRITE;}
 READ {return READ;}
 
+ifel {return ifel_token;}
+
 begin { return begin; }
 
 end {return end; }
