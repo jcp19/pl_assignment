@@ -1,0 +1,215 @@
+\documentclass{report}
+\usepackage[portuges]{babel}
+\usepackage[latin1]{inputenc}
+\usepackage[T1]{fontenc}
+
+\usepackage{url}
+\usepackage{enumerate}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{nameref}
+
+\usepackage{listings}
+%LISTING - GENERAL
+\lstset{
+    basicstyle=\small,
+    numbers=left,
+    numberstyle=\tiny,
+    numbersep=5pt,
+    breaklines=true,
+    frame=tB,
+    mathescape=true,
+    escapeinside={(*@}{@*)},
+    language=C,
+    showstringspaces=false
+}
+
+\usepackage{xspace}
+
+\parindent=0pt
+\parskip=4pt
+
+\setlength{\oddsidemargin}{-1cm}
+\setlength{\textwidth}{18cm}
+\setlength{\headsep}{-1cm}
+\setlength{\textheight}{23cm}
+
+\def\pe{\emph{Publicação Eletrónica}\xspace}
+
+\def\titulo#1{\section{#1}}
+\def\super#1{{\em Supervisor: #1}\\ }
+\def\area#1{{\em \'{A}rea: #1}\\[0.2cm]}
+\def\resumo{\underline{Resumo}:\\ }
+
+\title{Processamento de Linguagens \\ MIEI (3º ano) \\~\\ \large Trabalho Prático nº 2 (Yacc)\\ Relatório de Desenvolvimento \\~\\ Ano lectivo 16/17}
+\author{João Pereira\\(A75273) \and João Martins\\(A68646) \and Manuel Freitas\\(A71646) }
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+  Neste relatório descreve-se a concepção de uma linguagem de programação imperativa, inspirada em C e Pascal. Esta linguagem permite utilizar variáveis do tipo inteiro,
+  arrays de inteiros e matrizes. Para além disso, permite utilizar em certos contextos literais de strings. Descreve-se todo o processo da concepção e implementação da linguagem, 
+  descrevendo-se os componentes léxicos da mesma, a sua estrutura sintática e por fim descreve-se a implementação de um compilador da mesma para uma linguagem \texttt{assembly} a correr numa
+  máquina virtual.
+\end{abstract}
+
+\tableofcontents
+
+\chapter{Introdução} \label{intro}
+Os compiladores são uma das ferramentas mais importantes no arsenal de qualquer programador. Através deles é possível converter linguagens de alto nível para linguagens \texttt{assembly},
+possibilitando que os programas sejam escritos a um nível de abstração mais elevado.
+\section*{Estrutura do Relatório}
+Este relatório é constituído por 4 partes. Na primeira é apresentada a especificação da
+linguagem concebia e a sua gramática. Na segunda parte é discutida a forma como a semântica estática
+foi verificada pelo compilador. Na terceira parte será explicado a forma como
+o compilador gera o código assembly para cada instrução e por último serão mostrados alguns
+exemplos de programas e respetivo código assembly gerados pelo compilador.
+
+\chapter{ Especificação da Linguagem Desenvolvida } 
+A linguagem concebida inspira-se no Pascal e C. Neste capítulo, apresentam-se as várias consrtuções da linguagem, assim como a sintaxe completa.
+Um programa escrito nesta linguagem divide-se em 3 partes: declaração e variáveis, declaração de funções e corpo do programa. Devido a restrições temporais,
+não foi possível implementar a síntese de funções, pelo que a sintaxe das mesmas não será explicitada.
+
+\section{Síntaxe}
+\subsection{Início do programa e Declaração de Variáveis}
+Um programa começa com um conjunto de declarções de variáveis. Nesta linguagem, todas as variáveis são do tipo inteiro, podendo ser vetores escalares, vetores ou matrizes.
+Esta secção pode também ser vazia se o programado não pretender definir nenhuma variável. A declaração de uma variável do tipo inteiro (escalar) pode ser feita nas seguintes formas:
+\begin{verbatim}
+int a;
+int b = 1;
+\end{verbatim}
+No primeiro caso, a variável \texttt{a} é inicializada com o valor 0. No segundo caso, a variável b é inicializada com o valor dado pelo literal (neste caso corresponde a \texttt{1}).
+A declaração de vetores e matrizes pode ser feita da seguinte forma:
+\begin{verbatim}
+int vec[10];
+int matr[5][5];
+\end{verbatim}
+A primeira instrução declara um array chamada \texttt{vec} com tamanho 10, enquanto que a segunda instrução declara uma matriz 5x5 chamada \texttt{matr}. Em ambos os casos, os todos os elementos
+são inicializados a 0.
+
+\subsection{Corpo do Programa}
+O corpo do programa propriamente dito é iniciado pela keyword \texttt{begin} e terminado pela keyword \texttt{end}. No interior destas duas labels, está contida a sequência de instruções
+do programa. Estas instruções podem ser de vários tipos:
+\subsubsection{Atribuição}
+A atribuição é feita através do sinal '=':
+\begin{verbatim}
+id = x;
+\end{verbatim}
+No exemplo acima, a variável à qual se atribui um valor chama-se \texttt{id} e é-lhe atribuido o valor \texttt{x} que pode corresponder a um identificador, um literal inteiro ou ao resultado de uma expressão.
+\subsection{Fluxo Condicional}
+Na linguagem definida, existem duas construções possíveis para definir fluxo condicional: fluxo opcional com alternativa e sem alternativa. Abaixo apresentam-se as duas construções:
+\begin{verbatim}
+if ( Condicao ) {
+  // Fluxo condicional
+}
+
+ifel ( Condicao ) {
+  // Fluxo condicional
+}
+{
+  //Fluxo Alternativo
+}
+
+\end{verbatim}
+Nota: À semelhança da linguagem C, considera-se que qualquer expressão inteira cujo valor seja diferente de 0 é \texttt{verdadeira} e considera-se que 0 corresponde ao valor \texttt{falso}.
+\subsection{Ciclos}
+É possível definir ciclos da seguinte forma:
+\begin{verbatim}
+while( Condicao ) {
+   // Intrucoes
+}
+\end{verbatim}
+
+\subsection{Input e Output}
+As operações de I/O são realizadas com recurso às primitivas \texttt{READ} e \texttt{WRITE}. A primitiva \texttt{WRITE} permite escrever no ecrã o valor de uma expressão inteira ou um literal de string
+enquanto que a primitiva \texttt{READ} permite ler para uma variável um valor inteiro.
+\begin{verbatim}
+READ x;
+
+WRITE x;
+WRITE "Hello World\n";
+\end{verbatim}
+
+\section{Gramática}
+A sintaxe da linguagem definida é capturada pelas seguintes produções, tendo em conta que o axioma da linguagem é \texttt{Programa}.
+\begin{verbatim}
+Programa : Decl_block Fun_prods begin Main_block end 
+         ;
+
+Decl_block :   
+           | Decl_block TYPE ident 
+           | Decl_block TYPE ident '[' num ']' ';' 
+           | Decl_block TYPE ident '['num']' '['num']' ';'
+           | Decl_block TYPE ident '=' num';' 
+           ;
+Fun_prods : 
+          | Fun_prods Fun_prod 
+          ;
+
+Fun_prod : ident '(' ')' ':' TYPE '{' Decl_block LInstr '}' 
+         ;
+
+LInstr : 
+       | LInstr Instr 
+       ;
+
+Instr : while_token '(' Rhs ')' '{' LInstr '}'
+      | if_token '(' Rhs ')' '{' LInstr '}' 
+      | ifel_token '(' Rhs ')' '{' LInstr '}' '{' LInstr '}' 
+      | Lhs '=' Rhs ';' 
+      | WRITE str_literal ';' 
+      | WRITE Rhs ';' 
+      | READ Lhs ';' 
+      ;
+
+Lhs : ident 
+    | ident'['Value']' 
+    | ident'['Value']''['Value']' 
+    ;
+
+Rhs : Expr 
+    | Rhs '+' Expr 
+    | Rhs '-' Expr
+    ;
+
+Expr: Expr '*' Value 
+    | Expr '/' Value 
+    | Expr '%' Value 
+    | Expr '=''=' Value 
+    | Expr '!''=' Value
+    | Expr '>''=' Value
+    | Expr '<''=' Value 
+    | Expr '>' Value
+    | Expr '<' Value
+    | Value
+
+Value : '(' Value ')'
+      | num
+      | ident
+      | ident'['Value']'  
+      | ident'['Value']''['Value']' 
+      | '(''!' Value')' 
+      | '(''-' Value')'
+      ;
+
+Function_call : ident '(' ')'
+              ;
+
+Main_block : LInstr 
+           ;
+\end{verbatim}
+
+Todos os símbolos referidos nas produções que não estejam no lado esquerdo de nenhuma produção são os símbolos terminais da linguagem.
+Nota: Embora a gramática preveja a definição e utilização de funções, esta funcionalidade não foi implementada.
+
+\chapter{Semântica estática}
+A solução implementada faz algumas verificações a nível semântico. Nomeadamente, garante-se que não existe redeclaração de variáveis e que sempre que se pretende aceder a uma variável, esta já foi anteriormente declarada. Caso houvessem mais tipos previstos na linguagem, seria necessário verificar que os tipos das operações estavam em concordância com os dos operandos. No entanto, dado que a linguagem só tuliza valores inteiros, esta verificação torna-se menos necessária. Seria interessante, no entanto, como trabalho futuro, verificar que não existem matrizes ou vetores a serem passadas no lugar de valores escalares.
+As verificações realizadas são feitas tendo por base uma estrutura (tabela de símbolos) que para cada identificador guarda as dimensões da variável e o endereço da mesma. Desta forma, sempre que se tente declarar uma variável já registada na estrutura ou sempre que se pretenda usar uma variável que não esteja registada na estrutura, o compilador terminará com erro.
+
+A tabela de símbolos foi implementada com recurso às \textttt{Hash Tables} da bilioteca \texttt{glib}, tendo como chave o nome do identificador e como valor uma estrutura cque contém as dimensões e o endereço da variável.
+
+\chapter{Implementação do Compilador}
+\end{document}
