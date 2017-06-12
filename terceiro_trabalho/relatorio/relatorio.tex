@@ -205,6 +205,47 @@ Main_block : LInstr
 Todos os símbolos referidos nas produções que não estejam no lado esquerdo de nenhuma produção são os símbolos terminais da linguagem.
 Nota: Embora a gramática preveja a definição e utilização de funções, esta funcionalidade não foi implementada.
 
+Os símbolos terminais da linguagem foram definidos, no \texttt{Flex} da seguinte forma:
+\begin{verbatim}
+NUM [0-9]+ 
+IDENT [a-zA-Z_][a-zA-Z0-9_]*
+%%
+while { return while_token; }
+
+if    { return if_token; }
+
+int { return TYPE; }
+
+{NUM} { 
+        yylval.valor = atoi(yytext);
+        return num; }
+
+return  { return ret; }
+
+WRITE {return WRITE;}
+READ {return READ;}
+
+ifel {return ifel_token;}
+
+begin { return begin; }
+
+end {return end; }
+
+[+-=(){};\[\]!|&<>%*/] { return yytext[0]; }
+
+\"[^\"]*\" {yylval.identificador = strdup(yytext); return str_literal; }
+
+{IDENT} {  yylval.identificador = strdup(yytext);
+           return ident; 
+}
+
+\n {}
+. { }
+
+\end{verbatim}
+
+Nota: apenas os padrões cuja acção correspondente contenha uma operação de \texttt{return} correspondem a símbolos terminais.
+
 \chapter{Semântica estática}
 A solução implementada faz algumas verificações a nível semântico. Nomeadamente, garante-se que não existe redeclaração de variáveis e que sempre que se pretende aceder a uma variável, esta já foi anteriormente declarada. Caso houvessem mais tipos previstos na linguagem, seria necessário verificar que os tipos das operações estavam em concordância com os dos operandos. No entanto, dado que a linguagem só tuliza valores inteiros, esta verificação torna-se menos necessária. Seria interessante, no entanto, como trabalho futuro, verificar que não existem matrizes ou vetores a serem passadas no lugar de valores escalares.
 As verificações realizadas são feitas tendo por base uma estrutura (tabela de símbolos) que para cada identificador guarda as dimensões da variável e o endereço da mesma. Desta forma, sempre que se tente declarar uma variável já registada na estrutura ou sempre que se pretenda usar uma variável que não esteja registada na estrutura, o compilador terminará com erro.
@@ -212,4 +253,663 @@ As verificações realizadas são feitas tendo por base uma estrutura (tabela de sí
 A tabela de símbolos foi implementada com recurso às \textttt{Hash Tables} da bilioteca \texttt{glib}, tendo como chave o nome do identificador e como valor uma estrutura cque contém as dimensões e o endereço da variável.
 
 \chapter{Implementação do Compilador}
+Nesta parte, descreve-se resumidamente o compilador construído com recurso ao yacc que tem como objetivo a produção de código \texttt{assembly} para a máquina virtual apresentada nas aulas.
+O desenho desta solução teve como estratégia a geração de blocos de código independentemente que iam sendo unidos à medida que as sequências de elementos léxicos iam sendo reduzidas.
+
+O compilador construído contém, para além da tabela de símbolos, um contador do número de labels já utilizadas e um contador que indica qual é a última posição da stack utilizada.
+
+\section{Declaracao de variáveis}
+Sempre que se declara uma variável, o seu identificador e dados de tamanho são inseridos na tabela de símbolos. Caso a variável definida seja um valor inteiro (escalar), incrementa-se o contador de endereços e gera-se a instrução "pushi v" em que v é o valor com que a variável foi inicilizada ou 0 caso não tenha sido inicializada.
+Caso seja uma array, gera-se uma instrução "pushn k" em que k é a dimensão do array e incrementa-se em k o contador de endereços. Por fim, caso seja uma matriz mxn, gera-se a instrução "pusnh k" em que k = n x m e incrementa-se em k o contador de endereços.
+
+Nesta fase fazem-se as verificações descritas no capítulo anterior.
+
+\section{Atribuições}
+Nas atribuições, é gerado inicialmente o código que coloca no topo da stack o resultado da expressão. Depois disto, guarda-se no local pretendido o resultado desta operação com recurso às variantes das instruções STORE e LOAD.
+
+\section{Ciclos} 
+Inicialmente define-se uma label que assinala o início do código da condição de entrada/manutenção do ciclo.
+A seguir é gerado o código que coloca na stack o resultado da condição, sendo depois feito um salto condicional jz para o final do ciclo.
+Este salto será executado quando a condição não se verificar.
+No final das instruções do ciclo, é feito um salto para a label que marca o início da condição, para que a condição possa
+voltar a ser avaliada.
+Sempre que se cria uma label para um ciclo while, o contador de labels é incrementado de forma a não haverem duas labels iguais.
+
+\section{Fluxo Condiconal}
+No caso do fluxo condicional sem alternativa, em primeiro lugar, adiciona-se o código que coloca no topo da stack o valor da condição.
+De seguida, insere-se um salto condicional para uma label que ocorrerá quando a verificação da condição falha. De seguida, gera-se o código do corpo do ciclo e por fim, insere-se a label referenciada anteriormente.
+
+Caso o fluxo condicional tenha alternativa, gera-se o código que coloca no topo da stack o resultado da condição e de seguida um salto condicional
+para uma label X, que se dará caso a condição falhe. De seguida, insere-se o código do primeiro corpo e de seguida um salto incondicional para uma label Y. Gera-se depois a label X que marca o inicio do código alternativo seguida do código alternativo. No final, coloca-se a label Y. Usam-se duas labels diferentes de forma a garantir que apenas se executa um dos conjuntos de insruções.
+
+\section{Input e Output}
+As operações de IO fazem uso das instruções READ e instruções variantes da WRITE. No caso da escrita de valores no output, coloca-se sempre o valor a ser escrito no topo da stack e depois invoca-se a instrução WRITES caso o valor a apresentar seja uma string ou WRITEI caso seja um inteiro.
+No caso do READ, o comportamento é semelhante ao das atribuições, em que se coloca na stack o valor lido e a variável para onde deve ser lido. De seguida, o valor é lido para a variável da mesma forma que tal é feito nas atribuições.
+
+\chapter{Exemplos de utilização}
+Neste capítulo são apresentados alguns exemplos de código produzido na linguagem definida e o respetivo código em \texttt{assembly}. Todo o código apresentado foi testado na máquina virtual
+e verificou-se que dava os resultados pretendidos.
+\section{Verificar se 4 números podem ser os lados de um quadrado}
+\subsection{Código Fonte}
+\begin{verbatim}
+int x;
+int y;
+int z;
+int k;
+
+begin
+WRITE "Insira 4 numeros:\n";
+READ x;
+READ y;
+READ z;
+READ k;
+
+ifel(x==y) 
+{ 
+  ifel(z==k)
+    {
+          ifel(x==z)
+              { WRITE "Quadrado\n"; }
+                  { WRITE "Nao Quadrado"; }
+                    }
+                      {WRITE "Nao quadrado\n";}
+                      } 
+                      {WRITE "Nao quadrado\n";}
+                      end
+\end{verbatim}
+\subsection{Código compilado}
+\begin{verbatim}
+declaracoes:
+  pushi 0
+  pushi 0
+  pushi 0
+  pushi 0
+
+  start
+main:
+  pushs "Insira 4 numeros:\n"
+  writes
+  read
+  atoi
+  storeg 0
+  read
+  atoi
+  storeg 1
+  read
+  atoi
+  storeg 2
+  read
+  atoi
+  storeg 3
+  pushg 0
+  pushg 1
+  equal
+  jz Label2
+  pushg 2
+  pushg 3
+  equal
+  jz Label1
+  pushg 0
+  pushg 2
+  equal
+  jz Label0
+  pushs "Quadrado\n"
+  writes
+  jump EndLabel0
+Label0:
+  pushs "Nao Quadrado"
+  EndLabel0
+  jump EndLabel1
+Label1:
+  pushs "Nao quadrado\n"
+  writes
+  EndLabel1
+  jump EndLabel2
+Label2:
+  pushs "Nao quadrado\n"
+  writes
+  EndLabel2
+  stop
+\end{verbatim}
+\section{Escrever o menor de N números lidos}
+\subsection{Código Fonte}
+\begin{verbatim}
+int N;
+int menor;
+int i = 0;
+int temp;
+
+begin
+  WRITE "Insira um numero:\n";
+  READ N;
+  WRITE "Insira ";
+  WRITE N;
+  WRITE " numeros:\n";
+
+  while(i < N){
+    READ temp;
+    ifel(i==0){
+        menor = temp;
+    }
+    {
+        if(temp < menor){menor=temp;}
+    }
+    i = i + 1;
+  }
+  WRITE "Menor: ";
+  WRITE menor;
+  WRITE "\n";
+end
+\end{verbatim}
+
+\subsection{Código gerado}
+\begin{verbatim}
+declaracoes:
+  pushi 0
+  pushi 0
+  pushi 0
+  pushi 0
+
+  start
+main:
+  pushs "Insira um numero:\n"
+  writes
+  read
+  atoi
+  storeg 0
+  pushs "Insira "
+  writes
+  pushg 0
+  writei
+  pushs " numeros:\n"
+  writes
+
+Label2:
+  pushg 2
+  pushg 0
+  inf
+  jz EndLabel2
+  read
+  atoi
+  storeg 3
+  pushg 2
+  pushi 0
+  equal
+  jz Label1
+  pushg 3
+  storeg 1
+  jump EndLabel1
+Label1:
+  pushg 3
+  pushg 1
+  inf
+  jz Label0
+  pushg 3
+  storeg 1
+
+Label0:
+  EndLabel1
+  pushg 2
+  pushi 1
+  add
+  storeg 2
+  jump Label2
+  EndLabel2:
+  pushs "Menor: "
+  writes
+  pushg 1
+  writei
+  pushs "\n"
+  writes
+stop
+
+\end{verbatim}
+
+\section{Cálculo do Produtório}
+\subsection{Código Fonte}
+\begin{verbatim}
+int input;
+int N = 3;
+int p = 1;
+
+begin
+
+while(N > 0){
+  READ input;
+  N = N - 1;
+  p = p * input;
+}
+
+WRITE "Total: ";
+WRITE p;
+WRITE "\n";
+
+end
+\end{verbatim}
+\subsection{Código Gerado}
+\begin{verbatim}
+declaracoes:
+  pushi 0
+  pushi 3
+  pushi 1
+  pushi 0
+
+start
+
+main:
+  pushi 5
+  pushi 5
+  mul
+  storeg 3
+
+  pushg 3
+  writei
+
+Label0:
+  pushg 1
+  pushi 0
+  sup
+  jz EndLabel0
+  read
+  atoi
+  storeg 0
+
+  pushg 1
+  pushi 1
+  sub
+  storeg 1
+
+  pushg 2
+  pushg 0
+  mul
+  storeg 2
+
+  jump Label0
+EndLabel0:
+
+  pushs "Total: "
+  writes
+
+  pushg 2
+  writei
+
+  pushs "\n"
+  writes
+
+stop
+\end{verbatim}
+
+
+\section{Contar número de ímpares}
+\subsection{Código Fonte}
+\begin{verbatim}
+int numI = 0;
+int input;
+int temp;
+
+begin
+
+READ input;
+while(input > 0){
+  temp = input % 2;
+  
+  ifel( temp == 0 )
+  {}
+  { 
+    numI = numI + 1; 
+    WRITE input; 
+  }
+  
+  READ input;
+}
+
+WRITE "Total: ";
+WRITE numI;
+WRITE "\n";
+
+end
+\end{verbatim}
+\subsection{Código Gerado}
+\begin{verbatim}
+declaracoes:
+  pushi 0
+  pushi 0
+  pushi 0
+
+  start
+main:
+  read
+  atoi
+  storeg 1
+
+Label1:
+  pushg 1
+  pushi 0
+  sup
+  jz EndLabel1
+  pushg 1
+  pushi 2
+  mod
+  storeg 2
+
+  pushg 2
+  pushi 0
+  equal
+  jz Label0
+  jump EndLabel0
+  Label0:
+  pushg 0
+  pushi 1
+  add
+  storeg 0
+
+  pushg 1
+  writei
+
+EndLabel0
+  read
+  atoi
+  storeg 1
+
+  jump Label1
+EndLabel1:
+
+stop
+\end{verbatim}
+
+\section{Ordenação de uma sequência por ordem decrescente}
+\subsection{Código Fonte}
+\begin{verbatim}
+int N = 5;
+int vec[5];
+int i;
+int j;
+int temp;
+int max;
+int x;
+
+begin
+while(i < N){
+  READ vec[i];
+  i = i + 1;
+}
+WRITE "a ordenar...\n";
+
+i = 0;
+x = N - 1;
+while(i < x){
+  
+  max = i;
+  j = i + 1;
+  while(j < N){
+    
+    if(vec[j] > vec[max]){
+      max = j;
+    }
+    
+    j = j + 1;
+  }
+  ifel(i == max){}{
+    temp = vec[i];
+    vec[i] = vec[max];
+    vec[max] = temp;
+  }
+
+  i = i + 1;
+}
+
+i = 0;
+while(i < N){
+  WRITE vec[i];
+  WRITE "\n";
+  i = i + 1;
+}
+
+end
+\end{verbatim}
+\subsection{Código Gerado}
+\begin{verbatim}
+declaracoes:
+  pushi 5
+  pushn 5
+  pushi 0
+  pushi 0
+  pushi 0
+  pushi 0
+  pushi 0
+
+start
+
+main:
+Label0:
+  pushg 6
+  pushg 0
+  inf
+  jz EndLabel0
+  pushgp
+  pushi 1
+  padd
+  pushg 6
+  read
+  atoi
+  storen 
+
+  pushg 6
+  pushi 1
+  add
+  storeg 6
+
+  jump Label0
+EndLabel0:
+
+  pushs "a ordenar...\n"
+  writes
+
+  pushi 0
+  storeg 6
+
+  pushg 0
+  pushi 1
+  sub
+  storeg 10
+
+Label4:
+  pushg 6
+  pushg 10
+  inf
+  jz EndLabel4
+  pushg 6
+  storeg 9
+
+  pushg 6
+  pushi 1
+  add
+  storeg 7
+
+Label2:
+  pushg 7
+  pushg 0
+  inf
+  jz EndLabel2
+  pushgp
+  pushi 1
+  padd
+  pushg 7
+  loadn
+  pushgp
+  pushi 1
+  padd
+  pushg 9
+  loadn
+  sup
+  jz Label1
+  pushg 7
+  storeg 9
+
+Label1:
+
+  pushg 7
+  pushi 1
+  add
+  storeg 7
+
+  jump Label2
+EndLabel2:
+
+  pushg 6
+  pushg 9
+  equal
+  jz Label3
+  jump EndLabel3
+  Label3:
+  pushgp
+  pushi 1
+  padd
+  pushg 6
+  loadn
+  storeg 8
+
+  pushgp
+  pushi 1
+  padd
+  pushg 6
+  pushgp
+  pushi 1
+  padd
+  pushg 9
+  loadn
+  storen 
+
+  pushgp
+  pushi 1
+  padd
+  pushg 9
+  pushg 8
+  storen 
+
+EndLabel3
+  pushg 6
+  pushi 1
+  add
+  storeg 6
+
+  jump Label4
+EndLabel4:
+
+  pushi 0
+  storeg 6
+
+Label5:
+  pushg 6
+  pushg 0
+  inf
+  jz EndLabel5
+  pushgp
+  pushi 1
+  padd
+  pushg 6
+  loadn
+  writei
+
+  pushs "\n"
+  writes
+
+  pushg 6
+  pushi 1
+  add
+  storeg 6
+
+  jump Label5
+EndLabel5:
+
+stop
+\end{verbatim}
+
+\section{Impressão por ordem inversa e uma sequência}
+\subsection{Código Fonte}
+\begin{verbatim}
+int N = 5;
+int vec[5];
+int i;
+int temp;
+
+begin
+
+while(i< N){
+  READ vec[i];
+  i = i + 1;
+}
+i = N - 1;
+while( i >= 0 ){
+  WRITE vec[i];
+  i = i - 1;
+}
+
+end
+\end{verbatim}
+\subsection{Código Gerado}
+\begin{verbatim}
+declaracoes:
+  pushi 5
+  pushn 5
+  pushi 0
+  pushi 0
+
+start
+
+main:
+Label0:
+  pushg 6
+  pushg 0
+  inf
+  jz EndLabel0
+  pushgp
+  pushi 1
+  padd
+  pushg 6
+  read
+  atoi
+  storen 
+
+  pushg 6
+  pushi 1
+  add
+  storeg 6
+
+  jump Label0
+EndLabel0:
+
+  pushg 0
+  pushi 1
+  sub
+  storeg 6
+
+Label1:
+  pushg 6
+  pushi 0
+  supeq
+  jz EndLabel1
+  pushgp
+  pushg 1
+  padd
+  pushg 6
+  padd
+  load 0
+  writei
+
+  pushg 6
+  pushi 1
+  sub
+  storeg 6
+
+  jump Label1
+EndLabel1:
+
+stop
+\end{verbatim}
+
+\chapter{Conclusão}
+Neste trabalho, o grupo foi capaz de implementar a maioria dos objetivos propostos. No entanto, devido à falta de tempo, não foi possível aprimorar
+este trabalho e adicionar funcoionalidades que o grupo consideraria úteis tais como a declaração de funções e um tratamento mais cuidadoso dos erros de síntaxe, produzindo mensagens de erro com mais informção, de forma a facilitar o trabalho do programador. 
+Apesar disso, esta experiência foi extremamente valiosa uma vez que atrvés dela, os membros do grupo adquiriram capacidades fundamentais para o desenho e implementação de compiladores.
 \end{document}
