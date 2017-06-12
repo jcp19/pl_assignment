@@ -18,4 +18,8 @@ while(input > 0){
 	READ input;
 }
 
+WRITE "Total: ";
+WRITE numI;
+WRITE "\n";
+
 end

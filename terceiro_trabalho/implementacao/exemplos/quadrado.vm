@@ -4,7 +4,8 @@ declaracoes:
 	pushi 0
 	pushi 0
 
-	start
+start
+
 main:
 	pushs "Insira 4 numeros:\n"
 	writes
