@@ -1,0 +1,24 @@
+declaracoes:
+	pushi 2
+
+	start
+main:
+	pushg 0
+	pushi 0
+	equal
+	not
+	jz Label0
+	pushg 0
+	pushi 1
+	add
+	storeg 0
+
+	jump EndLabel0
+	Label0:
+	pushg 0
+	pushi 1
+	sub
+	storeg 0
+
+EndLabel0
+stop

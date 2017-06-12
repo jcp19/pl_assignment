@@ -1,0 +1,8 @@
+declaracoes:
+
+	start
+main:
+	pushs "ola"
+	writes
+
+stop

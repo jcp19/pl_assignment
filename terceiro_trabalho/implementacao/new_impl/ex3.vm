@@ -1,0 +1,24 @@
+declaracoes:
+	pushi 0
+	pushi 3
+	pushn 10
+	pushn 20
+	pushi 5
+	pushi 0
+
+start
+main:
+	pushi 4
+	storeg 33
+
+	pushg 33
+	pushi 6
+	add
+	storeg 32
+
+	pushg 33
+	pushg 32
+	add
+	storeg 33
+
+stop

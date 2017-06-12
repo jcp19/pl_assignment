@@ -1,0 +1,29 @@
+declaracoes:
+	pushi 5
+	pushi 3
+
+	start
+main:
+	pushg 0
+	pushi 5
+	equal
+	jz Label0
+	pushg 0
+	pushi 1
+	add
+	storeg 0
+
+Label0:
+
+	pushg 1
+	pushi 20
+	equal
+	jz Label1
+	pushg 1
+	pushi 1
+	add
+	storeg 1
+
+Label1:
+
+stop

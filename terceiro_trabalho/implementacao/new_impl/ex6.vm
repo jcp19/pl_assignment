@@ -1,0 +1,29 @@
+declaracoes:
+	pushi 0
+	pushi 0
+
+	start
+main:
+	pushs "insira um numero inteiro:\n"
+	writes
+
+	read
+	atoi
+	storeg 0
+
+	pushs "insira um numero inteiro:\n"
+	writes
+
+	read
+	atoi
+	storeg 1
+
+	pushs "O resultado da soma é:"
+	writes
+
+	pushg 0
+	pushg 1
+	add
+	writei
+
+stop

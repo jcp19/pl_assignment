@@ -1,0 +1,7 @@
+int x = 1;
+int y = 2;
+
+begin
+READ x;
+WRITE x * y;
+end

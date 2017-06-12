@@ -1,0 +1,28 @@
+declaracoes:
+	pushi 0
+
+	start
+main:
+Label0:
+	pushg 0
+	pushi 4
+	inf
+	jz EndLabel0
+	pushs "O valor de x é:"
+	writes
+
+	pushg 0
+	writei
+
+	pushs "\n"
+	writes
+
+	pushg 0
+	pushi 1
+	add
+	storeg 0
+
+	jump Label0
+EndLabel0:
+
+stop

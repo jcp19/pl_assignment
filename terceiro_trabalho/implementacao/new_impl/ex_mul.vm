@@ -1,0 +1,16 @@
+declaracoes:
+	pushi 1
+	pushi 2
+
+	start
+main:
+	read
+	atoi
+	storeg 0
+
+	pushg 0
+	pushg 1
+	mul
+	writei
+
+stop

@@ -1,0 +1,27 @@
+declaracoes:
+	pushi 0
+	pushn 10
+
+	start
+main:
+Label0:
+	pushg 0
+	pushi 10
+	inf
+	jz EndLabel0
+	pushgp
+	pushi 1
+	padd
+	pushg 0
+	pushg 0
+	storen 
+
+	pushg 0
+	pushi 1
+	add
+	storeg 0
+
+	jump Label0
+EndLabel0:
+
+stop
