@@ -256,11 +256,14 @@ Value : '(' Value ')' { $$ = $2; }
         
       } 
       | ident'['Value']''['Value']' {
-           char * cmd = "\tpushg %d\n" // get_offset_var($1)
+           char * cmd = "\tpushgp\n"
+                        "\tpushg %d\n" // get_offset_var($1)
+                        "\tpadd\n"
                         "%s"  // $3
                         "\tpushi %d\n" // numero de colunas
                         "\tmul\n"
                         "%s" // $6
+                        "\tadd\n"
                         "\tpadd\n" // por esta altura tenho o offset para adicionar ao endereco
                         "\tload 0\n";
            asprintf(&$$, cmd, get_offset_var($1), $3, numero_colunas($3),$6);
