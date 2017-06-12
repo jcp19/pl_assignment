@@ -1,0 +1,28 @@
+int N;
+int menor;
+int i = 0;
+int temp;
+
+begin
+
+WRITE "Insira um numero:\n";
+READ N;
+
+WRITE "Insira ";
+WRITE N;
+WRITE " numeros:\n";
+
+while(i < N){
+	READ temp;
+	ifel(i==0){
+		menor = temp;
+	}
+	{
+		if(temp < menor){menor=temp;}
+	}
+	i = i + 1;
+}
+WRITE "Menor: ";
+WRITE menor;
+WRITE "\n";
+end

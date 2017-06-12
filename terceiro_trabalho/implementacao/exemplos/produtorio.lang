@@ -1,0 +1,17 @@
+int input;
+int N = 3;
+int p = 1;
+
+begin
+
+while(N > 0){
+	READ input;
+	N = N - 1;
+	p = p * input;
+}
+
+WRITE "Total: ";
+WRITE p;
+WRITE "\n";
+
+end

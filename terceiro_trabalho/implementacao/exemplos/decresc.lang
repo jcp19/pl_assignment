@@ -1,0 +1,36 @@
+int N = 5;
+int vec[5];
+int i;
+int j;
+int temp;
+
+begin
+
+while(i < N){
+	READ vec[i];
+	i = i + 1;
+}
+WRITE "FUCK\n";
+
+i = 1;
+while(i < N){
+	j = i - 1;
+	while(j >= 0){
+		if(vec[i] > vec[j]){
+			temp = vec[i];
+			vec[i] = vec[j];
+			vec[j] = temp;
+
+			j = j - 1;
+		}
+	}
+	i = i + 1;
+}
+
+i = 0;
+while(i < N){
+	WRITE vec[i];
+	WRITE "\n";
+}
+
+end

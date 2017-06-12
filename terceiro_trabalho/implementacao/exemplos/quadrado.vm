@@ -1,0 +1,61 @@
+declaracoes:
+	pushi 0
+	pushi 0
+	pushi 0
+	pushi 0
+
+	start
+main:
+	pushs "Insira 4 numeros:\n"
+	writes
+
+	read
+	atoi
+	storeg 0
+
+	read
+	atoi
+	storeg 1
+
+	read
+	atoi
+	storeg 2
+
+	read
+	atoi
+	storeg 3
+
+	pushg 0
+	pushg 1
+	equal
+	jz Label2
+	pushg 2
+	pushg 3
+	equal
+	jz Label1
+	pushg 0
+	pushg 2
+	equal
+	jz Label0
+	pushs "Quadrado\n"
+	writes
+
+	jump EndLabel0
+	Label0:
+	pushs "Nao Quadrado"
+	writes
+
+EndLabel0
+	jump EndLabel1
+	Label1:
+	pushs "Nao quadrado\n"
+	writes
+
+EndLabel1
+	jump EndLabel2
+	Label2:
+	pushs "Nao quadrado\n"
+	writes
+
+EndLabel2
+stop

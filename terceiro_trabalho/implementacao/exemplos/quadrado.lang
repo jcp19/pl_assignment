@@ -1,0 +1,24 @@
+int x;
+int y;
+int z;
+int k;
+
+begin
+WRITE "Insira 4 numeros:\n";
+READ x;
+READ y;
+READ z;
+READ k;
+
+ifel(x==y) 
+{ 
+	ifel(z==k)
+	{
+		ifel(x==z)
+		{ WRITE "Quadrado\n"; }
+		{ WRITE "Nao Quadrado"; }
+	}
+	{WRITE "Nao quadrado\n";}
+} 
+{WRITE "Nao quadrado\n";}
+end

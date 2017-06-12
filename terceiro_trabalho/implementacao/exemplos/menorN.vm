@@ -1,0 +1,70 @@
+declaracoes:
+	pushi 0
+	pushi 0
+	pushi 0
+	pushi 0
+
+	start
+main:
+	pushs "Insira um numero:\n"
+	writes
+
+	read
+	atoi
+	storeg 0
+
+	pushs "Insira "
+	writes
+
+	pushg 0
+	writei
+
+	pushs " numeros:\n"
+	writes
+
+Label2:
+	pushg 2
+	pushg 0
+	inf
+	jz EndLabel2
+	read
+	atoi
+	storeg 3
+
+	pushg 2
+	pushi 0
+	equal
+	jz Label1
+	pushg 3
+	storeg 1
+
+	jump EndLabel1
+	Label1:
+	pushg 3
+	pushg 1
+	inf
+	jz Label0
+	pushg 3
+	storeg 1
+
+Label0:
+
+EndLabel1
+	pushg 2
+	pushi 1
+	add
+	storeg 2
+
+	jump Label2
+EndLabel2:
+
+	pushs "Menor: "
+	writes
+
+	pushg 1
+	writei
+
+	pushs "\n"
+	writes
+
+stop

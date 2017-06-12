@@ -1,0 +1,21 @@
+int numI = 0;
+int input;
+int temp;
+
+begin
+
+READ input;
+while(input > 0){
+	temp = input % 2;
+	
+	ifel( temp == 0 )
+	{}
+	{ 
+		numI = numI + 1; 
+		WRITE input; 
+	}
+	
+	READ input;
+}
+
+end

@@ -1,0 +1,134 @@
+declaracoes:
+	pushi 5
+	pushn 5
+	pushi 0
+	pushi 0
+	pushi 0
+
+start
+
+main:
+Label0:
+	pushg 6
+	pushg 0
+	inf
+	jz EndLabel0
+	pushgp
+	pushi 1
+	padd
+	pushg 6
+	read
+	atoi
+	storen 
+
+	pushg 6
+	pushi 1
+	add
+	storeg 6
+
+	jump Label0
+EndLabel0:
+
+	pushs "FUCK\n"
+	writes
+
+	pushi 1
+	storeg 6
+
+Label3:
+	pushg 6
+	pushg 0
+	inf
+	jz EndLabel3
+	pushg 6
+	pushi 1
+	sub
+	storeg 7
+
+Label2:
+	pushg 7
+	pushi 0
+	supeq
+	jz EndLabel2
+	pushgp
+	pushg 1
+	padd
+	pushg 6
+	padd
+	load 0
+	pushgp
+	pushg 1
+	padd
+	pushg 7
+	padd
+	load 0
+	sup
+	jz Label1
+	pushgp
+	pushg 1
+	padd
+	pushg 6
+	padd
+	load 0
+	storeg 8
+
+	pushgp
+	pushi 1
+	padd
+	pushg 6
+	pushgp
+	pushg 1
+	padd
+	pushg 7
+	padd
+	load 0
+	storen 
+
+	pushgp
+	pushi 1
+	padd
+	pushg 7
+	pushg 8
+	storen 
+
+	pushg 7
+	pushi 1
+	sub
+	storeg 7
+
+Label1:
+
+	jump Label2
+EndLabel2:
+
+	pushg 6
+	pushi 1
+	add
+	storeg 6
+
+	jump Label3
+EndLabel3:
+
+	pushi 0
+	storeg 6
+
+Label4:
+	pushg 6
+	pushg 0
+	inf
+	jz EndLabel4
+	pushgp
+	pushg 1
+	padd
+	pushg 6
+	padd
+	load 0
+	writei
+
+	pushs "\n"
+	writes
+
+	jump Label4
+EndLabel4:
+
+stop

@@ -1,0 +1,57 @@
+declaracoes:
+	pushi 5
+	pushn 5
+	pushi 0
+	pushi 0
+
+start
+
+main:
+Label0:
+	pushg 6
+	pushg 0
+	inf
+	jz EndLabel0
+	pushgp
+	pushi 1
+	padd
+	pushg 6
+	read
+	atoi
+	storen 
+
+	pushg 6
+	pushi 1
+	add
+	storeg 6
+
+	jump Label0
+EndLabel0:
+
+	pushg 0
+	pushi 1
+	sub
+	storeg 6
+
+Label1:
+	pushg 6
+	pushi 0
+	supeq
+	jz EndLabel1
+	pushgp
+	pushg 1
+	padd
+	pushg 6
+	padd
+	load 0
+	writei
+
+	pushg 6
+	pushi 1
+	sub
+	storeg 6
+
+	jump Label1
+EndLabel1:
+
+stop

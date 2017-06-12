@@ -1,0 +1,44 @@
+declaracoes:
+	pushi 0
+	pushi 0
+	pushi 0
+
+	start
+main:
+	read
+	atoi
+	storeg 1
+
+Label1:
+	pushg 1
+	pushi 0
+	sup
+	jz EndLabel1
+	pushg 1
+	pushi 2
+	mod
+	storeg 2
+
+	pushg 2
+	pushi 0
+	equal
+	jz Label0
+	jump EndLabel0
+	Label0:
+	pushg 0
+	pushi 1
+	add
+	storeg 0
+
+	pushg 1
+	writei
+
+EndLabel0
+	read
+	atoi
+	storeg 1
+
+	jump Label1
+EndLabel1:
+
+stop
