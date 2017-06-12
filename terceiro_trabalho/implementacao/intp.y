@@ -257,15 +257,14 @@ Value : '(' Value ')' { $$ = $2; }
       } 
       | ident'['Value']''['Value']' {
            char * cmd = "\tpushgp\n"
-                        "\tpushg %d\n" // get_offset_var($1)
+                        "\tpush1 %d\n" // get_offset_var($1)
                         "\tpadd\n"
                         "%s"  // $3
                         "\tpushi %d\n" // numero de colunas
                         "\tmul\n"
                         "%s" // $6
                         "\tadd\n"
-                        "\tpadd\n" // por esta altura tenho o offset para adicionar ao endereco
-                        "\tload 0\n";
+                        "\tloadn\n";
            asprintf(&$$, cmd, get_offset_var($1), $3, numero_colunas($3),$6);
          }
       | '(''!' Value')' { asprintf(&$$, "%s\tnot\n",$3);}
