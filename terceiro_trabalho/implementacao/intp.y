@@ -4,10 +4,8 @@
 #include <glib.h>
 #include <string.h>
 
-int yyerror (char *s);
 
 typedef struct {
-    int valor_inicial;
     int offset;
     int numero_linhas;
     int numero_colunas;
@@ -20,19 +18,25 @@ typedef struct {
 
 typedef entrada_tabela* Entrada_tabela;
 
-// assume-se que os arrays nao podem ser inicializados, os seus valores devem ser modificados manualmente;
-Entrada_tabela new_Entrada_tabela(int valor_inicial, int offset, int numero_linhas, int numero_colunas) {
+int yyerror (char *s);
+Entrada_tabela new_Entrada_tabela(int, int,int);
+void registar_var(char *);
+int numero_colunas(char *);
+void registar_array(char * nome_var, int dim);
+void registar_matriz(char * nome_var, int linhas, int colunas);
+int get_offset_var(char * nome);
+
+GHashTable * tabela_simbolos;
+int ultimo_offset = 0;
+int label = 0;
+
+Entrada_tabela new_Entrada_tabela(int offset, int numero_linhas, int numero_colunas) {
     Entrada_tabela e = malloc(sizeof(entrada_tabela));
-    e->valor_inicial = valor_inicial;
     e->offset = offset;
     e->numero_linhas = numero_linhas;
     e->numero_colunas = numero_colunas;
 }
 
-GHashTable * tabela_simbolos;
-int ultimo_offset = 0;
-
-int label = 0;
 
 void registar_var(char * nome_var) {
      registar_matriz(nome_var, 1, 1);
@@ -54,7 +58,7 @@ void registar_array(char * nome_var, int dim) {
 }
 
 void registar_matriz(char * nome_var, int linhas, int colunas){
-    Entrada_tabela e = new_Entrada_tabela(0, ultimo_offset, linhas, colunas);
+    Entrada_tabela e = new_Entrada_tabela(ultimo_offset, linhas, colunas);
     ultimo_offset += linhas * colunas;
     gboolean b = g_hash_table_insert(tabela_simbolos, nome_var, e); 
     if(b == FALSE){
@@ -100,6 +104,8 @@ int get_offset_var(char * nome){
 %type <identificador> Decl_block 
 %type <a_d> Lhs
 %type <identificador> Rhs
+%type <identificador> Fun_prods
+%type <identificador> Fun_prod
 %type <identificador> Value
 %type <identificador> LInstr
 %type <identificador> Instr
@@ -108,18 +114,15 @@ int get_offset_var(char * nome){
 %type <identificador> str_literal
 
 %%
-
 Programa : Decl_block Fun_prods begin Main_block end {
-                //printf("declaracoes:\n%s\nstart\n%s\nmain:\n%sstop\n", $1, $2, $4);
-                // completar
-                printf("declaracoes:\n%s\n\tstart\nmain:\n%sstop\n", $1, $4);
+                printf("declaracoes:\n%s\nstart\n%s\nmain:\n%sstop\n", $1, $2, $4);
             }
          ;
 
 Decl_block :  { $$ = ""; } 
            | Decl_block TYPE ident ';' { 
                                          registar_var($3);  
-                                         asprintf(&$$, "%s\t%s\n", ($1 == NULL)?"" : $1, "pushi 0");
+                                         asprintf(&$$, "%s\t%s\n", $1 , "pushi 0");
                                        }
            | Decl_block TYPE ident '[' num ']' ';' { 
                        registar_array($3, $5);
@@ -127,22 +130,22 @@ Decl_block :  { $$ = ""; }
                      }
            | Decl_block TYPE ident '['num']' '['num']' ';' {
                        registar_matriz($3, $5, $8);
-                       asprintf(&$$, "%s\t%s%d\n", ($1 == NULL)?"" : $1, "pushn ", $5 * $8);
+                       asprintf(&$$, "%s\t%s%d\n", $1, "pushn ", $5 * $8);
                      }
-  /* ver conflitos shift reduce e justificar que o comportamento padrao do yacc (shift) resolve os porblemas */
            | Decl_block TYPE ident '=' num';' {
                       registar_var($3);  
-                      asprintf(&$$, "%s\t%s%d\n", ($1 == NULL)?"" : $1, "pushi ", $5);
+                      asprintf(&$$, "%s\t%s%d\n", $1, "pushi ", $5);
                   }
            ;
 
-/* implementar se e só se tiver tempo, ver como definir contexto local */
-Fun_prods :
-          | Fun_prods Fun_prod
+Fun_prods : { $$ = ""; }
+          | Fun_prods Fun_prod { 
+              $$ = ""; // Nao implementado 
+          }
           ;
 
 /* se necessario, tirar Decl_block */
-Fun_prod : ident '(' ')' ':' TYPE '{' Decl_block LInstr '}'
+Fun_prod : ident '(' ')' ':' TYPE '{' Decl_block LInstr '}' {$$="";}
          ;
 
 LInstr : { $$ = ""; } 
@@ -154,7 +157,7 @@ LInstr : { $$ = ""; }
 Instr : while_token '(' Rhs ')' '{' LInstr '}' { 
       char * cmd = "Label%d:\n" // nome da label
                    "%s" // condicao
-                   "\tjz EndLabel%d\n" //nome da label (nao esquecer incrementar no fim
+                   "\tjz EndLabel%d\n" //nome da label 
                    "%s" //codigo
                    "\tjump Label%d\n" // nome da label
                    "EndLabel%d:\n"; //ultima label
@@ -163,7 +166,7 @@ Instr : while_token '(' Rhs ')' '{' LInstr '}' {
       }
       | if_token '(' Rhs ')' '{' LInstr '}' { 
          char * cmd = "%s" // condicao
-                   "\tjz Label%d\n" //nome da label (nao esquecer incrementar no fim
+                   "\tjz Label%d\n" //nome da label 
                    "%s" //codigo
                    "Label%d:\n"; //ultima label
          asprintf(&$$, cmd, $3, label, $6, label);
@@ -171,7 +174,7 @@ Instr : while_token '(' Rhs ')' '{' LInstr '}' {
       }
       | ifel_token '(' Rhs ')' '{' LInstr '}' '{' LInstr '}' { 
           char * cmd = "%s" // condicao
-                   "\tjz Label%d\n" //nome da label (nao esquecer incrementar no fim
+                   "\tjz Label%d\n" //nome da label 
                    "%s" //codigo
                    "\tjump EndLabel%d\n"
                    "\tLabel%d:\n" //ultima label
@@ -198,9 +201,9 @@ Lhs : ident {
     }
     | ident'['Value']' { 
          char * antes = "\tpushgp\n"
-                        "\tpushi %d\n"  // endereco ident
+                        "\tpushi %d\n" 
                         "\tpadd\n"
-                        "%s"; // value
+                        "%s";
          char * depois = "\tstoren \n";
          asprintf(&$$.antes, antes, get_offset_var($1), $3);
          asprintf(&$$.depois, depois);
