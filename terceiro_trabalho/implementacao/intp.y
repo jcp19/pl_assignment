@@ -247,11 +247,10 @@ Value : '(' Value ')' { $$ = $2; }
       | ident { asprintf(&$$, "\tpushg %d\n", get_offset_var($1));}
       | ident'['Value']' {
            char * cmd = "\tpushgp\n"
-                        "\tpushg %d\n" // endereco
+                        "\tpushi %d\n" // endereco
                         "\tpadd\n"
                         "%s" // value
-                        "\tpadd\n"
-                        "\tload 0\n";
+                        "\tloadn\n";
            asprintf(&$$, cmd, get_offset_var($1), $3);
                     //asprintf(&$$, "\tpushg %d\n%s\tpadd\n\tload\n", get_offset_var($1), $3);
         

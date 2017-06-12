@@ -4,6 +4,8 @@ declaracoes:
 	pushi 0
 	pushi 0
 	pushi 0
+	pushi 0
+	pushi 0
 
 start
 
@@ -29,47 +31,71 @@ Label0:
 	jump Label0
 EndLabel0:
 
-	pushs "FUCK\n"
+	pushs "a ordenar...\n"
 	writes
 
-	pushi 1
+	pushi 0
 	storeg 6
 
-Label3:
-	pushg 6
 	pushg 0
-	inf
-	jz EndLabel3
-	pushg 6
 	pushi 1
 	sub
+	storeg 10
+
+Label4:
+	pushg 6
+	pushg 10
+	inf
+	jz EndLabel4
+	pushg 6
+	storeg 9
+
+	pushg 6
+	pushi 1
+	add
 	storeg 7
 
 Label2:
 	pushg 7
-	pushi 0
-	supeq
+	pushg 0
+	inf
 	jz EndLabel2
 	pushgp
-	pushg 1
-	padd
-	pushg 6
-	padd
-	load 0
-	pushgp
-	pushg 1
+	pushi 1
 	padd
 	pushg 7
+	loadn
+	pushgp
+	pushi 1
 	padd
-	load 0
+	pushg 9
+	loadn
 	sup
 	jz Label1
+	pushg 7
+	storeg 9
+
+Label1:
+
+	pushg 7
+	pushi 1
+	add
+	storeg 7
+
+	jump Label2
+EndLabel2:
+
+	pushg 6
+	pushg 9
+	equal
+	jz Label3
+	jump EndLabel3
+	Label3:
 	pushgp
-	pushg 1
+	pushi 1
 	padd
 	pushg 6
-	padd
-	load 0
+	loadn
 	storeg 8
 
 	pushgp
@@ -77,58 +103,52 @@ Label2:
 	padd
 	pushg 6
 	pushgp
-	pushg 1
+	pushi 1
 	padd
-	pushg 7
-	padd
-	load 0
+	pushg 9
+	loadn
 	storen 
 
 	pushgp
 	pushi 1
 	padd
-	pushg 7
+	pushg 9
 	pushg 8
 	storen 
 
-	pushg 7
+EndLabel3
+	pushg 6
 	pushi 1
-	sub
-	storeg 7
+	add
+	storeg 6
 
-Label1:
+	jump Label4
+EndLabel4:
 
-	jump Label2
-EndLabel2:
+	pushi 0
+	storeg 6
+
+Label5:
+	pushg 6
+	pushg 0
+	inf
+	jz EndLabel5
+	pushgp
+	pushi 1
+	padd
+	pushg 6
+	loadn
+	writei
+
+	pushs "\n"
+	writes
 
 	pushg 6
 	pushi 1
 	add
 	storeg 6
 
-	jump Label3
-EndLabel3:
-
-	pushi 0
-	storeg 6
-
-Label4:
-	pushg 6
-	pushg 0
-	inf
-	jz EndLabel4
-	pushgp
-	pushg 1
-	padd
-	pushg 6
-	padd
-	load 0
-	writei
-
-	pushs "\n"
-	writes
-
-	jump Label4
-EndLabel4:
+	jump Label5
+EndLabel5:
 
 stop
