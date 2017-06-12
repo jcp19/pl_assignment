@@ -245,7 +245,17 @@ Expr: Expr '*' Value { asprintf(&$$, "%s%s\tmul\n", $1, $3); }
 Value : '(' Value ')' { $$ = $2; }
       | num { asprintf(&$$, "\tpushi %d\n", $1); }
       | ident { asprintf(&$$, "\tpushg %d\n", get_offset_var($1));}
-      | ident'['Value']' {asprintf(&$$, "\tpushg %d\n%s\tpadd\n\tload\n", get_offset_var($1), $3);} 
+      | ident'['Value']' {
+           char * cmd = "\tpushgp\n"
+                        "\tpushg %d\n" // endereco
+                        "\tpadd\n"
+                        "%s" // value
+                        "\tpadd\n"
+                        "\tload 0\n";
+           asprintf(&$$, cmd, get_offset_var($1), $3);
+                    //asprintf(&$$, "\tpushg %d\n%s\tpadd\n\tload\n", get_offset_var($1), $3);
+        
+      } 
       | ident'['Value']''['Value']' {
            char * cmd = "\tpushg %d\n" // get_offset_var($1)
                         "%s"  // $3
@@ -253,7 +263,7 @@ Value : '(' Value ')' { $$ = $2; }
                         "\tmul\n"
                         "%s" // $6
                         "\tpadd\n" // por esta altura tenho o offset para adicionar ao endereco
-                        "\tload\n";
+                        "\tload 0\n";
            asprintf(&$$, cmd, get_offset_var($1), $3, numero_colunas($3),$6);
          }
       | '(''!' Value')' { asprintf(&$$, "%s\tnot\n",$3);}
