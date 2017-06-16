@@ -1,0 +1,204 @@
+declaracoes:
+	pushi 0
+	pushi 0
+	pushi 0
+	pushi 0
+	pushn 9
+	pushn 9
+	pushn 9
+
+start
+
+main:
+	pushgp
+	pushi 4
+	padd
+	pushi 0
+	pushi 3
+	mul
+	pushi 0
+	add
+	pushi 1
+	storen 
+
+	pushgp
+	pushi 4
+	padd
+	pushi 1
+	pushi 3
+	mul
+	pushi 1
+	add
+	pushi 1
+	storen 
+
+	pushgp
+	pushi 4
+	padd
+	pushi 2
+	pushi 3
+	mul
+	pushi 2
+	add
+	pushi 1
+	storen 
+
+	pushgp
+	pushi 13
+	padd
+	pushi 0
+	pushi 3
+	mul
+	pushi 0
+	add
+	pushi 1
+	storen 
+
+	pushgp
+	pushi 13
+	padd
+	pushi 1
+	pushi 3
+	mul
+	pushi 1
+	add
+	pushi 2
+	storen 
+
+	pushgp
+	pushi 13
+	padd
+	pushi 2
+	pushi 3
+	mul
+	pushi 2
+	add
+	pushi 3
+	storen 
+
+Label2:
+	pushg 0
+	pushi 3
+	inf
+	jz EndLabel2
+	pushi 0
+	storeg 1
+
+Label1:
+	pushg 1
+	pushi 3
+	inf
+	jz EndLabel1
+	pushi 0
+	storeg 2
+
+Label0:
+	pushg 2
+	pushi 3
+	inf
+	jz EndLabel0
+	pushg 3
+	pushgp
+	pushi 4
+	padd
+	pushg 0
+	pushi 3
+	mul
+	pushg 2
+	add
+	loadn
+	pushgp
+	pushi 13
+	padd
+	pushg 2
+	pushi 3
+	mul
+	pushg 1
+	add
+	loadn
+	mul
+	add
+	storeg 3
+
+	pushg 2
+	pushi 1
+	add
+	storeg 2
+
+	jump Label0
+EndLabel0:
+
+	pushgp
+	pushi 22
+	padd
+	pushg 0
+	pushi 3
+	mul
+	pushg 1
+	add
+	pushg 3
+	storen 
+
+	pushi 0
+	storeg 3
+
+	pushg 1
+	pushi 1
+	add
+	storeg 1
+
+	jump Label1
+EndLabel1:
+
+	pushg 0
+	pushi 1
+	add
+	storeg 0
+
+	jump Label2
+EndLabel2:
+
+	pushi 0
+	storeg 0
+
+Label4:
+	pushg 0
+	pushi 3
+	inf
+	jz EndLabel4
+	pushi 0
+	storeg 1
+
+Label3:
+	pushg 1
+	pushi 3
+	inf
+	jz EndLabel3
+	pushgp
+	pushi 22
+	padd
+	pushg 0
+	pushi 3
+	mul
+	pushg 1
+	add
+	loadn
+	writei
+
+	pushg 1
+	pushi 1
+	add
+	storeg 1
+
+	jump Label3
+EndLabel3:
+
+	pushg 0
+	pushi 1
+	add
+	storeg 0
+
+	jump Label4
+EndLabel4:
+
+stop

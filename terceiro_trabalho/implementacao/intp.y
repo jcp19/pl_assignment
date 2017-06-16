@@ -257,7 +257,7 @@ Value : '(' Value ')' { $$ = $2; }
       } 
       | ident'['Value']''['Value']' {
            char * cmd = "\tpushgp\n"
-                        "\tpush1 %d\n" // get_offset_var($1)
+                        "\tpushi %d\n" // get_offset_var($1)
                         "\tpadd\n"
                         "%s"  // $3
                         "\tpushi %d\n" // numero de colunas
@@ -265,7 +265,7 @@ Value : '(' Value ')' { $$ = $2; }
                         "%s" // $6
                         "\tadd\n"
                         "\tloadn\n";
-           asprintf(&$$, cmd, get_offset_var($1), $3, numero_colunas($3),$6);
+           asprintf(&$$, cmd, get_offset_var($1), $3, numero_colunas($1),$6);
          }
       | '(''!' Value')' { asprintf(&$$, "%s\tnot\n",$3);}
       | '(''-' Value')' { asprintf(&$$, "%s\n\tpushi -1\n\tmul\n",$3);}
