@@ -106,7 +106,7 @@ IDENT         [a-zA-Z_][a-zA-Z0-9_]*
       BEGIN(codigo_c);
     } else {
       insereVar(yytext, STRING);
-      ADICIONA_CORPO("\t"NOME_VAR1" += sprintf("NOME_BUFF"+"NOME_VAR1", \"%s\", %s);\n", "%%s", yytext);
+      ADICIONA_CORPO("\t"NOME_VAR1" += sprintf("NOME_BUFF"+"NOME_VAR1", \"%s\", %s);\n", "%s", yytext);
     }
 }
 
@@ -126,7 +126,7 @@ IDENT         [a-zA-Z_][a-zA-Z0-9_]*
     insereVar(nome_lista, LISTA_STRINGS);
     
     ADICIONA_CORPO("\tfor("NOME_VAR2"=0; "NOME_VAR2"<%s; "NOME_VAR2"++)\n", var_comprimento);
-    ADICIONA_CORPO("\t\t"NOME_VAR1" += sprintf("NOME_BUFF"+"NOME_VAR1", \"%s\", %s(%s["NOME_VAR2"]));\n", "%%s", nome_funcao, nome_lista);
+    ADICIONA_CORPO("\t\t"NOME_VAR1" += sprintf("NOME_BUFF"+"NOME_VAR1", \"%s\", %s(%s["NOME_VAR2"]));\n", "%s", nome_funcao, nome_lista);
     free(nome_funcao);
     free(var_comprimento);
 }
@@ -134,7 +134,7 @@ IDENT         [a-zA-Z_][a-zA-Z0-9_]*
 <map_funcao_lida>.        {}
 
 <codigo_c>.*/%\]        {
-    ADICIONA_CORPO("\t"NOME_VAR1" += sprintf("NOME_BUFF"+"NOME_VAR1", \"%s\",%s);\n", "%%s", yytext);
+    ADICIONA_CORPO("\t"NOME_VAR1" += sprintf("NOME_BUFF"+"NOME_VAR1", \"%s\",%s);\n", "%s", yytext);
 }
 
 <decl_funcao>\}\}        { 
